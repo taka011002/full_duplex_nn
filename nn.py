@@ -6,12 +6,17 @@ from keras.layers import Dense, Input, SimpleRNN, Dropout
 from keras.optimizers import Adam
 from keras_radam import RAdam
 import matplotlib.pyplot as plt
+import os
+import datetime
 
 # グラフ
 plt.rcParams["font.family"] = "Times New Roman"
 plt.rcParams["font.size"] = 22
 plt.rcParams["xtick.direction"] = "in"
 plt.rcParams["ytick.direction"] = "in"
+dt_now = datetime.datetime.now()
+dirname = dt_now.strftime("%Y_%m_%d_%H_%M_%S")
+os.makedirs('figures/'+dirname, exist_ok=True)
 
 # パラメータ
 n = 2 * 10 ** 4  # サンプルのn数
@@ -106,7 +111,7 @@ for index, sigma in enumerate(sigmas):
     plt.grid(which='major', alpha=0.25)
     plt.xlim([0, nEpochs + 1])
     plt.xticks(range(1, nEpochs, 2))
-    # plt.savefig('figures/NNconv.pdf', bbox_inches='tight')
+    plt.savefig('figures/'+dirname+'/sigma_'+str(sigma)+'_NNconv.pdf')
     plt.show()
 
 
@@ -125,4 +130,7 @@ ax.legend()
 
 ax.plot(snrs_db, bers, color="blue")
 
+plt.savefig('figures/'+dirname+'/SNR_BER.pdf')
 plt.show()
+
+print("end")
