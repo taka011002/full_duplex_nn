@@ -21,8 +21,8 @@ os.makedirs('figures/'+dirname, exist_ok=True)
 # パラメータ
 n = 2 * 10 ** 4  # サンプルのn数
 
-gamma = 0.3
-phi = 3.0
+gamma = 0.3 # IQゲイン雑音
+phi = 3.0 # IQ位相雑音
 
 PA_IBO_dB = 5
 PA_rho = 2
@@ -30,11 +30,11 @@ PA_rho = 2
 LNA_IBO_dB = 5
 LNA_rho = 2
 
-SNR_MAX = 20
+SNR_MAX = 12
 SNR_MIN = 0
-sur_num = 20
+sur_num = 15
 
-nHidden = 17
+nHidden = 4
 nEpochs = 20
 learningRate = 0.004
 trainingRatio = 0.9  # 全体のデータ数に対するトレーニングデータの割合
@@ -128,7 +128,9 @@ ax.set_ylim(y_max, y_min)
 ax.grid(linestyle='--')
 ax.legend()
 
-ax.plot(snrs_db, bers, color="blue")
+eb_n0_db, y = m.qpsk_ber_theoretical(SNR_MIN, SNR_MAX)
+ax.plot(eb_n0_db, y, color="black", linestyle="--")
+ax.scatter(snrs_db, bers, color="blue")
 
 plt.savefig('figures/'+dirname+'/SNR_BER.pdf')
 plt.show()

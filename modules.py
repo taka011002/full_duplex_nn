@@ -1,4 +1,5 @@
 import numpy as np
+from scipy import special as sp
 
 
 def modulate_qpsk(data: np.ndarray) -> np.ndarray:
@@ -130,3 +131,25 @@ def sigmas(snrs: np.ndarray) -> np.ndarray:
     inv_two_sigma_squares = to_exact_number(snrs)
     sigma_squares = np.reciprocal(inv_two_sigma_squares)
     return np.sqrt(sigma_squares)
+
+def q_func(x):
+    """
+    Q関数を求める。
+
+    :param x:
+    :return:
+    """
+
+    return 0.5 * sp.erfc(np.sqrt(x))
+
+
+def qpsk_ber_theoretical(min, max):
+    """
+    PBSKのBERの理論値を導出する、
+
+    :return:
+    """
+    eb_n0_db = np.linspace(min, max, 100)
+    eb_n0 = to_exact_number(eb_n0_db)
+    y = q_func(eb_n0)
+    return eb_n0_db, y
