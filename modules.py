@@ -15,6 +15,22 @@ def modulate_qpsk(data: np.ndarray) -> np.ndarray:
     return i + 1j * q  # 平均電力が1になるようにルート2をかける
 
 
+def demodulate_qpsk(signal: np.ndarray) -> np.ndarray:
+    """
+    QPSK復調を行う．
+    :param signal:
+    :return:
+    """
+    odd_bit = np.where(signal.real > 0, 1, 0)
+    even_bit = np.where(signal.imag > 0, 1, 0)
+
+    data = np.zeros(2 * signal.size, dtype=int)
+    data[0::2] = odd_bit
+    data[1::2] = even_bit
+
+    return data
+
+
 def iq_imbalance(x: np.ndarray, gamma: float = 0.0, phi: float = 0.0, selective: bool = False) -> np.ndarray:
     """
     IQIを行う．現状は周波数非選択性のみ
@@ -74,8 +90,12 @@ def channel(x: np.ndarray, length: int = 0) -> np.ndarray:
     """
     variance = 1 / np.sqrt(2 * (length + 1))
     scale = np.sqrt(variance)
-    # TODO 周波数選択性の場合は複hをベクトルで生成する
-    h = np.random.normal(loc=0, scale=scale, size=x.shape) + 1j * np.random.normal(loc=0, scale=scale, size=x.shape)
+    # size = x.size
+    size = 1  # 通信路は一旦全て同じにする
+
+    # TODO 周波数選択性の場合は複数hをベクトルで生成する
+    h = np.random.normal(loc=0, scale=scale, size=size) + 1j * np.random.normal(loc=0, scale=scale, size=size)
+    print('h:{0.real}+{0.imag}i'.format(h))
     return x * h
 
 
@@ -87,4 +107,26 @@ def awgn(size: int, sigma: float) -> np.ndarray:
     :param sigma:
     :return:
     """
-    return np.random.normal(loc=0, scale=sigma, size=size)
+    return np.random.normal(loc=0, scale=sigma, size=size) + 1j * np.random.normal(loc=0, scale=sigma, size=size)
+
+
+def to_exact_number(db):
+    """
+    デシベルから真値へ変化する。
+
+    :param db: int
+    :return: int
+    """
+    return 10 ** (db / 10)
+
+
+def sigmas(snrs: np.ndarray) -> np.ndarray:
+    """
+    SNR(db)を元sigmaを求める。
+
+    :param snrs: ndarray
+    :return: ndarray
+    """
+    inv_two_sigma_squares = to_exact_number(snrs)
+    sigma_squares = np.reciprocal(inv_two_sigma_squares)
+    return np.sqrt(sigma_squares)

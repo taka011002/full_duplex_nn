@@ -4,10 +4,6 @@ import numpy as np
 
 class SystemModel:
     def __init__(self, n, sigma, gamma=0.0, phi=0.0, PA_IBO_dB=5, PA_rho=2, LNA_IBO_dB=5, LNA_rho=2):
-        # パラメータ
-        self.gamma = gamma
-        self.phi = phi
-
         # 送信信号
         self.d = np.random.choice([0, 1], n)
         self.x = m.modulate_qpsk(self.d)
@@ -17,7 +13,7 @@ class SystemModel:
         self.s = m.modulate_qpsk(self.d_s)
 
         # 送信側非線形
-        x_iq = m.iq_imbalance(self.x, self.gamma, self.phi)
+        x_iq = m.iq_imbalance(self.x, gamma, phi)
         x_pa = m.sspa_rapp_ibo(x_iq, PA_IBO_dB, PA_rho)
 
         # 通信路
