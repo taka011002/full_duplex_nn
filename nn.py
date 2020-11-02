@@ -15,7 +15,7 @@ plt.rcParams["font.size"] = 22
 plt.rcParams["xtick.direction"] = "in"
 plt.rcParams["ytick.direction"] = "in"
 dt_now = datetime.datetime.now()
-dirname = dt_now.strftime("%Y_%m_%d_%H_%M_%S")
+dirname = dt_now.strftime("%Y/%m/%d/%H_%M_%S")
 os.makedirs('figures/'+dirname, exist_ok=True)
 
 # パラメータ
@@ -30,11 +30,11 @@ PA_rho = 2
 LNA_IBO_dB = 5
 LNA_rho = 2
 
-SNR_MAX = 20
+SNR_MAX = 12
 SNR_MIN = 0
-sur_num = 20
+sur_num = 12
 
-nHidden = 17
+nHidden = 5
 nEpochs = 20
 learningRate = 0.004
 trainingRatio = 0.9  # 全体のデータ数に対するトレーニングデータの割合
@@ -128,7 +128,7 @@ ax.set_ylim(y_max, y_min)
 ax.grid(linestyle='--')
 ax.legend()
 
-ax.plot(snrs_db, bers, color="blue")
+ax.scatter(snrs_db, bers, color="blue")
 
 plt.savefig('figures/'+dirname+'/SNR_BER.pdf')
 plt.show()
