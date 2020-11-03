@@ -1,4 +1,3 @@
-from src import modules as m
 from src.system_model import SystemModel
 import matplotlib.pyplot as plt
 
