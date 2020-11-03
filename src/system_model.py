@@ -1,4 +1,4 @@
-import modules as m
+from src import modules as m
 import numpy as np
 
 
@@ -17,7 +17,6 @@ class SystemModel:
         x_pa = m.sspa_rapp_ibo(x_iq, PA_IBO_dB, PA_rho)
 
         # 通信路
-
         # 通信路がランダムの場合
         if h_si is None:
             h_si = m.channel(size=x_pa.size)
