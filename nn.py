@@ -1,9 +1,9 @@
 import modules as m
 from system_model import SystemModel
 import numpy as np
-from keras.models import Model, Sequential
-from keras.layers import Dense, Input, SimpleRNN, Dropout
-from keras.optimizers import Adam
+from tensorflow.keras.models import Model, Sequential
+from tensorflow.keras.layers import Dense, Input, SimpleRNN, Dropout
+from tensorflow.keras.optimizers import Adam
 from keras_radam import RAdam
 import matplotlib.pyplot as plt
 import os
@@ -13,7 +13,7 @@ import datetime
 dt_now = datetime.datetime.now()
 dirname = 'results/' + dt_now.strftime("%Y/%m/%d/%H_%M_%S")
 os.makedirs(dirname, exist_ok=True)
-result_txt = open(dirname+'/result.txt', mode='w')
+result_txt = open(dirname + '/result.txt', mode='w')
 print('start', file=result_txt)
 print(dt_now.strftime("%Y/%m/%d %H:%M:%S"), file=result_txt)
 
@@ -35,13 +35,13 @@ params = {
     'LNA_rho': 2,
 
     'SNR_MIN': 0,
-    'SNR_MAX': 12,
-    'sur_num': 12,
+    'SNR_MAX': 0,
+    'sur_num': 1,
 
     'nHidden': 5,
-    'nEpochs': 20,
+    'nEpochs': 10,
     'learningRate': 0.004,
-    'trainingRatio': 0.9,  # 全体のデータ数に対するトレーニングデータの割合
+    'trainingRatio': 0.8,  # 全体のデータ数に対するトレーニングデータの割合
     'batchSize': 32
 }
 print('params', file=result_txt)
@@ -73,11 +73,10 @@ for index, sigma in enumerate(sigmas):
     )
 
     # NNを生成
-    input = Input(shape=(4,))
-    hidden1 = Dense(params['nHidden'], activation='relu')(input)
-    output1 = Dense(1, activation='linear')(hidden1)
-    output2 = Dense(1, activation='linear')(hidden1)
-    model = Model(inputs=input, outputs=[output1, output2])
+    model = Sequential()
+    model.add(Dense(params['nHidden'], activation='relu', input_shape=(4,)))
+    model.add(Dense(2, activation='linear'))
+
     # adam = Adam(lr=params['learningRate'])
     # model.compile(adam, loss="mse")
     model.compile(RAdam(), loss='mse')
@@ -108,14 +107,15 @@ for index, sigma in enumerate(sigmas):
     test[:, 3] = y_test.imag
 
     # 学習
-    history = model.fit(train, [s_train.real, s_train.imag], epochs=params['nEpochs'], batch_size=params['batchSize'], verbose=2,
+    history = model.fit(train, [s_train.real, s_train.imag], epochs=params['nEpochs'],
+                        batch_size=params['batchSize'], verbose=2,
                         validation_data=(test, [s_test.real, s_test.imag]))
 
     # 学習したモデルを評価
     pred = model.predict(test)
 
     # 推定した希望信号の取り出し
-    s_hat = np.squeeze(pred[0] + 1j * pred[1], axis=1)
+    s_hat = pred[0] + 1j * pred[1]
     # 推定信号をデータへ復調する
     d_s_hat = m.demodulate_qpsk(s_hat)
     # 元々の外部信号のデータ
