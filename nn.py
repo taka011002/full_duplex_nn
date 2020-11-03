@@ -16,7 +16,7 @@ plt.rcParams["xtick.direction"] = "in"
 plt.rcParams["ytick.direction"] = "in"
 dt_now = datetime.datetime.now()
 dirname = dt_now.strftime("%Y/%m/%d/%H_%M_%S")
-os.makedirs('figures/'+dirname, exist_ok=True)
+os.makedirs('results/'+dirname, exist_ok=True)
 
 # パラメータ
 n = 2 * 10 ** 4  # サンプルのn数
@@ -24,15 +24,15 @@ n = 2 * 10 ** 4  # サンプルのn数
 gamma = 0.3
 phi = 3.0
 
-PA_IBO_dB = 5
+PA_IBO_dB = 3
 PA_rho = 2
 
-LNA_IBO_dB = 5
+LNA_IBO_dB = 3
 LNA_rho = 2
 
-SNR_MAX = 12
+SNR_MAX = 0
 SNR_MIN = 0
-sur_num = 12
+sur_num = 1
 
 nHidden = 5
 nEpochs = 20
@@ -111,7 +111,7 @@ for index, sigma in enumerate(sigmas):
     plt.grid(which='major', alpha=0.25)
     plt.xlim([0, nEpochs + 1])
     plt.xticks(range(1, nEpochs, 2))
-    plt.savefig('figures/'+dirname+'/sigma_'+str(sigma)+'_NNconv.pdf')
+    plt.savefig('results/'+dirname+'/sigma_'+str(sigma)+'_NNconv.pdf')
     plt.show()
 
 
@@ -130,7 +130,7 @@ ax.legend()
 
 ax.scatter(snrs_db, bers, color="blue")
 
-plt.savefig('figures/'+dirname+'/SNR_BER.pdf')
+plt.savefig('results/'+dirname+'/SNR_BER.pdf')
 plt.show()
 
 print("end")
