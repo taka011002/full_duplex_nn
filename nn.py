@@ -34,9 +34,9 @@ params = {
     'LNA_IBO_dB': 3,
     'LNA_rho': 2,
 
-    'SNR_MAX': 0,
     'SNR_MIN': 0,
-    'sur_num': 1,
+    'SNR_MAX': 12,
+    'sur_num': 12,
 
     'nHidden': 5,
     'nEpochs': 20,
@@ -51,6 +51,11 @@ print(params, file=result_txt)
 snrs_db = np.linspace(params['SNR_MIN'], params['SNR_MAX'], params['sur_num'])
 sigmas = m.sigmas(snrs_db)  # SNR(dB)を元に雑音電力を導出
 
+h_si = m.channel()
+h_s = m.channel()
+print('h_si:{0.real}+{0.imag}i'.format(h_si), file=result_txt)
+print('h_s:{0.real}+{0.imag}i'.format(h_s), file=result_txt)
+
 bers = np.zeros(params['sur_num'])
 for index, sigma in enumerate(sigmas):
     system_model = SystemModel(
@@ -61,7 +66,9 @@ for index, sigma in enumerate(sigmas):
         params['PA_IBO_dB'],
         params['PA_rho'],
         params['LNA_IBO_dB'],
-        params['LNA_rho']
+        params['LNA_rho'],
+        h_si,
+        h_s
     )
 
     # NNを生成
@@ -127,7 +134,7 @@ for index, sigma in enumerate(sigmas):
     plt.grid(which='major', alpha=0.25)
     plt.xlim([0, params['nEpochs'] + 1])
     plt.xticks(range(1, params['nEpochs'], 2))
-    plt.savefig(dirname + '/sigma_' + str(sigma) + '_NNconv.pdf')
+    plt.savefig(dirname + '/sigma_' + str(snrs_db[index]) + '_NNconv.pdf')
     plt.show()
 
 # SNR-BERグラフ
@@ -140,6 +147,7 @@ ax.set_xlim(params['SNR_MIN'], params['SNR_MAX'])
 y_min = pow(10, 0)
 y_max = pow(10, -6)
 ax.set_ylim(y_max, y_min)
+ax.set_xlim(params['SNR_MIN'], params['SNR_MAX'])
 ax.grid(linestyle='--')
 ax.legend()
 
@@ -148,5 +156,5 @@ ax.scatter(snrs_db, bers, color="blue")
 plt.savefig(dirname + '/SNR_BER.pdf')
 plt.show()
 
-print("end",file=result_txt)
+print("end", file=result_txt)
 result_txt.close()

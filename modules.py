@@ -80,9 +80,9 @@ def sspa_rapp(input_signal: np.ndarray, saturation: float = 1, rho: float = 0.5)
     return amp_output
 
 
-def channel(x: np.ndarray, length: int = 0) -> np.ndarray:
+def channel(size: int=1, length: int = 0) -> np.ndarray:
     """
-    周波数非選択性通信路を通過した値を求める．
+    周波数非選択性通信路を生成する．
 
     :param x:
     :param length:
@@ -90,13 +90,11 @@ def channel(x: np.ndarray, length: int = 0) -> np.ndarray:
     """
     variance = 1 / np.sqrt(2 * (length + 1))
     scale = np.sqrt(variance)
-    # size = x.size
-    size = 1  # 通信路は一旦全て同じにする
+    # size = x.size # 通信路は一旦全て同じにする
 
     # TODO 周波数選択性の場合は複数hをベクトルで生成する
     h = np.random.normal(loc=0, scale=scale, size=size) + 1j * np.random.normal(loc=0, scale=scale, size=size)
-    print('h:{0.real}+{0.imag}i'.format(h))
-    return x * h
+    return h
 
 
 def awgn(size: int, sigma: float) -> np.ndarray:
