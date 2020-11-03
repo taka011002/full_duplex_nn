@@ -41,7 +41,7 @@ params = {
     'nHidden': 5,
     'nEpochs': 20,
     'learningRate': 0.004,
-    'trainingRatio': 0.9,  # 全体のデータ数に対するトレーニングデータの割合
+    # 'trainingRatio': 0.8,  # 全体のデータ数に対するトレーニングデータの割合
     'batchSize': 32
 }
 print('params', file=result_txt)
