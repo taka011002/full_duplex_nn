@@ -88,12 +88,13 @@ def channel(size: int=1, length: int = 0) -> np.ndarray:
     :param length:
     :return:
     """
-    variance = 1 / np.sqrt(2 * (length + 1))
-    scale = np.sqrt(variance)
+    variance = np.reciprocal(np.sqrt(2 * (length + 1)))
+    # scale = np.sqrt(variance)
     # size = x.size
 
     # TODO 周波数選択性の場合は複数hをベクトルで生成する
-    h = np.random.normal(loc=0, scale=scale, size=size) + 1j * np.random.normal(loc=0, scale=scale, size=size)
+    h = np.random.normal(loc=0, scale=1, size=size) + 1j * np.random.normal(loc=0, scale=1, size=size)
+    h = h * variance
     return h
 
 

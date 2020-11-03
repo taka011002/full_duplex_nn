@@ -13,19 +13,22 @@ class SystemModel:
         self.s = m.modulate_qpsk(self.d_s)
 
         # 送信側非線形
-        x_iq = m.iq_imbalance(self.x, gamma, phi)
-        x_pa = m.sspa_rapp_ibo(x_iq, PA_IBO_dB, PA_rho)
+        self.x_iq = m.iq_imbalance(self.x, gamma, phi)
+        self.x_pa = m.sspa_rapp_ibo(self.x_iq, PA_IBO_dB, PA_rho)
 
         # 通信路
         # 通信路がランダムの場合
         if h_si is None:
-            h_si = m.channel(size=x_pa.size)
+            h_si = m.channel(size=self.x_pa.size)
         if h_s is None:
             h_s = m.channel(size=self.s.size)
 
-        y_si = x_pa * h_si
-        y_s = self.s * h_s
-        r = y_si + y_s + m.awgn(y_si.size, sigma)
+        self.h_si = h_si
+        self.h_s = h_s
+
+        self.y_si = self.x_pa * h_si
+        self.y_s = self.s * h_s
+        r = self.y_si + self.y_s + m.awgn(self.y_si.size, sigma)
 
         # 受信側非線形
         self.y = m.sspa_rapp_ibo(r, LNA_IBO_dB, LNA_rho)
