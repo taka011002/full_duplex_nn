@@ -40,8 +40,8 @@ params = {
 
     'nHidden': 5,
     'nEpochs': 20,
-    'learningRate': 0.004,
-    # 'trainingRatio': 0.8,  # 全体のデータ数に対するトレーニングデータの割合
+    # 'learningRate': 0.004,
+    'trainingRatio': 0.8,  # 全体のデータ数に対するトレーニングデータの割合
     'batchSize': 32
 }
 print('params', file=result_txt)
@@ -127,6 +127,7 @@ for index, sigma in enumerate(sigmas):
     bers[index] = ber
 
     # Plot learning curve
+    plt.figure()
     plt.plot(np.arange(1, len(history.history['loss']) + 1), history.history['loss'], 'bo-')
     plt.plot(np.arange(1, len(history.history['loss']) + 1), history.history['val_loss'], 'ro-')
     plt.ylabel('less')
@@ -135,14 +136,13 @@ for index, sigma in enumerate(sigmas):
     plt.grid(which='major', alpha=0.25)
     plt.xlim([0, params['nEpochs'] + 1])
     plt.xticks(range(1, params['nEpochs'], 2))
-    plt.savefig(dirname + '/sigma_' + str(snrs_db[index]) + '_NNconv.pdf')
-    plt.show()
+    plt.savefig(dirname + '/sigma_' + str(snrs_db[index]) + '_NNconv.pdf', bbox_inches='tight')
 
 # SNR-BERグラフ
 fig = plt.figure(figsize=(8, 6))
 ax = fig.add_subplot(111)
-ax.set_xlabel(r"SNR (dB)")
-ax.set_ylabel(r"$BER$")
+ax.set_xlabel("SNR (dB)")
+ax.set_ylabel("BER")
 ax.set_yscale('log')
 ax.set_xlim(params['SNR_MIN'], params['SNR_MAX'])
 y_min = pow(10, 0)
@@ -150,12 +150,10 @@ y_max = pow(10, -6)
 ax.set_ylim(y_max, y_min)
 ax.set_xlim(params['SNR_MIN'], params['SNR_MAX'])
 ax.grid(linestyle='--')
-ax.legend()
 
 ax.scatter(snrs_db, bers, color="blue")
 
 plt.savefig(dirname + '/SNR_BER.pdf')
-plt.show()
 
 print("end", file=result_txt)
 result_txt.close()
