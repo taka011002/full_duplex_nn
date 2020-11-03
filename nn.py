@@ -51,10 +51,11 @@ print(params, file=result_txt)
 snrs_db = np.linspace(params['SNR_MIN'], params['SNR_MAX'], params['sur_num'])
 sigmas = m.sigmas(snrs_db)  # SNR(dB)を元に雑音電力を導出
 
-h_si = m.channel()
-h_s = m.channel()
-print('h_si:{0.real}+{0.imag}i'.format(h_si), file=result_txt)
-print('h_s:{0.real}+{0.imag}i'.format(h_s), file=result_txt)
+# h_si = m.channel()
+# h_s = m.channel()
+# print('h_si:{0.real}+{0.imag}i'.format(h_si), file=result_txt)
+# print('h_s:{0.real}+{0.imag}i'.format(h_s), file=result_txt)
+print('random channels', file=result_txt)
 
 bers = np.zeros(params['sur_num'])
 for index, sigma in enumerate(sigmas):
@@ -67,8 +68,8 @@ for index, sigma in enumerate(sigmas):
         params['PA_rho'],
         params['LNA_IBO_dB'],
         params['LNA_rho'],
-        h_si,
-        h_s
+        # h_si,
+        # h_s,
     )
 
     # NNを生成
