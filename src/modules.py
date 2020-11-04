@@ -80,7 +80,7 @@ def sspa_rapp(input_signal: np.ndarray, saturation: float = 1, rho: float = 0.5)
     return amp_output
 
 
-def channel(size: int=1, length: int = 0) -> np.ndarray:
+def channel(size: int = 1, length: int = 0) -> np.ndarray:
     """
     周波数非選択性通信路を生成する．
 
@@ -129,3 +129,10 @@ def sigmas(snrs: np.ndarray) -> np.ndarray:
     inv_two_sigma_squares = to_exact_number(snrs)
     sigma_squares = np.reciprocal(inv_two_sigma_squares)
     return np.sqrt(sigma_squares)
+
+
+def check_error(origin: np.ndarray, target: np.ndarray) -> float:
+    error = np.sum(origin != target)
+    ber = error / origin.size
+
+    return ber
