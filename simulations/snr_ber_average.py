@@ -56,13 +56,11 @@ if __name__ == '__main__':
     snrs_db = np.linspace(params['SNR_MIN'], params['SNR_MAX'], params['SNR_NUM'])
     sigmas = m.sigmas(snrs_db)  # SNR(dB)を元に雑音電力を導出
 
-    bers = np.zeros((params['SNR_NUM'], params['SNR_AVERAGE']))
+    errors = np.zeros((params['SNR_NUM'], params['SNR_AVERAGE']))
     losss = np.zeros((params['SNR_NUM'], params['SNR_AVERAGE'], params['nEpochs']))
     val_losss = np.zeros((params['SNR_NUM'], params['SNR_AVERAGE'], params['nEpochs']))
 
     for snr_index in range(params['SNR_AVERAGE']):
-        print("SNR_AVERAGE:"+str(snr_index))
-        print(int(start-time.time()), 'sec')
         # 通信路は毎回生成する
         h_si = m.channel()
         h_s = m.channel()
@@ -72,6 +70,7 @@ if __name__ == '__main__':
 
         for index, sigma in enumerate(sigmas):
             print("sigma:" + str(index))
+            print("SNR_AVERAGE:" + str(snr_index))
             print(int(start - time.time()), 'sec')
             system_model = SystemModel(
                 params['n'],
@@ -90,13 +89,16 @@ if __name__ == '__main__':
             model = NNModel(params['nHidden'])
             model.learn(system_model, params['trainingRatio'], params['nEpochs'], params['batchSize'])
 
-            bers[index][snr_index] = model.ber
+            errors[index][snr_index] = model.error
             losss[index][snr_index][:] = model.nn_history.history['loss']
             val_losss[index][snr_index][:] = model.nn_history.history['val_loss']
 
 
     # SNR-BERグラフ
-    bers_avg = np.mean(bers, axis=1)
+    errors_sum = np.sum(errors, axis=1)
+    n_ave = params['n'] * params['SNR_AVERAGE']
+    bers = errors_sum / n_ave
+
     fig = plt.figure(figsize=(8, 6))
     ax = fig.add_subplot(111)
     ax.set_xlabel("SNR (dB)")
@@ -109,7 +111,7 @@ if __name__ == '__main__':
     ax.set_xlim(params['SNR_MIN'], params['SNR_MAX'])
     ax.grid(linestyle='--')
 
-    ax.plot(snrs_db, bers_avg, color="black", marker='o', linestyle='--',)
+    ax.plot(snrs_db, bers, color="black", marker='o', linestyle='--',)
 
     plt.savefig(dirname + '/SNR_BER.pdf')
 

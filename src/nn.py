@@ -67,4 +67,5 @@ class NNModel():
         # 元々の外部信号のデータ
         self.d_s_test = system_model.d_s[2 * trainingSamples:]
 
+        self.error = np.sum(self.d_s_test != self.d_s_hat)
         self.ber = m.check_error(self.d_s_test, self.d_s_hat)
