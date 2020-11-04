@@ -106,7 +106,9 @@ def awgn(size: int, sigma: float) -> np.ndarray:
     :param sigma:
     :return:
     """
-    return np.random.normal(loc=0, scale=sigma, size=size) + 1j * np.random.normal(loc=0, scale=sigma, size=size)
+    v = np.random.normal(loc=0, scale=sigma, size=size) + 1j * np.random.normal(loc=0, scale=sigma, size=size)
+    v = v / np.sqrt(2)
+    return v
 
 
 def to_exact_number(db):

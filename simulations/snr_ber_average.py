@@ -5,8 +5,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 import datetime
+import time
 
 if __name__ == '__main__':
+    start = time.time()
+
     # シミュレーション結果の保存先を作成する
     dt_now = datetime.datetime.now()
     dirname = '../results/' + dt_now.strftime("%Y/%m/%d/%H_%M_%S")
@@ -20,6 +23,9 @@ if __name__ == '__main__':
     plt.rcParams["font.size"] = 22
     plt.rcParams["xtick.direction"] = "in"
     plt.rcParams["ytick.direction"] = "in"
+
+    # seed固定
+    np.random.seed(0)
 
     # パラメータ
     params = {
@@ -55,6 +61,8 @@ if __name__ == '__main__':
     val_losss = np.zeros((params['SNR_NUM'], params['SNR_AVERAGE'], params['nEpochs']))
 
     for snr_index in range(params['SNR_AVERAGE']):
+        print("SNR_AVERAGE:"+str(snr_index))
+        print(int(start-time.time()), 'sec')
         # 通信路は毎回生成する
         h_si = m.channel()
         h_s = m.channel()
@@ -63,6 +71,8 @@ if __name__ == '__main__':
         print('random channels', file=result_txt)
 
         for index, sigma in enumerate(sigmas):
+            print("sigma:" + str(index))
+            print(int(start - time.time()), 'sec')
             system_model = SystemModel(
                 params['n'],
                 sigma,
@@ -120,5 +130,6 @@ if __name__ == '__main__':
         plt.xticks(range(1, params['nEpochs'], 2))
         plt.savefig(dirname + '/snr_db_' + str(snrs_db) + '_NNconv.pdf', bbox_inches='tight')
 
+    print(int(start - time.time()), 'sec')
     print("end", file=result_txt)
     result_txt.close()
