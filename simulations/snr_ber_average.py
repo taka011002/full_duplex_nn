@@ -6,26 +6,37 @@ import matplotlib.pyplot as plt
 import os
 import datetime
 import time
+import pickle
+import logging
+
+
+class Result:
+    def __init__(self, params, errors, losss, val_losss):
+        self.params = params
+        self.errors = errors
+        self.losss = losss
+        self.val_losss = val_losss
+
 
 if __name__ == '__main__':
-    start = time.time()
-
     # シミュレーション結果の保存先を作成する
     dt_now = datetime.datetime.now()
-    dirname = '../results/' + dt_now.strftime("%Y/%m/%d/%H_%M_%S")
+    dirname = '../results/snr_ber_average/' + dt_now.strftime("%Y/%m/%d/%H_%M_%S")
     os.makedirs(dirname, exist_ok=True)
-    result_txt = open(dirname+'/result.txt', mode='w')
-    print('start', file=result_txt)
-    print(dt_now.strftime("%Y/%m/%d %H:%M:%S"), file=result_txt)
+
+    formatter = '%(levelname)s : %(asctime)s : %(message)s'
+    logging.basicConfig(filename=dirname + '/log.log', level=logging.INFO, format=formatter)
+    logging.info('start')
+    logging.info(dt_now.strftime("%Y/%m/%d %H:%M:%S"))
 
     # グラフ
     plt.rcParams["font.family"] = "Times New Roman"
-    plt.rcParams["font.size"] = 22
+    # plt.rcParams["font.size"] = 22
     plt.rcParams["xtick.direction"] = "in"
     plt.rcParams["ytick.direction"] = "in"
 
     # seed固定
-    # np.random.seed(0)
+    np.random.seed(0)
 
     # パラメータ
     params = {
@@ -41,7 +52,7 @@ if __name__ == '__main__':
         'SNR_MIN': 0,
         'SNR_MAX': 20,
         'SNR_NUM': 2,
-        'SNR_AVERAGE': 20,
+        'SNR_AVERAGE': 1,
 
         'nHidden': 5,
         'nEpochs': 40,
@@ -49,8 +60,8 @@ if __name__ == '__main__':
         'trainingRatio': 0.8,  # 全体のデータ数に対するトレーニングデータの割合
         'batchSize': 32,
     }
-    print('params', file=result_txt)
-    print(params, file=result_txt)
+    logging.info('params')
+    logging.info(params)
 
     # データを生成する
     snrs_db = np.linspace(params['SNR_MIN'], params['SNR_MAX'], params['SNR_NUM'])
@@ -60,18 +71,21 @@ if __name__ == '__main__':
     losss = np.zeros((params['SNR_NUM'], params['SNR_AVERAGE'], params['nEpochs']))
     val_losss = np.zeros((params['SNR_NUM'], params['SNR_AVERAGE'], params['nEpochs']))
 
+    # 実行時の時間を記録する
+    start = time.time()
+
     for snr_index in range(params['SNR_AVERAGE']):
         # 通信路は毎回生成する
         h_si = m.channel()
         h_s = m.channel()
-        print('h_si:{0.real}+{0.imag}i'.format(h_si), file=result_txt)
-        print('h_s:{0.real}+{0.imag}i'.format(h_s), file=result_txt)
-        print('random channels', file=result_txt)
+        logging.info('random channel')
+        logging.info('h_si:{0.real}+{0.imag}i'.format(h_si))
+        logging.info('h_s:{0.real}+{0.imag}i'.format(h_s))
 
         for index, sigma in enumerate(sigmas):
-            print("sigma:" + str(index))
-            print("SNR_AVERAGE:" + str(snr_index))
-            print(int(start - time.time()), 'sec')
+            logging.info("SNR_AVERAGE_index:" + str(snr_index))
+            logging.info("sigma_index:" + str(index))
+            logging.info("time: %d[sec]" % int(time.time() - start))
             system_model = SystemModel(
                 params['n'],
                 sigma,
@@ -93,6 +107,11 @@ if __name__ == '__main__':
             losss[index][snr_index][:] = model.nn_history.history['loss']
             val_losss[index][snr_index][:] = model.nn_history.history['val_loss']
 
+    logging.info("learn_end_time: %d[sec]" % int(time.time() - start))
+    # 結果をdumpしておく
+    result = Result(params, errors, losss, val_losss)
+    with open(dirname + '/snr_ber_average.pkl', 'wb') as f:
+        pickle.dump(result, f)
 
     # SNR-BERグラフ
     errors_sum = np.sum(errors, axis=1)
@@ -111,7 +130,7 @@ if __name__ == '__main__':
     ax.set_xlim(params['SNR_MIN'], params['SNR_MAX'])
     ax.grid(linestyle='--')
 
-    ax.plot(snrs_db, bers, color="black", marker='o', linestyle='--',)
+    ax.plot(snrs_db, bers, color="black", marker='o', linestyle='--', )
 
     plt.savefig(dirname + '/SNR_BER.pdf')
 
@@ -121,6 +140,7 @@ if __name__ == '__main__':
         loss_avg = np.mean(losss[index], axis=0).T
         val_loss_avg = np.mean(val_losss[index], axis=0).T
 
+        plt.xticks(np.arange(0, params['nEpochs'] + 1, 5))
         plt.plot(np.arange(1, len(loss_avg) + 1), loss_avg, 'bo-')
         plt.plot(np.arange(1, len(loss_avg) + 1), val_loss_avg, 'ro-')
         plt.ylabel('less')
@@ -132,6 +152,4 @@ if __name__ == '__main__':
         plt.xticks(range(1, params['nEpochs'], 2))
         plt.savefig(dirname + '/snr_db_' + str(snrs_db) + '_NNconv.pdf', bbox_inches='tight')
 
-    print(int(start - time.time()), 'sec')
-    print("end", file=result_txt)
-    result_txt.close()
+    logging.info("end")
