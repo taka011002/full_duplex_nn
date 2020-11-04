@@ -23,7 +23,7 @@ if __name__ == '__main__':
     plt.rcParams["xtick.direction"] = "in"
     plt.rcParams["ytick.direction"] = "in"
 
-    pkl = '../results/2020/11/04/23_15_48/snr_ber_average_ibo.pkl'
+    pkl = '../results/snr_ber_average_ibo/2020/11/05/00_34_04/snr_ber_average_ibo.pkl'
     with open(pkl, 'rb') as f:
         result = pickle.load(f)
 

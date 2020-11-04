@@ -47,9 +47,9 @@ if __name__ == '__main__':
         'IBO_dB': [7, 5, 3],
 
         'SNR_MIN': 0,
-        'SNR_MAX': 20,
-        'SNR_NUM': 2,
-        'SNR_AVERAGE': 2,
+        'SNR_MAX': 25,
+        'SNR_NUM': 6,
+        'SNR_AVERAGE': 100,
 
         'nHidden': 5,
         'nEpochs': 40,
