@@ -40,8 +40,8 @@ if __name__ == '__main__':
 
         'SNR_MIN': 0,
         'SNR_MAX': 20,
-        'SNR_NUM': 5,
-        'SNR_AVERAGE': 1,
+        'SNR_NUM': 2,
+        'SNR_AVERAGE': 20,
 
         'nHidden': 5,
         'nEpochs': 40,
@@ -109,7 +109,7 @@ if __name__ == '__main__':
     ax.set_xlim(params['SNR_MIN'], params['SNR_MAX'])
     ax.grid(linestyle='--')
 
-    ax.scatter(snrs_db, bers_avg, color="blue")
+    ax.plot(snrs_db, bers_avg, color="black", marker='o', linestyle='--',)
 
     plt.savefig(dirname + '/SNR_BER.pdf')
 
