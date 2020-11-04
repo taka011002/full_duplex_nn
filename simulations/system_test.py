@@ -6,10 +6,10 @@ if __name__ == '__main__':
         'n': 2 * 10 ** 4,  # サンプルのn数
         'gamma': 0.3,
         'phi': 3.0,
-        'PA_IBO_dB': 2,
+        'PA_IBO_dB': 7,
         'PA_rho': 2,
 
-        'LNA_IBO_dB': 2,
+        'LNA_IBO_dB': 7,
         'LNA_rho': 2,
     }
 
@@ -24,10 +24,13 @@ if __name__ == '__main__':
         params['LNA_rho'],
     )
 
+
     plots = 10
-    plt.scatter(system_model.x[::plots].real, system_model.x[::plots].imag, color="black", label="x")
-    plt.scatter(system_model.x_iq[::plots].real, system_model.x_iq[::plots].imag, color="blue", label="x_iq")
-    plt.scatter(system_model.x_pa[::plots].real, system_model.x_pa[::plots].imag, color="red", label="x_pa")
+    plt.figure()
+    plt.scatter(system_model.r[::plots].real, system_model.r[::plots].imag, color="black", label="x")
+    plt.scatter(system_model.y[::plots].real, system_model.y[::plots].imag, color="blue", label="x_iq")
+    # plt.scatter(system_model.x_pa[::plots].real, system_model.x_pa[::plots].imag, color="red", label="x_pa")
+    # plt.scatter(system_model.x_pa[::plots].real, system_model.x_pa[::plots].imag, color="red", label="x_pa")
     plt.legend()
     plt.show()
     print("end")

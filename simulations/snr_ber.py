@@ -26,18 +26,18 @@ if __name__ == '__main__':
         'n': 2 * 10 ** 4,  # サンプルのn数
         'gamma': 0.3,
         'phi': 3.0,
-        'PA_IBO_dB': 3,
+        'PA_IBO_dB': 7,
         'PA_rho': 2,
 
-        'LNA_IBO_dB': 3,
+        'LNA_IBO_dB': 7,
         'LNA_rho': 2,
 
         'SNR_MIN': 0,
-        'SNR_MAX': 12,
-        'sur_num': 12,
+        'SNR_MAX': 20,
+        'sur_num': 5,
 
         'nHidden': 5,
-        'nEpochs': 20,
+        'nEpochs': 40,
         # 'learningRate': 0.004,
         'trainingRatio': 0.8,  # 全体のデータ数に対するトレーニングデータの割合
         'batchSize': 32
@@ -49,10 +49,10 @@ if __name__ == '__main__':
     snrs_db = np.linspace(params['SNR_MIN'], params['SNR_MAX'], params['sur_num'])
     sigmas = m.sigmas(snrs_db)  # SNR(dB)を元に雑音電力を導出
 
-    # h_si = m.channel()
-    # h_s = m.channel()
-    # print('h_si:{0.real}+{0.imag}i'.format(h_si), file=result_txt)
-    # print('h_s:{0.real}+{0.imag}i'.format(h_s), file=result_txt)
+    h_si = m.channel()
+    h_s = m.channel()
+    print('h_si:{0.real}+{0.imag}i'.format(h_si), file=result_txt)
+    print('h_s:{0.real}+{0.imag}i'.format(h_s), file=result_txt)
     print('random channels', file=result_txt)
 
     bers = np.zeros(params['sur_num'])
@@ -66,8 +66,8 @@ if __name__ == '__main__':
             params['PA_rho'],
             params['LNA_IBO_dB'],
             params['LNA_rho'],
-            # h_si,
-            # h_s,
+            h_si,
+            h_s,
         )
 
         # NNを生成
@@ -122,6 +122,7 @@ if __name__ == '__main__':
         plt.plot(np.arange(1, len(history.history['loss']) + 1), history.history['loss'], 'bo-')
         plt.plot(np.arange(1, len(history.history['loss']) + 1), history.history['val_loss'], 'ro-')
         plt.ylabel('less')
+        plt.yscale('log')
         plt.xlabel('Training Epoch')
         plt.legend(['Training Frame', 'Test Frame'], loc='lower right')
         plt.grid(which='major', alpha=0.25)
