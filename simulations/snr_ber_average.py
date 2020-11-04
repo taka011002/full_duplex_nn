@@ -6,6 +6,28 @@ import matplotlib.pyplot as plt
 import os
 import datetime
 import time
+import asyncio
+import concurrent.futures
+
+async def learn(params, h_si, h_s):
+    system_model = SystemModel(
+        params['n'],
+        sigma,
+        params['gamma'],
+        params['phi'],
+        params['PA_IBO_dB'],
+        params['PA_rho'],
+        params['LNA_IBO_dB'],
+        params['LNA_rho'],
+        h_si,
+        h_s,
+    )
+
+    # NNを生成
+    model = NNModel(params['nHidden'])
+    await model.aync_learn(system_model, params['trainingRatio'], params['nEpochs'], params['batchSize'])
+    return model
+
 
 if __name__ == '__main__':
     start = time.time()
@@ -14,7 +36,7 @@ if __name__ == '__main__':
     dt_now = datetime.datetime.now()
     dirname = '../results/' + dt_now.strftime("%Y/%m/%d/%H_%M_%S")
     os.makedirs(dirname, exist_ok=True)
-    result_txt = open(dirname+'/result.txt', mode='w')
+    result_txt = open(dirname + '/result.txt', mode='w')
     print('start', file=result_txt)
     print(dt_now.strftime("%Y/%m/%d %H:%M:%S"), file=result_txt)
 
@@ -41,10 +63,10 @@ if __name__ == '__main__':
         'SNR_MIN': 0,
         'SNR_MAX': 20,
         'SNR_NUM': 2,
-        'SNR_AVERAGE': 20,
+        'SNR_AVERAGE': 2,
 
         'nHidden': 5,
-        'nEpochs': 40,
+        'nEpochs': 20,
         # 'learningRate': 0.004,
         'trainingRatio': 0.8,  # 全体のデータ数に対するトレーニングデータの割合
         'batchSize': 32,
@@ -60,9 +82,13 @@ if __name__ == '__main__':
     losss = np.zeros((params['SNR_NUM'], params['SNR_AVERAGE'], params['nEpochs']))
     val_losss = np.zeros((params['SNR_NUM'], params['SNR_AVERAGE'], params['nEpochs']))
 
+    loop = asyncio.get_event_loop()
+    # executor = concurrent.futures.ProcessPoolExecutor(4)
+    # loop.set_default_executor(executor)
+    tasks = []
     for snr_index in range(params['SNR_AVERAGE']):
-        print("SNR_AVERAGE:"+str(snr_index))
-        print(int(start-time.time()), 'sec')
+        print("SNR_AVERAGE:" + str(snr_index))
+        print(int(start - time.time()), 'sec')
         # 通信路は毎回生成する
         h_si = m.channel()
         h_s = m.channel()
@@ -73,6 +99,8 @@ if __name__ == '__main__':
         for index, sigma in enumerate(sigmas):
             print("sigma:" + str(index))
             print(int(start - time.time()), 'sec')
+
+            # tasks.append(learn(params, h_si, h_s))
             system_model = SystemModel(
                 params['n'],
                 sigma,
@@ -90,46 +118,47 @@ if __name__ == '__main__':
             model = NNModel(params['nHidden'])
             model.learn(system_model, params['trainingRatio'], params['nEpochs'], params['batchSize'])
 
-            bers[index][snr_index] = model.ber
-            losss[index][snr_index][:] = model.nn_history.history['loss']
-            val_losss[index][snr_index][:] = model.nn_history.history['val_loss']
+            # bers[index][snr_index] = model.ber
+            # losss[index][snr_index][:] = model.nn_history.history['loss']
+            # val_losss[index][snr_index][:] = model.nn_history.history['val_loss']
 
+    # futures = asyncio.gather(*tasks)
+    # results = loop.run_until_complete(futures)
 
     # SNR-BERグラフ
-    bers_avg = np.mean(bers, axis=1)
-    fig = plt.figure(figsize=(8, 6))
-    ax = fig.add_subplot(111)
-    ax.set_xlabel("SNR (dB)")
-    ax.set_ylabel("BER")
-    ax.set_yscale('log')
-    ax.set_xlim(params['SNR_MIN'], params['SNR_MAX'])
-    y_min = pow(10, 0)
-    y_max = pow(10, -6)
-    ax.set_ylim(y_max, y_min)
-    ax.set_xlim(params['SNR_MIN'], params['SNR_MAX'])
-    ax.grid(linestyle='--')
-
-    ax.plot(snrs_db, bers_avg, color="black", marker='o', linestyle='--',)
-
-    plt.savefig(dirname + '/SNR_BER.pdf')
-
-    # # Plot learning curve
-    for index, snrs_db in enumerate(snrs_db):
-        plt.figure()
-        loss_avg = np.mean(losss[index], axis=0).T
-        val_loss_avg = np.mean(val_losss[index], axis=0).T
-
-        plt.plot(np.arange(1, len(loss_avg) + 1), loss_avg, 'bo-')
-        plt.plot(np.arange(1, len(loss_avg) + 1), val_loss_avg, 'ro-')
-        plt.ylabel('less')
-        plt.yscale('log')
-        plt.xlabel('Training Epoch')
-        plt.legend(['Training Frame', 'Test Frame'], loc='lower right')
-        plt.grid(which='major', alpha=0.25)
-        plt.xlim([0, params['nEpochs'] + 1])
-        plt.xticks(range(1, params['nEpochs'], 2))
-        plt.savefig(dirname + '/snr_db_' + str(snrs_db) + '_NNconv.pdf', bbox_inches='tight')
-
+    # bers_avg = np.mean(bers, axis=1)
+    # fig = plt.figure(figsize=(8, 6))
+    # ax = fig.add_subplot(111)
+    # ax.set_xlabel("SNR (dB)")
+    # ax.set_ylabel("BER")
+    # ax.set_yscale('log')
+    # ax.set_xlim(params['SNR_MIN'], params['SNR_MAX'])
+    # y_min = pow(10, 0)
+    # y_max = pow(10, -6)
+    # ax.set_ylim(y_max, y_min)
+    # ax.set_xlim(params['SNR_MIN'], params['SNR_MAX'])
+    # ax.grid(linestyle='--')
+    #
+    # ax.plot(snrs_db, bers_avg, color="black", marker='o', linestyle='--',)
+    #
+    # plt.savefig(dirname + '/SNR_BER.pdf')
+    #
+    # # # Plot learning curve
+    # for index, snrs_db in enumerate(snrs_db):
+    #     plt.figure()
+    #     loss_avg = np.mean(losss[index], axis=0).T
+    #     val_loss_avg = np.mean(val_losss[index], axis=0).T
+    #
+    #     plt.plot(np.arange(1, len(loss_avg) + 1), loss_avg, 'bo-')
+    #     plt.plot(np.arange(1, len(loss_avg) + 1), val_loss_avg, 'ro-')
+    #     plt.ylabel('less')
+    #     plt.yscale('log')
+    #     plt.xlabel('Training Epoch')
+    #     plt.legend(['Training Frame', 'Test Frame'], loc='lower right')
+    #     plt.grid(which='major', alpha=0.25)
+    #     plt.xlim([0, params['nEpochs'] + 1])
+    #     plt.xticks(range(1, params['nEpochs'], 2))
+    #     plt.savefig(dirname + '/snr_db_' + str(snrs_db) + '_NNconv.pdf', bbox_inches='tight')
     print(int(start - time.time()), 'sec')
     print("end", file=result_txt)
     result_txt.close()

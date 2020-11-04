@@ -6,7 +6,6 @@ from tensorflow.keras.layers import Dense, Input
 from keras_radam import RAdam
 import numpy as np
 
-
 class NNModel():
     def __init__(self, n_hidden):
         self.init_model(n_hidden)
@@ -53,7 +52,7 @@ class NNModel():
 
         # 学習
         self.nn_history = self.nn.fit(train, [s_train.real, s_train.imag], epochs=n_epochs,
-                                      batch_size=batch_size, verbose=2,
+                                      batch_size=batch_size, verbose=0,
                                       validation_data=(test, [s_test.real, s_test.imag]))
 
         # 学習したモデルを評価
@@ -68,3 +67,6 @@ class NNModel():
         self.d_s_test = system_model.d_s[2 * trainingSamples:]
 
         self.ber = m.check_error(self.d_s_test, self.d_s_hat)
+
+    async def aync_learn(self, system_model: SystemModel, training_ratio: float, n_epochs: int, batch_size: int):
+        self.learn(system_model, training_ratio, n_epochs, batch_size)
