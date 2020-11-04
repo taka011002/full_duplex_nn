@@ -35,7 +35,7 @@ if __name__ == '__main__':
         'SNR_MIN': 0,
         'SNR_MAX': 20,
         'SNR_NUM': 5,
-        'SNR_AVERAGE': 1,
+        'SNR_AVERAGE': 20,
 
         'nHidden': 5,
         'nEpochs': 40,
@@ -51,8 +51,9 @@ if __name__ == '__main__':
     sigmas = m.sigmas(snrs_db)  # SNR(dB)を元に雑音電力を導出
 
     bers = np.zeros((params['SNR_NUM'], params['SNR_AVERAGE']))
-    loss = np.zeros((params['SNR_NUM'], params['SNR_AVERAGE']))
-    val_loss = np.zeros((params['SNR_NUM'], params['SNR_AVERAGE']))
+    losss = np.zeros((params['SNR_NUM'], params['SNR_AVERAGE'], params['nEpochs']))
+    val_losss = np.zeros((params['SNR_NUM'], params['SNR_AVERAGE'], params['nEpochs']))
+
     for snr_index in range(params['SNR_AVERAGE']):
         # 通信路は毎回生成する
         h_si = m.channel()
@@ -80,12 +81,12 @@ if __name__ == '__main__':
             model.learn(system_model, params['trainingRatio'], params['nEpochs'], params['batchSize'])
 
             bers[index][snr_index] = model.ber
-            loss[index][snr_index] = model.nn_history['loss']
-            val_loss[index][snr_index] = model.nn_history['val_loss']
+            losss[index][snr_index][:] = model.nn_history.history['loss']
+            val_losss[index][snr_index][:] = model.nn_history.history['val_loss']
 
 
     # SNR-BERグラフ
-    bers_avg = np.mean(bers, axis=0)
+    bers_avg = np.mean(bers, axis=1)
     fig = plt.figure(figsize=(8, 6))
     ax = fig.add_subplot(111)
     ax.set_xlabel("SNR (dB)")
@@ -105,8 +106,8 @@ if __name__ == '__main__':
     # # Plot learning curve
     for index, snrs_db in enumerate(snrs_db):
         plt.figure()
-        loss_avg = np.mean(loss, axis=0)
-        val_loss_avg = np.mean(val_loss, axis=0)
+        loss_avg = np.mean(losss[index], axis=0).T
+        val_loss_avg = np.mean(val_losss[index], axis=0).T
 
         plt.plot(np.arange(1, len(loss_avg) + 1), loss_avg, 'bo-')
         plt.plot(np.arange(1, len(loss_avg) + 1), val_loss_avg, 'ro-')
@@ -117,7 +118,7 @@ if __name__ == '__main__':
         plt.grid(which='major', alpha=0.25)
         plt.xlim([0, params['nEpochs'] + 1])
         plt.xticks(range(1, params['nEpochs'], 2))
-        plt.savefig(dirname + '/sigma_' + str(snrs_db) + '_NNconv.pdf', bbox_inches='tight')
+        plt.savefig(dirname + '/snr_db_' + str(snrs_db) + '_NNconv.pdf', bbox_inches='tight')
 
     print("end", file=result_txt)
     result_txt.close()
