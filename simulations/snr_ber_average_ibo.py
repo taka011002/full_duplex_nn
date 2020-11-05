@@ -36,7 +36,7 @@ if __name__ == '__main__':
     plt.rcParams["ytick.direction"] = "in"
 
     # seed固定
-    np.random.seed(0)
+    # np.random.seed(0)
 
     # パラメータ
     params = {
@@ -49,7 +49,7 @@ if __name__ == '__main__':
         'SNR_MIN': 0,
         'SNR_MAX': 25,
         'SNR_NUM': 6,
-        'SNR_AVERAGE': 100,
+        'SNR_AVERAGE': 25,
 
         'nHidden': 5,
         'nEpochs': 40,
