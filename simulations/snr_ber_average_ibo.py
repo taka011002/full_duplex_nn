@@ -102,7 +102,7 @@ if __name__ == '__main__':
                 model = NNModel(params['nHidden'])
                 model.learn(system_model, params['trainingRatio'], params['nEpochs'], params['batchSize'])
 
-                errors[IBO_index][index][snr_index] = model.ber
+                errors[IBO_index][index][snr_index] = model.error
                 losss[IBO_index][index][snr_index][:] = model.nn_history.history['loss']
                 val_losss[IBO_index][index][snr_index][:] = model.nn_history.history['val_loss']
 
