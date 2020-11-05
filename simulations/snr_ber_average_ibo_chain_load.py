@@ -25,10 +25,10 @@ if __name__ == '__main__':
 
     results = []
     pkl_paths = [
-        '../results/snr_ber_average_ibo/2020/11/05/00_34_04/snr_ber_average_ibo.pkl',
-        '../results/snr_ber_average_ibo/2020/11/05/00_34_04/snr_ber_average_ibo.pkl',
-        '../results/snr_ber_average_ibo/2020/11/05/00_34_04/snr_ber_average_ibo.pkl',
-        '../results/snr_ber_average_ibo/2020/11/05/00_34_04/snr_ber_average_ibo.pkl',
+        '../results/snr_ber_average_ibo/2020/11/05/09_35_31/snr_ber_average_ibo.pkl',
+        '../results/snr_ber_average_ibo/2020/11/05/09_35_43/snr_ber_average_ibo.pkl',
+        # '../results/snr_ber_average_ibo/2020/11/05/09_35_51/snr_ber_average_ibo.pkl',
+        # '../results/snr_ber_average_ibo/2020/11/05/09_36_06/snr_ber_average_ibo.pkl',
     ]
 
     for pkl_path in pkl_paths:
@@ -51,13 +51,16 @@ if __name__ == '__main__':
     losss = np.concatenate(losss_list, 2)
     val_losss = np.concatenate(val_losss_list, 2)
 
-    # グラフ作成
+    logging.info('chainload')
+    logging.info(len(results))
+
     params = results[0].params
     logging.info('params')
     logging.info(params)
 
     snrs_db = np.linspace(params['SNR_MIN'], params['SNR_MAX'], params['SNR_NUM'])
 
+    # グラフ作成
     # SNR-BERグラフ
     fig = plt.figure(figsize=(8, 6))
     ax = fig.add_subplot(111)
