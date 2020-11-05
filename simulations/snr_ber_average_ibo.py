@@ -44,15 +44,15 @@ if __name__ == '__main__':
         'gamma': 0.3,
         'phi': 3.0,
         'rho': 2,
-        'IBO_dB': [7, 5, 3],
+        'IBO_dB': [7],
 
         'SNR_MIN': 0,
         'SNR_MAX': 25,
-        'SNR_NUM': 6,
+        'SNR_NUM': 2,
         'SNR_AVERAGE': 3,
 
         'nHidden': 6,
-        'nEpochs': 40,
+        'nEpochs': 2,
         # 'learningRate': 0.004,
         'trainingRatio': 0.8,  # 全体のデータ数に対するトレーニングデータの割合
         'batchSize': 1,
@@ -137,14 +137,14 @@ if __name__ == '__main__':
     plt.savefig(dirname + '/SNR_BER.pdf')
 
     # Plot learning curve
-    for index, snrs_db in enumerate(snrs_db):
+    for index, snr_db in enumerate(snrs_db):
         plt.figure()
 
         for IBO_index, IBO_db in enumerate(params['IBO_dB']):
             loss_avg = np.mean(losss[IBO_index][index], axis=0).T
             val_loss_avg = np.mean(val_losss[IBO_index][index], axis=0).T
             plt.plot(np.arange(1, len(loss_avg) + 1), loss_avg, color=color_list[IBO_index], marker='o', linestyle='--', label='Training Frame (IBO=%d[dB])' % IBO_db)
-            plt.plot(np.arange(1, len(loss_avg) + 1), val_loss_avg, color=color_list[IBO_index+len(snrs_db)], marker='o', linestyle='--', label='Test Frame (IBO=%d[dB])' % IBO_db)
+            plt.plot(np.arange(1, len(loss_avg) + 1), val_loss_avg, color=color_list[IBO_index+len(snr_db)], marker='o', linestyle='--', label='Test Frame (IBO=%d[dB])' % IBO_db)
 
         plt.ylabel('less')
         plt.yscale('log')
