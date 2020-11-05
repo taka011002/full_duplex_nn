@@ -144,7 +144,7 @@ if __name__ == '__main__':
             loss_avg = np.mean(losss[IBO_index][index], axis=0).T
             val_loss_avg = np.mean(val_losss[IBO_index][index], axis=0).T
             plt.plot(np.arange(1, len(loss_avg) + 1), loss_avg, color=color_list[IBO_index], marker='o', linestyle='--', label='Training Frame (IBO=%d[dB])' % IBO_db)
-            plt.plot(np.arange(1, len(loss_avg) + 1), val_loss_avg, color=color_list[IBO_index+len(snr_db)], marker='o', linestyle='--', label='Test Frame (IBO=%d[dB])' % IBO_db)
+            plt.plot(np.arange(1, len(loss_avg) + 1), val_loss_avg, color=color_list[IBO_index+len(snrs_db)], marker='o', linestyle='--', label='Test Frame (IBO=%d[dB])' % IBO_db)
 
         plt.ylabel('less')
         plt.yscale('log')
@@ -153,6 +153,6 @@ if __name__ == '__main__':
         plt.grid(which='major', alpha=0.25)
         plt.xlim([0, params['nEpochs'] + 1])
         plt.xticks(range(1, params['nEpochs'], 2))
-        plt.savefig(dirname + '/snr_db_' + str(snrs_db) + '_NNconv.pdf', bbox_inches='tight')
+        plt.savefig(dirname + '/snr_db_' + str(snr_db) + '_NNconv.pdf', bbox_inches='tight')
 
     logging.info("end")
