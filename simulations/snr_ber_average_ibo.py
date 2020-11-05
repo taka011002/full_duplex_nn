@@ -49,13 +49,13 @@ if __name__ == '__main__':
         'SNR_MIN': 0,
         'SNR_MAX': 25,
         'SNR_NUM': 6,
-        'SNR_AVERAGE': 25,
+        'SNR_AVERAGE': 3,
 
-        'nHidden': 5,
+        'nHidden': 6,
         'nEpochs': 40,
         # 'learningRate': 0.004,
         'trainingRatio': 0.8,  # 全体のデータ数に対するトレーニングデータの割合
-        'batchSize': 32,
+        'batchSize': 1,
     }
     logging.info('params')
     logging.info(params)
@@ -127,17 +127,12 @@ if __name__ == '__main__':
 
     n_ave = params['n'] * params['SNR_AVERAGE']
 
-    errors_sum_7 = np.sum(errors[0], axis=1)
-    bers_7 = errors_sum_7 / n_ave
-    ax.plot(snrs_db, bers_7, color="blue", marker='o', linestyle='--', label="IBO=7[dB]")
+    color_list = ["r", "g", "b", "c", "m", "y", "k", "w"]
+    for IBO_index, IBO_db in enumerate(params['IBO_dB']):
+        errors_sum = np.sum(errors[IBO_index], axis=1)
+        bers = errors_sum / n_ave
+        ax.plot(snrs_db, bers, color=color_list[IBO_index], marker='o', linestyle='--', label="IBO=%d[dB]" % IBO_db)
 
-    errors_sum_5 = np.sum(errors[1], axis=1)
-    bers_5 = errors_sum_5 / n_ave
-    ax.plot(snrs_db, bers_5, color="red", marker='v', linestyle='--', label="IBO=5[dB]")
-
-    errors_sum_3 = np.sum(errors[2], axis=1)
-    bers_3 = errors_sum_3 / n_ave
-    ax.plot(snrs_db, bers_3, color="green", marker='s', linestyle='--', label="IBO=3[dB]")
     ax.legend()
     plt.savefig(dirname + '/SNR_BER.pdf')
 
@@ -145,20 +140,11 @@ if __name__ == '__main__':
     for index, snrs_db in enumerate(snrs_db):
         plt.figure()
 
-        loss_avg_7 = np.mean(losss[0][index], axis=0).T
-        val_loss_avg_7 = np.mean(val_losss[0][index], axis=0).T
-        plt.plot(np.arange(1, len(loss_avg_7) + 1), loss_avg_7, 'bo-', label='Training Frame (IBO=7[dB])')
-        plt.plot(np.arange(1, len(loss_avg_7) + 1), val_loss_avg_7, 'go-', label='Test Frame (IBO=7[dB])')
-
-        loss_avg_5 = np.mean(losss[1][index], axis=0).T
-        val_loss_avg_5 = np.mean(val_losss[1][index], axis=0).T
-        plt.plot(np.arange(1, len(loss_avg_5) + 1), loss_avg_5, 'ro-', label='Training Frame (IBO=5[dB])')
-        plt.plot(np.arange(1, len(loss_avg_5) + 1), val_loss_avg_5, 'co-', label='Test Frame (IBO=5[dB])')
-
-        loss_avg_3 = np.mean(losss[2][index], axis=0).T
-        val_loss_avg_3 = np.mean(val_losss[2][index], axis=0).T
-        plt.plot(np.arange(1, len(loss_avg_3) + 1), loss_avg_3, 'mo-', label='Training Frame (IBO=3[dB])')
-        plt.plot(np.arange(1, len(loss_avg_3) + 1), val_loss_avg_3, 'yo-', label='Test Frame (IBO=3[dB])')
+        for IBO_index, IBO_db in enumerate(params['IBO_dB']):
+            loss_avg = np.mean(losss[IBO_index][index], axis=0).T
+            val_loss_avg = np.mean(val_losss[IBO_index][index], axis=0).T
+            plt.plot(np.arange(1, len(loss_avg) + 1), loss_avg, color=color_list[IBO_index], marker='o', linestyle='--', label='Training Frame (IBO=%d[dB])' % IBO_db)
+            plt.plot(np.arange(1, len(loss_avg) + 1), val_loss_avg, color=color_list[IBO_index+len(snrs_db)], marker='o', linestyle='--', label='Test Frame (IBO=%d[dB])' % IBO_db)
 
         plt.ylabel('less')
         plt.yscale('log')
