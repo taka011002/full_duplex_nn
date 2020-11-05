@@ -49,10 +49,10 @@ if __name__ == '__main__':
         'SNR_MIN': 0,
         'SNR_MAX': 25,
         'SNR_NUM': 2,
-        'SNR_AVERAGE': 3,
+        'SNR_AVERAGE': 5,
 
         'nHidden': 6,
-        'nEpochs': 2,
+        'nEpochs': 40,
         # 'learningRate': 0.004,
         'trainingRatio': 0.8,  # 全体のデータ数に対するトレーニングデータの割合
         'batchSize': 1,
@@ -71,15 +71,15 @@ if __name__ == '__main__':
     # 実行時の時間を記録する
     start = time.time()
 
-    for IBO_index, IBO_dB in enumerate(params['IBO_dB']):
-        for snr_index in range(params['SNR_AVERAGE']):
-            # 通信路は毎回生成する
-            h_si = m.channel()
-            h_s = m.channel()
-            logging.info('random channel')
-            logging.info('h_si:{0.real}+{0.imag}i'.format(h_si))
-            logging.info('h_s:{0.real}+{0.imag}i'.format(h_s))
+    for snr_index in range(params['SNR_AVERAGE']):
+        # 通信路は毎回生成する
+        h_si = m.channel()
+        h_s = m.channel()
+        logging.info('random channel')
+        logging.info('h_si:{0.real}+{0.imag}i'.format(h_si))
+        logging.info('h_s:{0.real}+{0.imag}i'.format(h_s))
 
+        for IBO_index, IBO_dB in enumerate(params['IBO_dB']):
             for index, sigma in enumerate(sigmas):
                 logging.info("IBO_dB_index:" + str(IBO_index))
                 logging.info("SNR_AVERAGE_index:" + str(snr_index))
