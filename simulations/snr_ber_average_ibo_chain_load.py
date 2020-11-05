@@ -28,6 +28,7 @@ if __name__ == '__main__':
         '../results/snr_ber_average_ibo/2020/11/05/00_34_04/snr_ber_average_ibo.pkl',
         '../results/snr_ber_average_ibo/2020/11/05/00_34_04/snr_ber_average_ibo.pkl',
         '../results/snr_ber_average_ibo/2020/11/05/00_34_04/snr_ber_average_ibo.pkl',
+        '../results/snr_ber_average_ibo/2020/11/05/00_34_04/snr_ber_average_ibo.pkl',
     ]
 
     for pkl_path in pkl_paths:
