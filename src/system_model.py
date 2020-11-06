@@ -30,5 +30,7 @@ class SystemModel:
         self.y_s = self.s * h_s
         self.r = self.y_si + self.y_s + m.awgn(self.y_si.size, sigma)
 
+        # self.y = self.r
+
         # 受信側非線形
         self.y = m.sspa_rapp_ibo(self.r, LNA_IBO_dB, LNA_rho)

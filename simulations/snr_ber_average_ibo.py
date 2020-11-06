@@ -47,12 +47,12 @@ if __name__ == '__main__':
         'IBO_dB': [7],
 
         'SNR_MIN': 0,
-        'SNR_MAX': 25,
-        'SNR_NUM': 2,
-        'SNR_AVERAGE': 5,
+        'SNR_MAX': 20,
+        'SNR_NUM': 5,
+        'SNR_AVERAGE': 25,
 
         'nHidden': 6,
-        'nEpochs': 40,
+        'nEpochs': 20,
         # 'learningRate': 0.004,
         'trainingRatio': 0.8,  # 全体のデータ数に対するトレーニングデータの割合
         'batchSize': 1,
@@ -125,7 +125,8 @@ if __name__ == '__main__':
     ax.set_xlim(params['SNR_MIN'], params['SNR_MAX'])
     ax.grid(linestyle='--')
 
-    n_ave = params['n'] * params['SNR_AVERAGE']
+    train_data = params['n'] - (params['n'] * params['trainingRatio'])
+    n_ave = train_data * params['SNR_AVERAGE']
 
     color_list = ["r", "g", "b", "c", "m", "y", "k", "w"]
     for IBO_index, IBO_db in enumerate(params['IBO_dB']):
@@ -144,7 +145,7 @@ if __name__ == '__main__':
             loss_avg = np.mean(losss[IBO_index][index], axis=0).T
             val_loss_avg = np.mean(val_losss[IBO_index][index], axis=0).T
             plt.plot(np.arange(1, len(loss_avg) + 1), loss_avg, color=color_list[IBO_index], marker='o', linestyle='--', label='Training Frame (IBO=%d[dB])' % IBO_db)
-            plt.plot(np.arange(1, len(loss_avg) + 1), val_loss_avg, color=color_list[IBO_index+len(snrs_db)], marker='o', linestyle='--', label='Test Frame (IBO=%d[dB])' % IBO_db)
+            plt.plot(np.arange(1, len(loss_avg) + 1), val_loss_avg, color=color_list[IBO_index+len(params['IBO_dB'])], marker='o', linestyle='--', label='Test Frame (IBO=%d[dB])' % IBO_db)
 
         plt.ylabel('less')
         plt.yscale('log')
