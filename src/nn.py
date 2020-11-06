@@ -3,6 +3,7 @@ from src import modules as m
 import tensorflow.keras as keras
 from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Dense, Input
+from keras import optimizers
 from keras_radam import RAdam
 import numpy as np
 
@@ -17,9 +18,10 @@ class NNModel():
         output1 = Dense(1, activation='linear')(hidden1)
         output2 = Dense(1, activation='linear')(hidden1)
         model = Model(inputs=input, outputs=[output1, output2])
-        # adam = Adam(lr=params['learningRate'])
-        # model.compile(adam, loss="mse")
-        model.compile(RAdam(), loss='mse')
+        # optimizer = Adam(lr=params['learningRate'])
+        optimizer = optimizers.SGD(lr=0.001, momentum=0.9)
+        # optimizer = RAdam()
+        model.compile(optimizer, loss='mse')
 
         self.nn = model
 
