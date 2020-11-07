@@ -49,13 +49,13 @@ if __name__ == '__main__':
         'SNR_MIN': 0,
         'SNR_MAX': 20,
         'SNR_NUM': 5,
-        'SNR_AVERAGE': 25,
+        'SNR_AVERAGE': 50,
 
-        'nHidden': 6,
+        'nHidden': 5,
         'nEpochs': 20,
         # 'learningRate': 0.004,
         'trainingRatio': 0.8,  # 全体のデータ数に対するトレーニングデータの割合
-        'batchSize': 1,
+        'batchSize': 32,
     }
     logging.info('params')
     logging.info(params)
