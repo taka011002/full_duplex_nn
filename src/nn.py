@@ -15,7 +15,7 @@ class NNModel():
     def init_model(self, n_hidden, learning_rate=None):
         input = Input(shape=(4,))
         x = Dense(n_hidden, activation='relu')(input)
-        x = Dense(n_hidden, activation='relu')(x)
+        # x = Dense(n_hidden, activation='relu')(x)
         output1 = Dense(1, activation='linear')(x)
         output2 = Dense(1, activation='linear')(x)
         model = Model(inputs=input, outputs=[output1, output2])

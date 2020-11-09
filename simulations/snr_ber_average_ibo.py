@@ -11,11 +11,12 @@ import logging
 
 
 class Result:
-    def __init__(self, params, errors, losss, val_losss):
+    def __init__(self, params, errors, losss, val_losss, nn_model=None):
         self.params = params
         self.errors = errors
         self.losss = losss
         self.val_losss = val_losss
+        self.nn_model = nn_model
 
 
 if __name__ == '__main__':
@@ -47,11 +48,11 @@ if __name__ == '__main__':
         'IBO_dB': [7],
 
         'SNR_MIN': 0,
-        'SNR_MAX': 20,
-        'SNR_NUM': 5,
+        'SNR_MAX': 25,
+        'SNR_NUM': 6,
         'SNR_AVERAGE': 50,
 
-        'nHidden': 5,
+        'nHidden': 15,
         'nEpochs': 20,
         # 'learningRate': 0.004,
         'trainingRatio': 0.8,  # 全体のデータ数に対するトレーニングデータの割合
@@ -71,6 +72,8 @@ if __name__ == '__main__':
 
     # 実行時の時間を記録する
     start = time.time()
+
+    # models = [[[None]*params['SNR_AVERAGE'] for i in range(params['SNR_NUM'])] for j in range(len(params['IBO_dB']))]
 
     for snr_index in range(params['SNR_AVERAGE']):
         # 通信路は毎回生成する
@@ -103,6 +106,7 @@ if __name__ == '__main__':
                 model = NNModel(params['nHidden'])
                 model.learn(system_model, params['trainingRatio'], params['nEpochs'], params['batchSize'])
 
+                # models[IBO_index][index][snr_index] = model
                 errors[IBO_index][index][snr_index] = model.error
                 losss[IBO_index][index][snr_index][:] = model.nn_history.history['loss']
                 val_losss[IBO_index][index][snr_index][:] = model.nn_history.history['val_loss']

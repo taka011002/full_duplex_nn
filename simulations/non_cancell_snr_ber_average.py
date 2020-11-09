@@ -28,10 +28,10 @@ if __name__ == '__main__':
 
     results = []
     pkl_paths = [
-        '../results/keep/momentam/04_02_26/snr_ber_average_ibo.pkl',
-        '../results/keep/momentam/04_02_30/snr_ber_average_ibo.pkl',
-        '../results/keep/momentam/04_02_37/snr_ber_average_ibo.pkl',
-        '../results/keep/momentam/04_02_45/snr_ber_average_ibo.pkl',
+        '../results/keep/momentam_batch_nn_5/15_35_45/snr_ber_average_ibo.pkl',
+        '../results/keep/momentam_batch_nn_5/15_35_48/snr_ber_average_ibo.pkl',
+        # '../results/keep/momentam/04_02_37/snr_ber_average_ibo.pkl',
+        # '../results/keep/momentam/04_02_45/snr_ber_average_ibo.pkl',
     ]
 
     for pkl_path in pkl_paths:
@@ -100,7 +100,7 @@ if __name__ == '__main__':
     ax.set_yscale('log')
     ax.set_xlim(params['SNR_MIN'], params['SNR_MAX'])
     y_min = pow(10, 0)
-    y_max = pow(10, -6)
+    y_max = pow(10, -4)
     ax.set_ylim(y_max, y_min)
     ax.set_xlim(params['SNR_MIN'], params['SNR_MAX'])
     ax.grid(linestyle='--')
@@ -125,8 +125,8 @@ if __name__ == '__main__':
         ax.plot(snrs_db, bers, color='g', marker='o', linestyle='--', label="NN cancelled(hidden node: 5)")
 
     pkl_paths = [
-        '../results/keep/momentam_batch_nn_15/11_46_33/snr_ber_average_ibo.pkl',
-        '../results/keep/momentam_batch_nn_15/11_46_38/snr_ber_average_ibo.pkl',
+        '../results/keep/momentam_batch_nn_15_2/16_19_50/snr_ber_average_ibo.pkl',
+        '../results/keep/momentam_batch_nn_15_2/16_19_52/snr_ber_average_ibo.pkl',
     ]
 
     results = []
@@ -150,8 +150,8 @@ if __name__ == '__main__':
         ax.plot(snrs_db, bers, color='b', marker='o', linestyle='--', label="NN cancelled(hidden node: 15)")
 
     pkl_paths = [
-        '../results/keep/momentam_double_hidden/22_29_56/snr_ber_average_ibo.pkl',
-        '../results/keep/momentam_double_hidden/22_30_03/snr_ber_average_ibo.pkl',
+        '../results/keep/momentam_double_hidden_nn_15_full_2/14_47_35/snr_ber_average_ibo.pkl',
+        '../results/keep/momentam_double_hidden_nn_15_full_2/14_47_38/snr_ber_average_ibo.pkl',
     ]
 
     results = []
@@ -172,7 +172,7 @@ if __name__ == '__main__':
     for IBO_index, IBO_db in enumerate(params['IBO_dB']):
         errors_sum = np.sum(errors[IBO_index], axis=1)
         bers = errors_sum / n_ave
-        ax.plot(snrs_db, bers, color='r', marker='o', linestyle='--', label="NN cancelled(hidden node: 5-5)")
+        ax.plot(snrs_db, bers, color='r', marker='o', linestyle='--', label="NN cancelled(hidden node: 15-15)")
 
     ax.legend(fontsize=16)
     plt.savefig(dirname + '/SNR_BER.pdf')
