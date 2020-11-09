@@ -13,14 +13,15 @@ class NNModel():
         self.init_model(n_hidden)
 
     def init_model(self, n_hidden, learning_rate=None):
-        model = Sequential()
-        model.add(Dense(n_hidden, activation='relu', input_shape=(4,)))
-        model.add(Dense(n_hidden, activation='relu', input_shape=(n_hidden,)))
-        model.add(Dense(2, activation='linear'))
-        # optimizer = Adam(lr=0.001)
-        # optimizer = RAdam()
-        optimizer = optimizers.SGD(lr=0.001, momentum=0.8)
-        model.compile(optimizer, loss="mse")
+        input = Input(shape=(4,))
+        x = Dense(n_hidden, activation='relu')(input)
+        x = Dense(n_hidden, activation='relu')(x)
+        output1 = Dense(1, activation='linear')(x)
+        output2 = Dense(1, activation='linear')(x)
+        model = Model(inputs=input, outputs=[output1, output2])
+        # adam = Adam(lr=params['learningRate'])
+        # model.compile(adam, loss="mse")
+        model.compile(RAdam(), loss='mse')
 
         self.nn = model
 
@@ -61,7 +62,7 @@ class NNModel():
         self.pred = self.nn.predict(test)
 
         # 推定した希望信号の取り出し
-        self.s_hat = self.pred[0] + 1j * self.pred[1]
+        self.s_hat = np.squeeze(self.pred[0] + 1j * self.pred[1], axis=1)
 
         # 推定信号をデータへ復調する
         self.d_s_hat = m.demodulate_qpsk(self.s_hat)

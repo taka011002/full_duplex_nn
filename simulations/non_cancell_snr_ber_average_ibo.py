@@ -44,7 +44,7 @@ if __name__ == '__main__':
         'gamma': 0.3,
         'phi': 3.0,
         'rho': 2,
-        'IBO_dB': [7, 5, 3],
+        'IBO_dB': [7],
 
         'SNR_MIN': 0,
         'SNR_MAX': 20,

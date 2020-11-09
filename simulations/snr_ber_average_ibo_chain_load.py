@@ -9,8 +9,8 @@ import logging
 if __name__ == '__main__':
     # シミュレーション結果の保存先を作成する
     dt_now = datetime.datetime.now()
-    # dirname = '../results/snr_ber_average_ibo_chain_load/' + dt_now.strftime("%Y/%m/%d/%H_%M_%S")
-    dirname = '../results/keep/momentam_double_hidden/merge/'
+    dirname = '../results/snr_ber_average_ibo_chain_load/' + dt_now.strftime("%Y/%m/%d/%H_%M_%S")
+    # dirname = '../results/keep/momentam_double_hidden/merge/'
     os.makedirs(dirname, exist_ok=True)
 
     formatter = '%(levelname)s : %(asctime)s : %(message)s'
@@ -26,10 +26,10 @@ if __name__ == '__main__':
 
     results = []
     pkl_paths = [
-        '../results/keep/momentam_double_hidden/22_29_56/snr_ber_average_ibo.pkl',
-        '../results/keep/momentam_double_hidden/22_30_03/snr_ber_average_ibo.pkl',
-        # '../results/keep/momentam_batch_nn_15/11_46_38/snr_ber_average_ibo.pkl',
-        # '../results/keep/momentam_batch_nn_15/11_46_33/snr_ber_average_ibo.pkl',
+        # '../results/snr_ber_average_ibo/2020/11/09/11_28_31/snr_ber_average_ibo.pkl',
+        '../results/snr_ber_average_ibo/2020/11/09/11_28_32/snr_ber_average_ibo.pkl',
+        '../results/snr_ber_average_ibo/2020/11/09/11_58_08/snr_ber_average_ibo.pkl',
+        '../results/snr_ber_average_ibo/2020/11/09/11_58_11/snr_ber_average_ibo.pkl',
     ]
 
     for pkl_path in pkl_paths:
