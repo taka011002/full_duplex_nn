@@ -80,25 +80,24 @@ def sspa_rapp(input_signal: np.ndarray, saturation: float = 1, rho: float = 0.5)
     return amp_output
 
 
-def channel(size: int = 1, length: int = 0) -> np.ndarray:
+def channel(size: int = 1, length: int = 1) -> np.ndarray:
     """
     周波数非選択性通信路を生成する．
+    生成する通信路の要素を全て違う値にする際はsizeを指定してあげる．
+    指定しない場合は，1つの通信路のみ生成する．
+    周波数選択性通信路の場合は，電力を合わせる為に，チャネル長さlengthを渡してあげる．
 
     :param x:
     :param length:
     :return:
     """
-    variance = np.reciprocal(np.sqrt(2 * (length + 1)))
-    # scale = np.sqrt(variance)
-    # size = x.size
-
-    # TODO 周波数選択性の場合は複数hをベクトルで生成する
+    variance = np.reciprocal(np.sqrt(2 * length))
     h = np.random.normal(loc=0, scale=1, size=size) + 1j * np.random.normal(loc=0, scale=1, size=size)
     h = h * variance
     return h
 
 
-def awgn(size: int, sigma: float) -> np.ndarray:
+def awgn(size: int, sigma: float, length: int = 1) -> np.ndarray:
     """
     AWGNの値を取得する
 
@@ -106,8 +105,9 @@ def awgn(size: int, sigma: float) -> np.ndarray:
     :param sigma:
     :return:
     """
+    variance = np.reciprocal(np.sqrt(2 * length))
     v = np.random.normal(loc=0, scale=sigma, size=size) + 1j * np.random.normal(loc=0, scale=sigma, size=size)
-    v = v / np.sqrt(2)
+    v = v * variance
     return v
 
 
@@ -134,6 +134,13 @@ def sigmas(snrs: np.ndarray) -> np.ndarray:
 
 
 def check_error(origin: np.ndarray, target: np.ndarray) -> float:
+    """
+    誤り率を判定する．
+
+    :param origin:
+    :param target:
+    :return:
+    """
     error = np.sum(origin != target)
     ber = error / origin.size
 

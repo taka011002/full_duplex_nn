@@ -9,49 +9,55 @@ import numpy as np
 
 
 class NNModel():
-    def __init__(self, n_hidden):
-        self.init_model(n_hidden)
+    def __init__(self, n_hidden, learning_rate=None, h_si_len: int = 1, h_s_len: int = 1):
+        self.init_model(n_hidden, learning_rate, h_si_len, h_s_len)
 
-    def init_model(self, n_hidden, learning_rate=None):
-        input = Input(shape=(4,))
+    def init_model(self, n_hidden, learning_rate=None, h_si_len: int = 1, h_s_len: int = 1):
+        input = Input(shape=((2*h_si_len)+(2*h_s_len),))
         x = Dense(n_hidden, activation='relu')(input)
         # x = Dense(n_hidden, activation='relu')(x)
         output1 = Dense(1, activation='linear')(x)
         output2 = Dense(1, activation='linear')(x)
         model = Model(inputs=input, outputs=[output1, output2])
-        # adam = Adam(lr=params['learningRate'])
+        # adam = Adam(lr=learning_rate)
         # model.compile(adam, loss="mse")
         model.compile(RAdam(), loss='mse')
 
         self.nn = model
 
-    def learn(self, system_model: SystemModel, training_ratio: float, n_epochs: int, batch_size: int):
+    def learn(self, system_model: SystemModel, training_ratio: float, n_epochs: int, batch_size: int, h_si_len: int = 1,
+              h_s_len: int = 1):
         self.system_model = system_model
 
         # トレーニングデータの生成
         trainingSamples = int(np.floor(system_model.x.size * training_ratio))
-        x_train = system_model.x[0:trainingSamples]
+
+        x = np.reshape(np.array([system_model.x[i:i + h_si_len] for i in range(system_model.x.size - h_si_len + 1)]),
+                   (system_model.x.size - h_si_len + 1, h_si_len))
+
+        x_train = x[0:trainingSamples]
         y_train = system_model.y[0:trainingSamples]
         s_train = system_model.s[0:trainingSamples]
 
+
         # NNの入力に合うように1つのベクトルにする
-        train = np.zeros((x_train.size, 4))
-        train[:, 0] = x_train.real
-        train[:, 1] = x_train.imag
-        train[:, 2] = y_train.real
-        train[:, 3] = y_train.imag
+        train = np.zeros((x_train.shape[0], (2*h_si_len)+(2*h_s_len)))
+        train[:, 0:h_si_len] = x_train.real
+        train[:, h_si_len:2*(h_si_len)] = x_train.imag
+        train[:, 2*(h_s_len):3*(h_s_len)] = y_train.real
+        train[:, 3*(h_s_len):4*(h_s_len)] = y_train.imag
 
         # テストデータの作成
-        x_test = system_model.x[trainingSamples:]
+        x_test = x[trainingSamples:]
         y_test = system_model.y[trainingSamples:]
-        s_test = system_model.s[trainingSamples:]
+        s_test = system_model.s[trainingSamples:(trainingSamples+x_test.shape[0])] # 数が合わなくなる時がある
 
         # NNの入力に合うように1つのベクトルにする
-        test = np.zeros((x_test.size, 4))
-        test[:, 0] = x_test.real
-        test[:, 1] = x_test.imag
-        test[:, 2] = y_test.real
-        test[:, 3] = y_test.imag
+        test = np.zeros((x_test.shape[0], (2*h_si_len)+(2*h_s_len)))
+        test[:, 0:h_si_len] = x_test.real
+        test[:, h_si_len:2*(h_si_len)] = x_test.imag
+        test[:, 2*(h_si_len):3*(h_si_len)] = y_test.real
+        test[:, 3*(h_si_len):4*(h_si_len)] = y_test.imag
 
         # 学習
         self.nn_history = self.nn.fit(train, [s_train.real, s_train.imag], epochs=n_epochs,
