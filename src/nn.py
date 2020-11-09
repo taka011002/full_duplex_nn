@@ -73,7 +73,7 @@ class NNModel():
         # 推定信号をデータへ復調する
         self.d_s_hat = m.demodulate_qpsk(self.s_hat)
         # 元々の外部信号のデータ
-        self.d_s_test = system_model.d_s[2 * trainingSamples:]
+        self.d_s_test = system_model.d_s[2 * trainingSamples:2*(trainingSamples++x_test.shape[0])]
 
         self.error = np.sum(self.d_s_test != self.d_s_hat)
         self.ber = m.check_error(self.d_s_test, self.d_s_hat)

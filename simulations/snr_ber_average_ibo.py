@@ -50,7 +50,7 @@ if __name__ == '__main__':
         'SNR_MIN': 0,
         'SNR_MAX': 25,
         'SNR_NUM': 6,
-        'SNR_AVERAGE': 2,
+        'SNR_AVERAGE': 10,
 
         'nHidden': 15,
         'nEpochs': 20,
@@ -58,8 +58,8 @@ if __name__ == '__main__':
         'trainingRatio': 0.8,  # 全体のデータ数に対するトレーニングデータの割合
         'batchSize': 32,
 
-        'h_si_len': 1,
-        'h_s_len': 1,
+        'h_si_len': 13,
+        'h_s_len': 13,
     }
     logging.info('params')
     logging.info('hidden-15-15')
