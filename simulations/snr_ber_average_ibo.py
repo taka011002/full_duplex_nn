@@ -58,8 +58,8 @@ if __name__ == '__main__':
         'trainingRatio': 0.8,  # 全体のデータ数に対するトレーニングデータの割合
         'batchSize': 32,
 
-        'h_si_len': 13,
-        'h_s_len': 13,
+        'h_si_len': 5,
+        'h_s_len': 5,
     }
     logging.info('params')
     logging.info('hidden-15-15')
@@ -80,8 +80,8 @@ if __name__ == '__main__':
 
     for snr_index in range(params['SNR_AVERAGE']):
         # 通信路は毎回生成する
-        h_si = m.channel()
-        h_s = m.channel()
+        h_si = m.channel(1, params['h_si_len'])
+        h_s = m.channel(1, params['h_s_len'])
         logging.info('random channel')
         logging.info('h_si:{0.real}+{0.imag}i'.format(h_si))
         logging.info('h_s:{0.real}+{0.imag}i'.format(h_s))
