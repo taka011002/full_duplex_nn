@@ -26,8 +26,8 @@ class SystemModel:
         self.h_si = h_si
         self.h_s = h_s
 
-        self.y_si = h_si * np.reshape(np.array([self.x_pa[i:i+h_si_len] for i in range(self.x_pa.size-h_si_len+1)]), (self.x_pa.size-h_si_len+1, h_si_len))
-        self.y_s = h_s * np.reshape(np.array([self.s[i:i+h_s_len] for i in range(self.s.size-h_s_len+1)]), (self.s.size-h_s_len+1, h_s_len))
+        self.y_si = h_si * np.reshape(np.array([self.x_pa[i:i+h_si_len] for i in range(self.x_pa.size-h_si_len+1)]), (self.x_pa.size-h_si_len+1, h_si_len)) # チャネル数分作る
+        self.y_s = h_s * np.reshape(np.array([self.s[i:i+h_s_len] for i in range(self.s.size-h_s_len+1)]), (self.s.size-h_s_len+1, h_s_len)) # チャネル数分作る
         self.r = self.y_si + self.y_s + m.awgn(self.y_s.shape, sigma, h_s_len)
 
         # 受信側非線形

@@ -50,7 +50,7 @@ if __name__ == '__main__':
         'SNR_MIN': 0,
         'SNR_MAX': 25,
         'SNR_NUM': 6,
-        'SNR_AVERAGE': 10,
+        'SNR_AVERAGE': 5,
 
         'nHidden': 15,
         'nEpochs': 20,
@@ -148,6 +148,7 @@ if __name__ == '__main__':
     ax.grid(linestyle='--')
 
     train_data = params['n'] - (params['n'] * params['trainingRatio'])
+    train_data = train_data - params['h_si_len'] + 1
     n_ave = train_data * params['SNR_AVERAGE']
 
     color_list = ["r", "g", "b", "c", "m", "y", "k", "w"]

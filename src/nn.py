@@ -32,13 +32,12 @@ class NNModel():
         # トレーニングデータの生成
         trainingSamples = int(np.floor(system_model.x.size * training_ratio))
 
-        x = np.reshape(np.array([system_model.x[i:i + h_si_len] for i in range(system_model.x.size - h_si_len + 1)]),
-                   (system_model.x.size - h_si_len + 1, h_si_len))
+        # チャネル数分つくる
+        x = np.reshape(np.array([system_model.x[i:i + h_si_len] for i in range(system_model.x.size - h_si_len + 1)]), (system_model.x.size - h_si_len + 1, h_si_len))
 
         x_train = x[0:trainingSamples]
         y_train = system_model.y[0:trainingSamples]
         s_train = system_model.s[0:trainingSamples]
-
 
         # NNの入力に合うように1つのベクトルにする
         train = np.zeros((x_train.shape[0], (2*h_si_len)+(2*h_s_len)))
@@ -50,7 +49,7 @@ class NNModel():
         # テストデータの作成
         x_test = x[trainingSamples:]
         y_test = system_model.y[trainingSamples:]
-        s_test = system_model.s[trainingSamples:(trainingSamples+x_test.shape[0])] # 数が合わなくなる時がある
+        s_test = system_model.s[trainingSamples:(trainingSamples+x_test.shape[0])] # 数が合わなくなる時があるのでx_sの大きさを合わせる
 
         # NNの入力に合うように1つのベクトルにする
         test = np.zeros((x_test.shape[0], (2*h_si_len)+(2*h_s_len)))
@@ -73,7 +72,7 @@ class NNModel():
         # 推定信号をデータへ復調する
         self.d_s_hat = m.demodulate_qpsk(self.s_hat)
         # 元々の外部信号のデータ
-        self.d_s_test = system_model.d_s[2 * trainingSamples:2*(trainingSamples++x_test.shape[0])]
+        self.d_s_test = system_model.d_s[2 * trainingSamples:2*(trainingSamples+x_test.shape[0])]
 
         self.error = np.sum(self.d_s_test != self.d_s_hat)
         self.ber = m.check_error(self.d_s_test, self.d_s_hat)
