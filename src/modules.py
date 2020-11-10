@@ -59,7 +59,8 @@ def sspa_rapp_ibo(input_signal: np.ndarray, IBO_dB: int = 0, rho: float = 0.5) -
     :return:
     """
     ibo = 10 ** (IBO_dB / 10)  # IBOをもとにアンプの飽和電力を決める
-    P_in = np.sum(np.abs(input_signal)) / input_signal.size
+    P_in = np.sum(np.abs(input_signal)) / input_signal.shape[0] # nで割るべき？
+    # P_in = np.sum(np.abs(input_signal)) / input_signal.size
     A = np.sqrt(P_in * ibo)
     return sspa_rapp(input_signal, A, rho)
 
@@ -92,7 +93,7 @@ def channel(size: int = 1, length: int = 1) -> np.ndarray:
     :return:
     """
     variance = np.reciprocal(np.sqrt(2 * length))
-    h = np.random.normal(loc=0, scale=1, size=size) + 1j * np.random.normal(loc=0, scale=1, size=size)
+    h = np.random.normal(loc=0, scale=1, size=(size, length)) + 1j * np.random.normal(loc=0, scale=1, size=(size, length))
     h = h * variance
     return h
 
