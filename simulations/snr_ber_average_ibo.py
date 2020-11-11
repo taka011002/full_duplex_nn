@@ -50,19 +50,19 @@ if __name__ == '__main__':
         'SNR_MIN': 0,
         'SNR_MAX': 25,
         'SNR_NUM': 6,
-        'SNR_AVERAGE': 5,
+        'SNR_AVERAGE': 20,
 
-        'nHidden': 15,
+        'nHidden': 5,
         'nEpochs': 20,
         'learningRate': 0.001,
         'trainingRatio': 0.8,  # 全体のデータ数に対するトレーニングデータの割合
         'batchSize': 32,
 
-        'h_si_len': 5,
-        'h_s_len': 5,
+        'h_si_len': 1,
+        'h_s_len': 1,
     }
     logging.info('params')
-    logging.info('hidden-15-15')
+    logging.info('hidden-5')
     logging.info(params)
 
     # データを生成する
@@ -75,8 +75,6 @@ if __name__ == '__main__':
 
     # 実行時の時間を記録する
     start = time.time()
-
-    # models = [[[None]*params['SNR_AVERAGE'] for i in range(params['SNR_NUM'])] for j in range(len(params['IBO_dB']))]
 
     for snr_index in range(params['SNR_AVERAGE']):
         # 通信路は毎回生成する
@@ -123,7 +121,6 @@ if __name__ == '__main__':
                     params['h_s_len'],
                 )
 
-                # models[IBO_index][index][snr_index] = model
                 errors[IBO_index][index][snr_index] = model.error
                 losss[IBO_index][index][snr_index][:] = model.nn_history.history['loss']
                 val_losss[IBO_index][index][snr_index][:] = model.nn_history.history['val_loss']
