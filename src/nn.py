@@ -9,19 +9,20 @@ import numpy as np
 
 
 class NNModel():
-    def __init__(self, n_hidden, learning_rate=None, h_si_len: int = 1, h_s_len: int = 1):
+    def __init__(self, n_hidden, learning_rate=0.001, h_si_len: int = 1, h_s_len: int = 1):
         self.init_model(n_hidden, learning_rate, h_si_len, h_s_len)
 
-    def init_model(self, n_hidden, learning_rate=None, h_si_len: int = 1, h_s_len: int = 1):
+    def init_model(self, n_hidden, learning_rate=0.001, h_si_len: int = 1, h_s_len: int = 1):
         input = Input(shape=((2*h_si_len)+(2*h_s_len),))
         x = Dense(n_hidden, activation='relu')(input)
         # x = Dense(n_hidden, activation='relu')(x)
         output1 = Dense(1, activation='linear')(x)
         output2 = Dense(1, activation='linear')(x)
         model = Model(inputs=input, outputs=[output1, output2])
-        # adam = Adam(lr=learning_rate)
-        # model.compile(adam, loss="mse")
-        model.compile(RAdam(), loss='mse')
+        # optimizer = optimizers.Adam(lr=learning_rate)
+        optimizer = optimizers.SGD(learning_rate=learning_rate, momentum=0.8)
+        # optimizer = RAdam()
+        model.compile(optimizer, loss='mse')
 
         self.nn = model
 
