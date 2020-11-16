@@ -50,7 +50,7 @@ if __name__ == '__main__':
         'SNR_MIN': 0,
         'SNR_MAX': 25,
         'SNR_NUM': 6,
-        'SNR_AVERAGE': 50,
+        'SNR_AVERAGE': 5,
 
         'nHidden': 15,
         'nEpochs': 20,
@@ -76,6 +76,7 @@ if __name__ == '__main__':
     # 実行時の時間を記録する
     start = time.time()
 
+    models = [[[None]*params['SNR_AVERAGE'] for i in range(params['SNR_NUM'])] for j in range(len(params['IBO_dB']))]
     for snr_index in range(params['SNR_AVERAGE']):
         # 通信路は毎回生成する
         h_si = m.channel(1, params['h_si_len'])
@@ -85,7 +86,9 @@ if __name__ == '__main__':
         logging.info('h_s:{0.real}+{0.imag}i'.format(h_s))
 
         for IBO_index, IBO_dB in enumerate(params['IBO_dB']):
+            ibo_nn_models = []
             for index, sigma in enumerate(sigmas):
+                sigma_nn_models = []
                 logging.info("IBO_dB_index:" + str(IBO_index))
                 logging.info("SNR_AVERAGE_index:" + str(snr_index))
                 logging.info("sigma_index:" + str(index))
@@ -124,10 +127,11 @@ if __name__ == '__main__':
                 errors[IBO_index][index][snr_index] = model.error
                 losss[IBO_index][index][snr_index][:] = model.nn_history.history['loss']
                 val_losss[IBO_index][index][snr_index][:] = model.nn_history.history['val_loss']
+                models[IBO_index][index][snr_index] = model
 
     logging.info("learn_end_time: %d[sec]" % int(time.time() - start))
     # 結果をdumpしておく
-    result = Result(params, errors, losss, val_losss)
+    result = Result(params, errors, losss, val_losss, models)
     with open(dirname + '/snr_ber_average_ibo.pkl', 'wb') as f:
         pickle.dump(result, f)
 
