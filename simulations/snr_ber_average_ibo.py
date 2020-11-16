@@ -50,9 +50,9 @@ if __name__ == '__main__':
         'SNR_MIN': 0,
         'SNR_MAX': 25,
         'SNR_NUM': 6,
-        'SNR_AVERAGE': 20,
+        'SNR_AVERAGE': 50,
 
-        'nHidden': 5,
+        'nHidden': 15,
         'nEpochs': 20,
         'learningRate': 0.001,
         'trainingRatio': 0.8,  # 全体のデータ数に対するトレーニングデータの割合
@@ -62,7 +62,7 @@ if __name__ == '__main__':
         'h_s_len': 1,
     }
     logging.info('params')
-    logging.info('hidden-5')
+    logging.info('hidden-15-15')
     logging.info(params)
 
     # データを生成する
