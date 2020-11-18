@@ -11,15 +11,23 @@ import logging
 
 
 class Result:
-    def __init__(self, params, errors, losss, val_losss, nn_model=None):
+    params: dict
+    errors: np.ndarray
+    losss: np.ndarray
+    val_losss: np.ndarray
+    nn_models: list
+
+    def __init__(self, params, errors, losss, val_losss, nn_models=None):
         self.params = params
         self.errors = errors
         self.losss = losss
         self.val_losss = val_losss
-        self.nn_model = nn_model
+        self.nn_models = nn_models
 
 
 if __name__ == '__main__':
+    os.environ["CUDA_VISIBLE_DEVICES"] = '-1'
+
     # シミュレーション結果の保存先を作成する
     dt_now = datetime.datetime.now()
     dirname = '../results/snr_ber_average_ibo/' + dt_now.strftime("%Y/%m/%d/%H_%M_%S")
@@ -44,13 +52,17 @@ if __name__ == '__main__':
         'n': 2 * 10 ** 4,  # サンプルのn数
         'gamma': 0.3,
         'phi': 3.0,
+
         'rho': 2,
         'IBO_dB': [7],
+
+        'LNA_rho': 2,
+        'LNA_IBO_dB': 7,
 
         'SNR_MIN': 0,
         'SNR_MAX': 25,
         'SNR_NUM': 6,
-        'SNR_AVERAGE': 5,
+        'SNR_AVERAGE': 2,
 
         'nHidden': 15,
         'nEpochs': 20,
@@ -76,8 +88,9 @@ if __name__ == '__main__':
     # 実行時の時間を記録する
     start = time.time()
 
-    models = [[[None]*params['SNR_AVERAGE'] for i in range(params['SNR_NUM'])] for j in range(len(params['IBO_dB']))]
-    for snr_index in range(params['SNR_AVERAGE']):
+    nn_models = [[[None] * params['SNR_AVERAGE'] for i in range(params['SNR_NUM'])] for j in
+                 range(len(params['IBO_dB']))]
+    for trials_index in range(params['SNR_AVERAGE']):
         # 通信路は毎回生成する
         h_si = m.channel(1, params['h_si_len'])
         h_s = m.channel(1, params['h_s_len'])
@@ -87,11 +100,11 @@ if __name__ == '__main__':
 
         for IBO_index, IBO_dB in enumerate(params['IBO_dB']):
             ibo_nn_models = []
-            for index, sigma in enumerate(sigmas):
+            for sigma_index, sigma in enumerate(sigmas):
                 sigma_nn_models = []
                 logging.info("IBO_dB_index:" + str(IBO_index))
-                logging.info("SNR_AVERAGE_index:" + str(snr_index))
-                logging.info("sigma_index:" + str(index))
+                logging.info("SNR_AVERAGE_index:" + str(trials_index))
+                logging.info("sigma_index:" + str(sigma_index))
                 logging.info("time: %d[sec]" % int(time.time() - start))
                 system_model = SystemModel(
                     params['n'],
@@ -100,8 +113,8 @@ if __name__ == '__main__':
                     params['phi'],
                     IBO_dB,
                     params['rho'],
-                    IBO_dB,
-                    params['rho'],
+                    params['LNA_IBO_dB'],
+                    params['LNA_rho'],
                     h_si,
                     h_s,
                     params['h_si_len'],
@@ -109,13 +122,13 @@ if __name__ == '__main__':
                 )
 
                 # NNを生成
-                model = NNModel(
+                nn_model = NNModel(
                     params['nHidden'],
                     params['learningRate'],
                     params['h_si_len'],
                     params['h_s_len'],
                 )
-                model.learn(
+                nn_model.learn(
                     system_model,
                     params['trainingRatio'],
                     params['nEpochs'],
@@ -124,16 +137,22 @@ if __name__ == '__main__':
                     params['h_s_len'],
                 )
 
-                errors[IBO_index][index][snr_index] = model.error
-                losss[IBO_index][index][snr_index][:] = model.nn_history.history['loss']
-                val_losss[IBO_index][index][snr_index][:] = model.nn_history.history['val_loss']
-                models[IBO_index][index][snr_index] = model
+                errors[IBO_index][sigma_index][trials_index] = nn_model.error
+                losss[IBO_index][sigma_index][trials_index][:] = nn_model.history.history['loss']
+                val_losss[IBO_index][sigma_index][trials_index][:] = nn_model.history.history['val_loss']
+                # 学習済みモデルはpklできないので削除する．
+                del nn_model.model
+                del nn_model.history
+                nn_models[IBO_index][sigma_index][trials_index] = nn_model
 
     logging.info("learn_end_time: %d[sec]" % int(time.time() - start))
     # 結果をdumpしておく
-    result = Result(params, errors, losss, val_losss, models)
+    result = Result(params, errors, losss, val_losss, nn_models)
     with open(dirname + '/snr_ber_average_ibo.pkl', 'wb') as f:
         pickle.dump(result, f)
+
+    # with open(dirname + '/nn_model.pkl', 'wb') as f:
+    #     pickle.dump(models, f)
 
     # SNR-BERグラフ
     fig = plt.figure(figsize=(8, 6))
@@ -162,14 +181,16 @@ if __name__ == '__main__':
     plt.savefig(dirname + '/SNR_BER.pdf')
 
     # Plot learning curve
-    for index, snr_db in enumerate(snrs_db):
+    for sigma_index, snr_db in enumerate(snrs_db):
         plt.figure()
 
         for IBO_index, IBO_db in enumerate(params['IBO_dB']):
-            loss_avg = np.mean(losss[IBO_index][index], axis=0).T
-            val_loss_avg = np.mean(val_losss[IBO_index][index], axis=0).T
-            plt.plot(np.arange(1, len(loss_avg) + 1), loss_avg, color=color_list[IBO_index], marker='o', linestyle='--', label='Training Frame (IBO=%d[dB])' % IBO_db)
-            plt.plot(np.arange(1, len(loss_avg) + 1), val_loss_avg, color=color_list[IBO_index+len(params['IBO_dB'])], marker='o', linestyle='--', label='Test Frame (IBO=%d[dB])' % IBO_db)
+            loss_avg = np.mean(losss[IBO_index][sigma_index], axis=0).T
+            val_loss_avg = np.mean(val_losss[IBO_index][sigma_index], axis=0).T
+            plt.plot(np.arange(1, len(loss_avg) + 1), loss_avg, color=color_list[IBO_index], marker='o', linestyle='--',
+                     label='Training Frame (IBO=%d[dB])' % IBO_db)
+            plt.plot(np.arange(1, len(loss_avg) + 1), val_loss_avg, color=color_list[IBO_index + len(params['IBO_dB'])],
+                     marker='o', linestyle='--', label='Test Frame (IBO=%d[dB])' % IBO_db)
 
         plt.ylabel('less')
         plt.yscale('log')

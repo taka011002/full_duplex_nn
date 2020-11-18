@@ -104,8 +104,8 @@ if __name__ == '__main__':
             model.learn(system_model, params['trainingRatio'], params['nEpochs'], params['batchSize'])
 
             errors[index][snr_index] = model.error
-            losss[index][snr_index][:] = model.nn_history.history['loss']
-            val_losss[index][snr_index][:] = model.nn_history.history['val_loss']
+            losss[index][snr_index][:] = model.history.history['loss']
+            val_losss[index][snr_index][:] = model.history.history['val_loss']
 
     logging.info("learn_end_time: %d[sec]" % int(time.time() - start))
     # 結果をdumpしておく

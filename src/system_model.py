@@ -3,7 +3,21 @@ import numpy as np
 
 
 class SystemModel:
-    def __init__(self, n, sigma, gamma=0.0, phi=0.0, PA_IBO_dB=5, PA_rho=2, LNA_IBO_dB=5, LNA_rho=2, h_si=None, h_s=None, h_si_len=1, h_s_len=1):
+    d: np.ndarray
+    x: np.ndarray
+    d_s: np.ndarray
+    s: np.ndarray
+    x_iq: np.ndarray
+    x_pa: np.ndarray
+    h_si: np.ndarray
+    h_s: np.ndarray
+    y_si: np.ndarray
+    y_s: np.ndarray
+    r: np.ndarray
+    y: np.ndarray
+
+    def __init__(self, n, sigma, gamma=0.0, phi=0.0, PA_IBO_dB=5, PA_rho=2, LNA_IBO_dB=5, LNA_rho=2, h_si=None,
+                 h_s=None, h_si_len=1, h_s_len=1):
         # 送信信号
         self.d = np.random.choice([0, 1], n)
         self.x = m.modulate_qpsk(self.d)
@@ -26,8 +40,11 @@ class SystemModel:
         self.h_si = h_si
         self.h_s = h_s
 
-        self.y_si = h_si * np.reshape(np.array([self.x_pa[i:i+h_si_len] for i in range(self.x_pa.size-h_si_len+1)]), (self.x_pa.size-h_si_len+1, h_si_len)) # チャネル数分作る
-        self.y_s = h_s * np.reshape(np.array([self.s[i:i+h_s_len] for i in range(self.s.size-h_s_len+1)]), (self.s.size-h_s_len+1, h_s_len)) # チャネル数分作る
+        self.y_si = h_si * np.reshape(
+            np.array([self.x_pa[i:i + h_si_len] for i in range(self.x_pa.size - h_si_len + 1)]),
+            (self.x_pa.size - h_si_len + 1, h_si_len))  # チャネル数分作る
+        self.y_s = h_s * np.reshape(np.array([self.s[i:i + h_s_len] for i in range(self.s.size - h_s_len + 1)]),
+                                    (self.s.size - h_s_len + 1, h_s_len))  # チャネル数分作る
         self.r = self.y_si + self.y_s + m.awgn(self.y_s.shape, sigma, h_s_len)
 
         # 受信側非線形

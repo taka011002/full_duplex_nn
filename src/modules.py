@@ -60,7 +60,7 @@ def sspa_rapp_ibo(input_signal: np.ndarray, IBO_dB: int = 0, rho: float = 0.5) -
     """
     ibo = 10 ** (IBO_dB / 10)  # IBOをもとにアンプの飽和電力を決める
     P_in = np.sum((input_signal * input_signal.conj()).real) / input_signal.shape[0] # nで割るべき？
-    # P_in = np.sum(np.abs(input_signal)) / input_signal.size
+    # P_in = np.sum(np.abs(input_signal)) / input_signal.shape[0]
     A = np.sqrt(P_in * ibo)
     return sspa_rapp(input_signal, A, rho)
 
@@ -98,7 +98,7 @@ def channel(size: int = 1, length: int = 1) -> np.ndarray:
     return h
 
 
-def awgn(size: int, sigma: float, length: int = 1) -> np.ndarray:
+def awgn(size: tuple, sigma: float, length: int = 1) -> np.ndarray:
     """
     AWGNの値を取得する
 
