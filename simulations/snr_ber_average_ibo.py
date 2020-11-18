@@ -62,19 +62,19 @@ if __name__ == '__main__':
         'SNR_MIN': 0,
         'SNR_MAX': 25,
         'SNR_NUM': 6,
-        'SNR_AVERAGE': 10,
+        'SNR_AVERAGE': 100,
 
-        'nHidden': 15,
+        'nHidden': 5,
         'nEpochs': 20,
         'learningRate': 0.001,
         'trainingRatio': 0.8,  # 全体のデータ数に対するトレーニングデータの割合
         'batchSize': 32,
 
-        'h_si_len': 1,
-        'h_s_len': 1,
+        'h_si_len': 2,
+        'h_s_len': 2,
     }
     logging.info('params')
-    logging.info('hidden-15-15')
+    logging.info('hidden-5')
     logging.info(params)
 
     # データを生成する

@@ -25,7 +25,7 @@ class NNModel:
     def init_model(self, n_hidden, learning_rate=0.001, h_si_len: int = 1, h_s_len: int = 1):
         input = Input(shape=((2 * h_si_len) + (2 * h_s_len),))
         x = Dense(n_hidden, activation='relu')(input)
-        x = Dense(n_hidden, activation='relu')(x)
+        # x = Dense(n_hidden, activation='relu')(x)
         output1 = Dense(1, activation='linear')(x)
         output2 = Dense(1, activation='linear')(x)
         model = Model(inputs=input, outputs=[output1, output2])
@@ -49,11 +49,12 @@ class NNModel:
 
         x_train = x[0:training_samples]
         y_train = system_model.y[0:training_samples]
-        s_train = system_model.s[0:training_samples]
+        delay = 1
+        s_train = system_model.s[0+delay:training_samples+delay] # 遅延をとる
 
         # 標準化
-        hensa = np.sqrt(np.var(y_train))
-        y_train = y_train / hensa
+        # hensa = np.sqrt(np.var(y_train))
+        # y_train = y_train / hensa
 
         # NNの入力に合うように1つのベクトルにする
         train = np.zeros((x_train.shape[0], (2 * h_si_len) + (2 * h_s_len)))
@@ -65,10 +66,10 @@ class NNModel:
         # テストデータの作成
         x_test = x[training_samples:]
         y_test = system_model.y[training_samples:]
-        s_test = system_model.s[training_samples:(training_samples + x_test.shape[0])]  # 数が合わなくなる時があるのでx_sの大きさを合わせる
+        s_test = system_model.s[training_samples+delay:(training_samples + x_test.shape[0] + delay)]  # 数が合わなくなる時があるのでx_sの大きさを合わせる
 
         # 標準化
-        y_test = y_test / hensa
+        # y_test = y_test / hensa
 
         # NNの入力に合うように1つのベクトルにする
         test = np.zeros((x_test.shape[0], (2 * h_si_len) + (2 * h_s_len)))
@@ -91,7 +92,7 @@ class NNModel:
         # 推定信号をデータへ復調する
         self.d_s_hat = m.demodulate_qpsk(s_hat)
         # 元々の外部信号のデータ
-        self.d_s_test = system_model.d_s[2 * training_samples:2 * (training_samples + x_test.shape[0])]
+        self.d_s_test = system_model.d_s[2 * (training_samples+delay):2 * (training_samples + x_test.shape[0] + delay)]
         self.d_s_test_count = self.d_s_test.size
 
         self.error = np.sum(self.d_s_test != self.d_s_hat)
