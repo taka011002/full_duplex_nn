@@ -62,7 +62,7 @@ if __name__ == '__main__':
         'SNR_MIN': 0,
         'SNR_MAX': 25,
         'SNR_NUM': 6,
-        'SNR_AVERAGE': 2,
+        'SNR_AVERAGE': 10,
 
         'nHidden': 15,
         'nEpochs': 20,
