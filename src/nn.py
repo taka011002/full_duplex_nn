@@ -80,7 +80,7 @@ class NNModel:
 
         # 学習
         self.history = self.model.fit(train, [s_train.real, s_train.imag], epochs=n_epochs,
-                                      batch_size=batch_size, verbose=2,
+                                      batch_size=batch_size, verbose=0,
                                       validation_data=(test, [s_test.real, s_test.imag]))
 
         # 学習したモデルを評価
