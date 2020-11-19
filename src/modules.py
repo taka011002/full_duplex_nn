@@ -81,7 +81,7 @@ def sspa_rapp(input_signal: np.ndarray, saturation: float = 1, rho: float = 0.5)
     return amp_output
 
 
-def channel(size: int = 1, length: int = 1) -> np.ndarray:
+def channel(size: int = 1, length: int = 1, scale: float=1.0) -> np.ndarray:
     """
     周波数非選択性通信路を生成する．
     生成する通信路の要素を全て違う値にする際はsizeを指定してあげる．
@@ -93,7 +93,7 @@ def channel(size: int = 1, length: int = 1) -> np.ndarray:
     :return:
     """
     variance = np.reciprocal(np.sqrt(2 * length))
-    h = np.random.normal(loc=0, scale=1, size=(size, length)) + 1j * np.random.normal(loc=0, scale=1, size=(size, length))
+    h = np.random.normal(loc=0, scale=scale, size=(size, length)) + 1j * np.random.normal(loc=0, scale=scale, size=(size, length))
     h = h * variance
     return h
 
