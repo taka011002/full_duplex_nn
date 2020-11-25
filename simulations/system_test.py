@@ -16,6 +16,8 @@ if __name__ == '__main__':
 
         'h_si_len': 1,
         'h_s_len': 1,
+
+        "receive_antenna": 10
     }
 
     h_si = m.channel(1, params['h_si_len'])
@@ -34,6 +36,8 @@ if __name__ == '__main__':
         h_s,
         params['h_si_len'],
         params['h_s_len'],
+        params['receive_antenna'],
+
     )
 
 

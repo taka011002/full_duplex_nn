@@ -8,7 +8,7 @@ import datetime
 import time
 import pickle
 import logging
-
+from tqdm import tqdm
 
 class Result:
     params: dict
@@ -62,16 +62,18 @@ if __name__ == '__main__':
         'SNR_MIN': 0,
         'SNR_MAX': 25,
         'SNR_NUM': 6,
-        'SNR_AVERAGE': 100,
+        'SNR_AVERAGE': 50,
 
-        'nHidden': 5,
+        'nHidden': 15,
         'nEpochs': 20,
         'learningRate': 0.001,
         'trainingRatio': 0.8,  # 全体のデータ数に対するトレーニングデータの割合
         'batchSize': 32,
 
-        'h_si_len': 2,
-        'h_s_len': 2,
+        'h_si_len': 1,
+        'h_s_len': 1,
+
+        "receive_antenna": 5
     }
     logging.info('params')
     logging.info('hidden-5')
@@ -90,18 +92,17 @@ if __name__ == '__main__':
 
     nn_models = [[[None] * params['SNR_AVERAGE'] for i in range(params['SNR_NUM'])] for j in
                  range(len(params['IBO_dB']))]
-    for trials_index in range(params['SNR_AVERAGE']):
+    for trials_index in tqdm(range(params['SNR_AVERAGE'])):
         # 通信路は毎回生成する
-        h_si = m.channel(1, params['h_si_len'])
-        h_s = m.channel(1, params['h_s_len'])
+        h_si = []
+        h_s = []
+        for i in range(params['receive_antenna']):
+            h_si.append(m.channel(1, params['h_si_len']))
+            h_s.append(m.channel(1, params['h_s_len']))
         logging.info('random channel')
-        logging.info('h_si:{0.real}+{0.imag}i'.format(h_si))
-        logging.info('h_s:{0.real}+{0.imag}i'.format(h_s))
 
         for IBO_index, IBO_dB in enumerate(params['IBO_dB']):
-            ibo_nn_models = []
             for sigma_index, sigma in enumerate(sigmas):
-                sigma_nn_models = []
                 logging.info("IBO_dB_index:" + str(IBO_index))
                 logging.info("SNR_AVERAGE_index:" + str(trials_index))
                 logging.info("sigma_index:" + str(sigma_index))
@@ -119,6 +120,7 @@ if __name__ == '__main__':
                     h_s,
                     params['h_si_len'],
                     params['h_s_len'],
+                    params['receive_antenna'],
                 )
 
                 # NNを生成
@@ -127,6 +129,7 @@ if __name__ == '__main__':
                     params['learningRate'],
                     params['h_si_len'],
                     params['h_s_len'],
+                    params['receive_antenna'],
                 )
                 nn_model.learn(
                     system_model,
@@ -135,6 +138,7 @@ if __name__ == '__main__':
                     params['batchSize'],
                     params['h_si_len'],
                     params['h_s_len'],
+                    params['receive_antenna'],
                 )
 
                 errors[IBO_index][sigma_index][trials_index] = nn_model.error

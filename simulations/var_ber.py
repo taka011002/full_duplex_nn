@@ -74,11 +74,12 @@ if __name__ == '__main__':
     for trials_index in tqdm(range(params['number_of_trials'])):
         for var_s_index, var_s in enumerate(var_s_list):
             # 通信路は毎回生成する
-            h_si = m.channel(1, params['h_si_len'], var_si)
-            h_s = m.channel(1, params['h_s_len'], var_s)
+            h_si = []
+            h_s = []
+            for i in range(params['receive_antenna']):
+                h_si.append(m.channel(1, params['h_si_len'], var_si))
+                h_s.append(m.channel(1, params['h_s_len'], var_s))
             logging.info('random channel')
-            logging.info('h_si:{0.real}+{0.imag}i'.format(h_si))
-            logging.info('h_s:{0.real}+{0.imag}i'.format(h_s))
 
             logging.info("number_of_trials_index:" + str(trials_index))
             logging.info("var_s_index:" + str(var_s_index))
@@ -96,6 +97,7 @@ if __name__ == '__main__':
                 h_s,
                 params['h_si_len'],
                 params['h_s_len'],
+                params['receive_antenna'],
             )
 
             # NNを生成
@@ -104,6 +106,8 @@ if __name__ == '__main__':
                 params['learningRate'],
                 params['h_si_len'],
                 params['h_s_len'],
+                params['receive_antenna'],
+
             )
 
             nn_model.learn(
@@ -113,6 +117,7 @@ if __name__ == '__main__':
                 params['batchSize'],
                 params['h_si_len'],
                 params['h_s_len'],
+                params['receive_antenna'],
             )
 
             errors[var_s_index][trials_index] = nn_model.error
@@ -125,7 +130,7 @@ if __name__ == '__main__':
 
     logging.info("learn_end_time: %d[sec]" % int(time.time() - start))
     # 結果をdumpしておく
-    result = Result(params, errors, losss, val_losss, nn_models)
+    result = Result(params, errors, losss, val_losss, None)
     with open(dirname + '/snr_ber_average_ibo.pkl', 'wb') as f:
         pickle.dump(result, f)
 
