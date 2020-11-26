@@ -23,5 +23,7 @@
 
   "var_min": -10,
   "var_max": 10,
-  "var_num": 20
+  "var_num": 9,
+
+  "receive_antenna": 2
 }

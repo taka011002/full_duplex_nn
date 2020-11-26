@@ -26,7 +26,7 @@ if __name__ == '__main__':
 
     results = []
     pkl_paths = [
-        '../results/snr_ber_average_ibo/2020/11/18/15_49_24/snr_ber_average_ibo.pkl',
+        '../results/snr_ber_average_ibo/2020/11/26/01_00_42/snr_ber_average_ibo.pkl',
         # '../results/keep/momentam_batch_nn_15_full_2/14_47_35/snr_ber_average_ibo.pkl',
         # '../results/keep/momentam_batch_nn_15_full_2/14_47_38/snr_ber_average_ibo.pkl',
         # '../results/keep/momentam_batch_nn_15_full/13_50_10/snr_ber_average_ibo.pkl',

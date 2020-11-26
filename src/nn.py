@@ -53,8 +53,8 @@ class NNModel:
         s_train = system_model.s[0+delay:training_samples+delay] # 遅延をとる
 
         # 標準化
-        hensa = np.sqrt(np.var(y_train))
-        y_train = y_train / hensa
+        # hensa = np.sqrt(np.var(y_train))
+        # y_train = y_train / hensa
 
         # NNの入力に合うように1つのベクトルにする
         train = np.zeros((x_train.shape[0], (2 * h_si_len) + (2 * receive_antenna)))
@@ -69,7 +69,7 @@ class NNModel:
         s_test = system_model.s[training_samples+delay:(training_samples + x_test.shape[0] + delay)]  # 数が合わなくなる時があるのでx_sの大きさを合わせる
 
         # 標準化
-        y_test = y_test / hensa
+        # y_test = y_test / hensa
 
         # NNの入力に合うように1つのベクトルにする
         test = np.zeros((x_test.shape[0], (2 * h_si_len) + (2 * receive_antenna)))

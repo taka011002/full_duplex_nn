@@ -62,7 +62,7 @@ if __name__ == '__main__':
         'SNR_MIN': 0,
         'SNR_MAX': 25,
         'SNR_NUM': 6,
-        'SNR_AVERAGE': 50,
+        'SNR_AVERAGE': 100,
 
         'nHidden': 15,
         'nEpochs': 20,
@@ -73,7 +73,7 @@ if __name__ == '__main__':
         'h_si_len': 1,
         'h_s_len': 1,
 
-        "receive_antenna": 5
+        "receive_antenna": 2
     }
     logging.info('params')
     logging.info('hidden-5')
@@ -151,12 +151,14 @@ if __name__ == '__main__':
 
     logging.info("learn_end_time: %d[sec]" % int(time.time() - start))
     # 結果をdumpしておく
-    result = Result(params, errors, losss, val_losss, nn_models)
+    # result = Result(params, errors, losss, val_losss, nn_models)
+    # with open(dirname + '/snr_ber_average_ibo.pkl', 'wb') as f:
+    #     pickle.dump(result, f)
+
+    result = Result(params, errors, losss, val_losss, None)
     with open(dirname + '/snr_ber_average_ibo.pkl', 'wb') as f:
         pickle.dump(result, f)
 
-    # with open(dirname + '/nn_model.pkl', 'wb') as f:
-    #     pickle.dump(models, f)
 
     # SNR-BERグラフ
     fig = plt.figure(figsize=(8, 6))
