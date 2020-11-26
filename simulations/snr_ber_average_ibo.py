@@ -1,4 +1,5 @@
 from src import modules as m
+from src import common as c
 from src.system_model import SystemModel
 from src.nn import NNModel
 import numpy as np
@@ -8,6 +9,7 @@ import datetime
 import time
 import pickle
 import logging
+import json
 from tqdm import tqdm
 
 class Result:
@@ -26,8 +28,6 @@ class Result:
 
 
 if __name__ == '__main__':
-    os.environ["CUDA_VISIBLE_DEVICES"] = '-1'
-
     # シミュレーション結果の保存先を作成する
     dt_now = datetime.datetime.now()
     dirname = '../results/snr_ber_average_ibo/' + dt_now.strftime("%Y/%m/%d/%H_%M_%S")
@@ -61,8 +61,8 @@ if __name__ == '__main__':
 
         'SNR_MIN': 0,
         'SNR_MAX': 25,
-        'SNR_NUM': 6,
-        'SNR_AVERAGE': 100,
+        'SNR_NUM': 1,
+        'SNR_AVERAGE': 1,
 
         'nHidden': 15,
         'nEpochs': 20,
@@ -75,6 +75,7 @@ if __name__ == '__main__':
 
         "receive_antenna": 2
     }
+    c.notify_slack("start:"+dirname+"\n"+json.dumps(params, indent=4))
     logging.info('params')
     logging.info('hidden-5')
     logging.info(params)
@@ -186,6 +187,10 @@ if __name__ == '__main__':
     ax.legend()
     plt.savefig(dirname + '/SNR_BER.pdf')
 
+    output_png = dirname + '/SNR_BER.png'
+    plt.savefig(output_png)
+
+
     # Plot learning curve
     for sigma_index, snr_db in enumerate(snrs_db):
         plt.figure()
@@ -207,5 +212,5 @@ if __name__ == '__main__':
         plt.xticks(range(1, params['nEpochs'], 2))
         plt.savefig(dirname + '/snr_db_' + str(snr_db) + '_NNconv.pdf', bbox_inches='tight')
 
+    c.upload_file(output_png, "end:"+dirname)
     logging.info("end")
-    print(dirname)
