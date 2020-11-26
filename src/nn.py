@@ -25,7 +25,7 @@ class NNModel:
     def init_model(self, n_hidden, learning_rate=0.001, h_si_len: int = 1, h_s_len: int = 1, receive_antenna: int = 1):
         input = Input(shape=((2 * h_si_len) + (2 * receive_antenna),))
         x = Dense(n_hidden, activation='relu')(input)
-        x = Dense(n_hidden, activation='relu')(x)
+        # x = Dense(n_hidden, activation='relu')(x)
         output1 = Dense(1, activation='linear')(x)
         output2 = Dense(1, activation='linear')(x)
         model = Model(inputs=input, outputs=[output1, output2])
