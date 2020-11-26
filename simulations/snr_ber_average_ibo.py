@@ -61,8 +61,8 @@ if __name__ == '__main__':
 
         'SNR_MIN': 0,
         'SNR_MAX': 25,
-        'SNR_NUM': 6,
-        'SNR_AVERAGE': 100,
+        'SNR_NUM': 1,
+        'SNR_AVERAGE': 1,
 
         'nHidden': 15,
         'nEpochs': 20,
@@ -208,3 +208,4 @@ if __name__ == '__main__':
         plt.savefig(dirname + '/snr_db_' + str(snr_db) + '_NNconv.pdf', bbox_inches='tight')
 
     logging.info("end")
+    print(dirname)
