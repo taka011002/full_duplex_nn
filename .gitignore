@@ -1,3 +1,5 @@
 __pycache__/
 .env
+.env.docker-compose
 .envrc
+run.sh

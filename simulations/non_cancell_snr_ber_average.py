@@ -28,8 +28,8 @@ if __name__ == '__main__':
 
     results = []
     pkl_paths = [
-        '../results/keep/momentam_batch_nn_5/15_35_45/snr_ber_average_ibo.pkl',
-        '../results/keep/momentam_batch_nn_5/15_35_48/snr_ber_average_ibo.pkl',
+        '../results/snr_ber_average_ibo/2020/11/26/01_00_42/snr_ber_average_ibo.pkl',
+        # '../results/keep/momentam_batch_nn_5/15_35_48/snr_ber_average_ibo.pkl',
         # '../results/keep/momentam/04_02_37/snr_ber_average_ibo.pkl',
         # '../results/keep/momentam/04_02_45/snr_ber_average_ibo.pkl',
     ]
@@ -42,14 +42,11 @@ if __name__ == '__main__':
 
     # 結合させる
     errors_list = []
-    val_losss_list = []
 
     for result in results:
         errors_list.append(result.errors)
-        val_losss_list.append(result.val_losss)
 
     errors = np.concatenate(errors_list, 2)
-    val_losss = np.concatenate(val_losss_list, 2)
 
     logging.info('chainload')
     logging.info(len(results))
@@ -88,7 +85,7 @@ if __name__ == '__main__':
                     h_s,
                 )
 
-                demodulate = m.demodulate_qpsk(system_model.y)
+                demodulate = m.demodulate_qpsk(system_model.y.squeeze())
 
                 error = np.sum(system_model.d_s != demodulate)
 
@@ -103,20 +100,10 @@ if __name__ == '__main__':
     ax.set_yscale('log')
     ax.set_xlim(params['SNR_MIN'], params['SNR_MAX'])
     y_min = pow(10, 0)
-    y_max = pow(10, -4)
+    y_max = pow(10, -6)
     ax.set_ylim(y_max, y_min)
     ax.set_xlim(params['SNR_MIN'], params['SNR_MAX'])
     ax.grid(linestyle='--')
-
-    # Plot learning curve
-    fig_learning = plt.figure(figsize=(8, 6))
-    ax_learning = fig_learning.add_subplot(111)
-    ax_learning.set_xlabel("Training Epoch")
-    ax_learning.set_ylabel(r'$E_n$')
-    ax_learning.set_yscale('log')
-    ax_learning.grid(which='major', alpha=0.25)
-    ax_learning.set_xlim(0, params['nEpochs'] + 1)
-    ax_learning.set_xticks(range(1, params['nEpochs']+1, 2))
 
     train_data = params['n'] - (params['n'] * params['trainingRatio'])
     n_ave = train_data * params['SNR_AVERAGE'] * len(results)
@@ -135,16 +122,11 @@ if __name__ == '__main__':
     for IBO_index, IBO_db in enumerate(params['IBO_dB']):
         errors_sum = np.sum(errors[IBO_index], axis=1)
         bers = errors_sum / n_ave
-        ax.plot(snrs_db, bers, color='g', marker='o', linestyle='--', label="NN cancelled(hidden node: 5)")
+        ax.plot(snrs_db, bers, color='b', marker='o', linestyle='--', label="NN cancelled(receive antenna:1)")
 
-    for IBO_index, IBO_db in enumerate(params['IBO_dB']):
-        val_loss_avg = np.mean(val_losss[IBO_index][-1], axis=0).T
-        plt.plot(np.arange(1, len(val_loss_avg) + 1), val_loss_avg, color='g', marker='o', linestyle='--', label='Test Frame (hidden node: 5)')
-
-
+    ## ちゃんと調整してforループにする
     pkl_paths = [
-        '../results/keep/momentam_batch_nn_15_2/16_19_50/snr_ber_average_ibo.pkl',
-        '../results/keep/momentam_batch_nn_15_2/16_19_52/snr_ber_average_ibo.pkl',
+        '../results/snr_ber_average_ibo/2020/11/25/22_25_06/snr_ber_average_ibo.pkl',
     ]
 
     results = []
@@ -156,27 +138,20 @@ if __name__ == '__main__':
 
     # 結合させる
     errors_list = []
-    val_losss_list = []
 
     for result in results:
         errors_list.append(result.errors)
-        val_losss_list.append(result.val_losss)
 
     errors = np.concatenate(errors_list, 2)
-    val_losss = np.concatenate(val_losss_list, 2)
 
     for IBO_index, IBO_db in enumerate(params['IBO_dB']):
         errors_sum = np.sum(errors[IBO_index], axis=1)
         bers = errors_sum / n_ave
-        ax.plot(snrs_db, bers, color='b', marker='o', linestyle='--', label="NN cancelled(hidden node: 15)")
-
-    for IBO_index, IBO_db in enumerate(params['IBO_dB']):
-        val_loss_avg = np.mean(val_losss[IBO_index][-1], axis=0).T
-        plt.plot(np.arange(1, len(val_loss_avg) + 1), val_loss_avg, color='b', marker='o', linestyle='--', label='Test Frame (hidden node: 15)')
+        np.place(bers, bers == 0, None)
+        ax.plot(snrs_db, bers, color='y', marker='o', linestyle='--', label="NN cancelled(receive antenna:2)")
 
     pkl_paths = [
-        '../results/keep/momentam_double_hidden_nn_15_full_2/14_47_35/snr_ber_average_ibo.pkl',
-        '../results/keep/momentam_double_hidden_nn_15_full_2/14_47_38/snr_ber_average_ibo.pkl',
+        '../results/snr_ber_average_ibo/2020/11/25/22_25_24/snr_ber_average_ibo.pkl',
     ]
 
     results = []
@@ -188,26 +163,93 @@ if __name__ == '__main__':
 
     # 結合させる
     errors_list = []
-    val_losss_list = []
 
     for result in results:
         errors_list.append(result.errors)
-        val_losss_list.append(result.val_losss)
 
     errors = np.concatenate(errors_list, 2)
-    val_losss = np.concatenate(val_losss_list, 2)
 
     for IBO_index, IBO_db in enumerate(params['IBO_dB']):
         errors_sum = np.sum(errors[IBO_index], axis=1)
         bers = errors_sum / n_ave
-        ax.plot(snrs_db, bers, color='r', marker='o', linestyle='--', label="NN cancelled(hidden node: 15-15)")
+        np.place(bers, bers == 0, None)
+        ax.plot(snrs_db, bers, color='m', marker='o', linestyle='--', label="NN cancelled(receive antenna:3)")
+
+    pkl_paths = [
+        '../results/snr_ber_average_ibo/2020/11/25/22_25_40/snr_ber_average_ibo.pkl',
+    ]
+
+    results = []
+    for pkl_path in pkl_paths:
+        with open(pkl_path, 'rb') as f:
+            logging.info("loaded_pkl: %s" % pkl_path)
+            result = pickle.load(f)
+            results.append(result)
+
+    # 結合させる
+    errors_list = []
+
+    for result in results:
+        errors_list.append(result.errors)
+
+    errors = np.concatenate(errors_list, 2)
 
     for IBO_index, IBO_db in enumerate(params['IBO_dB']):
-        val_loss_avg = np.mean(val_losss[IBO_index][-1], axis=0).T
-        plt.plot(np.arange(1, len(val_loss_avg) + 1), val_loss_avg, color='r', marker='o', linestyle='--', label='Test Frame (hidden node: 15-15)')
+        errors_sum = np.sum(errors[IBO_index], axis=1)
+        bers = errors_sum / n_ave
+        np.place(bers, bers == 0, None)
+        ax.plot(snrs_db, bers, color='r', marker='o', linestyle='--', label="NN cancelled(receive antenna:4)")
 
-    ax.legend(fontsize=16)
-    fig.savefig(dirname + '/SNR_BER.pdf')
 
-    ax_learning.legend(fontsize=16)
-    fig_learning.savefig(dirname + '/snr_db_25_NNconv.pdf', bbox_inches='tight')
+    pkl_paths = [
+        '../results/snr_ber_average_ibo/2020/11/25/20_11_41/snr_ber_average_ibo.pkl',
+    ]
+
+    results = []
+    for pkl_path in pkl_paths:
+        with open(pkl_path, 'rb') as f:
+            logging.info("loaded_pkl: %s" % pkl_path)
+            result = pickle.load(f)
+            results.append(result)
+
+    # 結合させる
+    errors_list = []
+
+    for result in results:
+        errors_list.append(result.errors)
+
+    errors = np.concatenate(errors_list, 2)
+
+    for IBO_index, IBO_db in enumerate(params['IBO_dB']):
+        errors_sum = np.sum(errors[IBO_index], axis=1)
+        bers = errors_sum / n_ave
+        np.place(bers, bers == 0, None)
+        ax.plot(snrs_db, bers, color='g', marker='o', linestyle='--', label="NN cancelled(receive antenna:5)")
+
+    pkl_paths = [
+        '../results/snr_ber_average_ibo/2020/11/25/20_11_47/snr_ber_average_ibo.pkl',
+    ]
+
+    results = []
+    for pkl_path in pkl_paths:
+        with open(pkl_path, 'rb') as f:
+            logging.info("loaded_pkl: %s" % pkl_path)
+            result = pickle.load(f)
+            results.append(result)
+
+    # 結合させる
+    errors_list = []
+
+    for result in results:
+        errors_list.append(result.errors)
+
+    errors = np.concatenate(errors_list, 2)
+
+    for IBO_index, IBO_db in enumerate(params['IBO_dB']):
+        errors_sum = np.sum(errors[IBO_index], axis=1)
+        bers = errors_sum / n_ave
+        np.place(bers, bers == 0, None)
+        ax.plot(snrs_db, bers, color='c', marker='o', linestyle='--', label="NN cancelled(receive antenna:10)")
+
+    ax.legend(fontsize=12)
+    plt.savefig(dirname + '/SNR_BER.pdf')

@@ -1,0 +1,29 @@
+{
+  "n": 20000,
+  "gamma": 0.3,
+  "phi": 3.0,
+
+  "PA_rho": 2,
+  "PA_IBO_db": 7,
+
+  "LNA_rho": 2,
+  "LNA_IBO_dB":7,
+
+  "snr": 25,
+  "number_of_trials": 25,
+
+  "nHidden": 15,
+  "nEpochs": 20,
+  "learningRate": 0.001,
+  "trainingRatio": 0.8,
+  "batchSize": 32,
+
+  "h_si_len": 1,
+  "h_s_len": 1,
+
+  "var_min": -10,
+  "var_max": 10,
+  "var_num": 9,
+
+  "receive_antenna": 2
+}
