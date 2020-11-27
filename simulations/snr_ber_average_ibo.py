@@ -40,7 +40,9 @@ if __name__ == '__main__':
         params = json.load(f)
         logging.info(params)
 
-    slack.post_message("start:" + dirname + "\n" + json.dumps(params, indent=4))
+    # パラメータはわかりやすいように別
+    with open(dirname + '/params.json', 'w') as f:
+        json.dump(params, f, indent=4)
 
     # データを生成する
     snrs_db = np.linspace(params['SNR_MIN'], params['SNR_MAX'], params['SNR_NUM'])
@@ -120,10 +122,6 @@ if __name__ == '__main__':
     result = Result(params, errors, losss, val_losss, None)
     with open(dirname + '/snr_ber_average_ibo.pkl', 'wb') as f:
         pickle.dump(result, f)
-
-    # パラメータはわかりやすいように別
-    with open(dirname + '/params.json', 'w') as f:
-        json.dump(params, f, indent=4)
 
     # SNR-BERグラフ
     fig = plt.figure(figsize=(8, 6))
