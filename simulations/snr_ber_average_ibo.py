@@ -40,7 +40,7 @@ if __name__ == '__main__':
 
     # グラフ
     plt.rcParams["font.family"] = "Times New Roman"
-    # plt.rcParams["font.size"] = 22
+    plt.rcParams["font.size"] = 22
     plt.rcParams["xtick.direction"] = "in"
     plt.rcParams["ytick.direction"] = "in"
 
@@ -91,8 +91,8 @@ if __name__ == '__main__':
     # 実行時の時間を記録する
     start = time.time()
 
-    nn_models = [[[None] * params['SNR_AVERAGE'] for i in range(params['SNR_NUM'])] for j in
-                 range(len(params['IBO_dB']))]
+    # nn_models = [[[None] * params['SNR_AVERAGE'] for i in range(params['SNR_NUM'])] for j in
+    #              range(len(params['IBO_dB']))]
     for trials_index in tqdm(range(params['SNR_AVERAGE'])):
         # 通信路は毎回生成する
         h_si = []
@@ -146,9 +146,9 @@ if __name__ == '__main__':
                 losss[IBO_index][sigma_index][trials_index][:] = nn_model.history.history['loss']
                 val_losss[IBO_index][sigma_index][trials_index][:] = nn_model.history.history['val_loss']
                 # 学習済みモデルはpklできないので削除する．
-                del nn_model.model
-                del nn_model.history
-                nn_models[IBO_index][sigma_index][trials_index] = nn_model
+                # del nn_model.model
+                # del nn_model.history
+                # nn_models[IBO_index][sigma_index][trials_index] = nn_model
 
     logging.info("learn_end_time: %d[sec]" % int(time.time() - start))
     # 結果をdumpしておく
@@ -212,5 +212,5 @@ if __name__ == '__main__':
         plt.xticks(range(1, params['nEpochs'], 2))
         plt.savefig(dirname + '/snr_db_' + str(snr_db) + '_NNconv.pdf', bbox_inches='tight')
 
-    c.upload_file(output_png, "end:"+dirname)
+    c.upload_file(output_png, "end:"+dirname+"\n"+json.dumps(params, indent=4))
     logging.info("end")
