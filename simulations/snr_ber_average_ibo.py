@@ -1,16 +1,16 @@
 from src import modules as m
-from src import common as c
+from simulations.common import slack
+from simulations.common import settings
 from src.system_model import SystemModel
 from src.nn import NNModel
 import numpy as np
 import matplotlib.pyplot as plt
-import os
-import datetime
 import time
 import pickle
 import logging
 import json
 from tqdm import tqdm
+
 
 class Result:
     params: dict
@@ -28,57 +28,19 @@ class Result:
 
 
 if __name__ == '__main__':
-    # シミュレーション結果の保存先を作成する
-    dt_now = datetime.datetime.now()
-    dirname = '../results/snr_ber_average_ibo/' + dt_now.strftime("%Y/%m/%d/%H_%M_%S")
-    os.makedirs(dirname, exist_ok=True)
-
-    formatter = '%(levelname)s : %(asctime)s : %(message)s'
-    logging.basicConfig(filename=dirname + '/log.log', level=logging.INFO, format=formatter)
-    logging.info('start')
-    logging.info(dt_now.strftime("%Y/%m/%d %H:%M:%S"))
-
-    # グラフ
-    plt.rcParams["font.family"] = "Times New Roman"
-    plt.rcParams["font.size"] = 22
-    plt.rcParams["xtick.direction"] = "in"
-    plt.rcParams["ytick.direction"] = "in"
+    SIMULATIONS_NAME = 'snr_ber_average_ibo'
+    dirname = settings.dirname_current_datetime(SIMULATIONS_NAME)
+    settings.init_simulation_output(dirname)
 
     # seed固定
     # np.random.seed(0)
 
     # パラメータ
-    params = {
-        'n': 2 * 10 ** 4,  # サンプルのn数
-        'gamma': 0.3,
-        'phi': 3.0,
+    with open('configs/snr_ber_average_ibo.json') as f:
+        params = json.load(f)
+        logging.info(params)
 
-        'rho': 2,
-        'IBO_dB': [7],
-
-        'LNA_rho': 2,
-        'LNA_IBO_dB': 7,
-
-        'SNR_MIN': 0,
-        'SNR_MAX': 25,
-        'SNR_NUM': 1,
-        'SNR_AVERAGE': 1,
-
-        'nHidden': 15,
-        'nEpochs': 20,
-        'learningRate': 0.001,
-        'trainingRatio': 0.8,  # 全体のデータ数に対するトレーニングデータの割合
-        'batchSize': 32,
-
-        'h_si_len': 1,
-        'h_s_len': 1,
-
-        "receive_antenna": 2
-    }
-    c.notify_slack("start:"+dirname+"\n"+json.dumps(params, indent=4))
-    logging.info('params')
-    logging.info('hidden-5')
-    logging.info(params)
+    slack.post_message("start:" + dirname + "\n" + json.dumps(params, indent=4))
 
     # データを生成する
     snrs_db = np.linspace(params['SNR_MIN'], params['SNR_MAX'], params['SNR_NUM'])
@@ -100,7 +62,6 @@ if __name__ == '__main__':
         for i in range(params['receive_antenna']):
             h_si.append(m.channel(1, params['h_si_len']))
             h_s.append(m.channel(1, params['h_s_len']))
-        logging.info('random channel')
 
         for IBO_index, IBO_dB in enumerate(params['IBO_dB']):
             for sigma_index, sigma in enumerate(sigmas):
@@ -160,6 +121,9 @@ if __name__ == '__main__':
     with open(dirname + '/snr_ber_average_ibo.pkl', 'wb') as f:
         pickle.dump(result, f)
 
+    # パラメータはわかりやすいように別
+    with open(dirname + '/params.json', 'w') as f:
+        json.dump(params, f, indent=4)
 
     # SNR-BERグラフ
     fig = plt.figure(figsize=(8, 6))
@@ -178,7 +142,7 @@ if __name__ == '__main__':
     train_data = train_data - params['h_si_len'] + 1
     n_ave = train_data * params['SNR_AVERAGE']
 
-    color_list = ["r", "g", "b", "c", "m", "y", "k", "w"]
+    color_list = settings.plt_color_list()
     for IBO_index, IBO_db in enumerate(params['IBO_dB']):
         errors_sum = np.sum(errors[IBO_index], axis=1)
         bers = errors_sum / n_ave
@@ -189,7 +153,6 @@ if __name__ == '__main__':
 
     output_png = dirname + '/SNR_BER.png'
     plt.savefig(output_png)
-
 
     # Plot learning curve
     for sigma_index, snr_db in enumerate(snrs_db):
@@ -212,5 +175,5 @@ if __name__ == '__main__':
         plt.xticks(range(1, params['nEpochs'], 2))
         plt.savefig(dirname + '/snr_db_' + str(snr_db) + '_NNconv.pdf', bbox_inches='tight')
 
-    c.upload_file(output_png, "end:"+dirname+"\n"+json.dumps(params, indent=4))
+    slack.upload_file(output_png, "end:" + dirname + "\n" + json.dumps(params, indent=4))
     logging.info("end")
