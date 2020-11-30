@@ -27,15 +27,10 @@ if __name__ == '__main__':
         'learningRate': 0.004,
         'trainingRatio': 0.8,  # 全体のデータ数に対するトレーニングデータの割合
         'batchSize': 32,
-
-        'receive_antenna': 1
     }
 
-    h_si = []
-    h_s = []
-    for i in range(params['receive_antenna']):
-        h_si.append(m.channel(1, params['h_si_len']))
-        h_s.append(m.channel(1, params['h_s_len']))
+    h_si = m.channel()
+    h_s = m.channel()
 
     system_model = SystemModel(
         params['n'],
@@ -50,14 +45,29 @@ if __name__ == '__main__':
         h_s,
         params['h_si_len'],
         params['h_s_len'],
-        params['receive_antenna'],
     )
 
+    model = NNModel(
+        params['nHidden'],
+        params['learningRate'],
+        params['h_si_len'],
+        params['h_s_len'],
+    )
+    model.learn(
+        system_model,
+        params['trainingRatio'],
+        params['nEpochs'],
+        params['batchSize'],
+        params['h_si_len'],
+        params['h_s_len'],
+    )
 
-    plt.figure()
-    plt.scatter(system_model.y.real, system_model.y.imag, color="g", label="y")
-    plt.scatter(system_model.r.real, system_model.r.imag, color="blue", label="r")
-    plt.scatter(system_model.x.real, system_model.x.imag, color="red", label="x")
-    plt.legend()
-    plt.show()
+    # plots = 10
+    # plt.figure()
+    # plt.scatter(system_model.r[::plots].real, system_model.r[::plots].imag, color="black", label="x")
+    # plt.scatter(system_model.y[::plots].real, system_model.y[::plots].imag, color="blue", label="x_iq")
+    # plt.scatter(system_model.x_pa[::plots].real, system_model.x_pa[::plots].imag, color="red", label="x_pa")
+    # plt.scatter(system_model.x_pa[::plots].real, system_model.x_pa[::plots].imag, color="red", label="x_pa")
+    # plt.legend()
+    # plt.show()
     print("end")
