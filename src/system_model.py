@@ -40,14 +40,15 @@ class SystemModel:
         self.h_si_list = h_si_list
         self.h_s_list = h_s_list
 
-        self.y = np.zeros((int(n/2), receive_antenna), dtype=complex)
+        x_len = self.x_pa.size - h_si_len + 1 # 周波数選択性の場合，時間のずれを考慮すると長さがnではなくなる
+        self.y = np.zeros((x_len, receive_antenna), dtype=complex)
         for i, (h_si, h_s) in enumerate(zip(h_si_list, h_s_list)):
-            y_si = h_si * np.reshape(
-                np.array([self.x_pa[i:i + h_si_len] for i in range(self.x_pa.size - h_si_len + 1)]),
-                (self.x_pa.size - h_si_len + 1, h_si_len))  # チャネル数分作る
-            y_s = h_s * np.reshape(np.array([self.s[i:i + h_s_len] for i in range(self.s.size - h_s_len + 1)]),
-                                        (self.s.size - h_s_len + 1, h_s_len))  # チャネル数分作る
-
+            chanels_x_pa = np.array([self.x_pa[i:i + h_si_len] for i in range(self.x_pa.size - h_si_len + 1)]) # [[x[n], x[n-1]], x[x-1], x[n-1]]のように通信路の数に合わせる
+            chanels_y_si = h_si * chanels_x_pa
+            y_si = np.sum(chanels_y_si, axis=1)
+            chanels_s = np.array([self.s[i:i + h_s_len] for i in range(self.s.size - h_s_len + 1)]) # [[x[n], x[n-1]], x[x-1], x[n-1]]のように通信路の数に合わせる
+            chanels_s = h_s * chanels_s
+            y_s = np.sum(chanels_s, axis=1)
             r = y_si + y_s + m.awgn(y_s.shape, sigma, h_s_len)
 
             # 受信側非線形

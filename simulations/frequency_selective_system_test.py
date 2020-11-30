@@ -55,9 +55,8 @@ if __name__ == '__main__':
 
 
     plt.figure()
-    plt.scatter(system_model.y.real, system_model.y.imag, color="g", label="y")
-    plt.scatter(system_model.r.real, system_model.r.imag, color="blue", label="r")
-    plt.scatter(system_model.x.real, system_model.x.imag, color="red", label="x")
+    plt.scatter(system_model.x.real, system_model.x.imag, color="r", label="x")
+    plt.scatter(system_model.y.real, system_model.y.imag, color="b", label="y")
     plt.legend()
     plt.show()
     print("end")
