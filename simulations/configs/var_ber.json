@@ -12,7 +12,7 @@
   "snr": 25,
   "number_of_trials": 25,
 
-  "nHidden": 15,
+  "nHidden": [15],
   "nEpochs": 20,
   "learningRate": 0.001,
   "trainingRatio": 0.8,
