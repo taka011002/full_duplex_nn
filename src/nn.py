@@ -25,7 +25,7 @@ class NNModel:
 
     def init_model(self, n_hidden: list, learning_rate=0.001, h_si_len: int = 1, h_s_len: int = 1, receive_antenna: int = 1):
         input = Input(shape=((2 * h_si_len) + (2 * receive_antenna * h_s_len),))
-        n_hidden = copy.copy(n_hidden.copy()) # popだと破壊的操作になり，元々のn_hiddenが壊れるので仕方なくcopyしている
+        n_hidden = copy.copy(n_hidden) # popだと破壊的操作になり，元々のn_hiddenが壊れるので仕方なくcopyしている
         x = Dense(n_hidden.pop(0), activation='relu')(input)
         for n in n_hidden:
             x = Dense(n, activation='relu')(x)
