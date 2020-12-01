@@ -2,6 +2,7 @@ from src.system_model import SystemModel
 import matplotlib.pyplot as plt
 from src.nn import NNModel
 from src import modules as m
+import numpy as np
 
 if __name__ == '__main__':
     params = {
@@ -14,19 +15,8 @@ if __name__ == '__main__':
         'LNA_IBO_dB': 7,
         'LNA_rho': 2,
 
-        'SNR_MIN': 0,
-        'SNR_MAX': 25,
-        'SNR_NUM': 6,
-        'SNR_AVERAGE': 50,
-
         'h_si_len': 2,
         'h_s_len': 2,
-
-        'nHidden': 15,
-        'nEpochs': 20,
-        'learningRate': 0.004,
-        'trainingRatio': 0.8,  # 全体のデータ数に対するトレーニングデータの割合
-        'batchSize': 32,
 
         'receive_antenna': 1
     }
