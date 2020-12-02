@@ -2,8 +2,15 @@ from src import modules as m
 from src.system_model import SystemModel
 import matplotlib.pyplot as plt
 import numpy as np
+import argparse
+
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-c', '--configs')
+    parser.add_argument('-o', '--output')
+    args = parser.parse_args()
+
     params = {
         'n': 2 * 10 ** 4,  # サンプルのn数
         'gamma': 0.3,

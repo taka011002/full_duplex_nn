@@ -29,19 +29,11 @@ class Result:
 
 if __name__ == '__main__':
     SIMULATIONS_NAME = 'snr_ber_average_ibo'
-    dirname = settings.dirname_current_datetime(SIMULATIONS_NAME)
-    settings.init_simulation_output(dirname)
 
-    # seed固定
-    # np.random.seed(0)
-
-    # パラメータ
-    with open('configs/snr_ber_average_ibo.json') as f:
-        params = json.load(f)
-        logging.info(params)
+    params, output_dir = settings.init_simulation(SIMULATIONS_NAME)
 
     # パラメータはわかりやすいように別
-    with open(dirname + '/params.json', 'w') as f:
+    with open(output_dir + '/params.json', 'w') as f:
         json.dump(params, f, indent=4)
 
     # データを生成する
@@ -121,7 +113,7 @@ if __name__ == '__main__':
     #     pickle.dump(result, f)
 
     result = Result(params, errors, losss, val_losss, None)
-    with open(dirname + '/snr_ber_average_ibo.pkl', 'wb') as f:
+    with open(output_dir + '/snr_ber_average_ibo.pkl', 'wb') as f:
         pickle.dump(result, f)
 
     # SNR-BERグラフ
@@ -148,9 +140,9 @@ if __name__ == '__main__':
         ax.plot(snrs_db, bers, color=color_list[IBO_index], marker='o', linestyle='--', label="IBO=%d[dB]" % IBO_db)
 
     ax.legend()
-    plt.savefig(dirname + '/SNR_BER.pdf')
+    plt.savefig(output_dir + '/SNR_BER.pdf')
 
-    output_png = dirname + '/SNR_BER.png'
+    output_png = output_dir + '/SNR_BER.png'
     plt.savefig(output_png)
 
     # Plot learning curve
@@ -172,7 +164,7 @@ if __name__ == '__main__':
         plt.grid(which='major', alpha=0.25)
         plt.xlim([0, params['nEpochs'] + 1])
         plt.xticks(range(1, params['nEpochs'], 2))
-        plt.savefig(dirname + '/snr_db_' + str(snr_db) + '_NNconv.pdf', bbox_inches='tight')
+        plt.savefig(output_dir + '/snr_db_' + str(snr_db) + '_NNconv.pdf', bbox_inches='tight')
 
-    slack.upload_file(output_png, "end:" + dirname + "\n" + json.dumps(params, indent=4))
+    slack.upload_file(output_png, "end:" + output_dir + "\n" + json.dumps(params, indent=4))
     logging.info("end")
