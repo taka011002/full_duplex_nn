@@ -32,10 +32,6 @@ if __name__ == '__main__':
 
     params, output_dir = settings.init_simulation(SIMULATIONS_NAME)
 
-    # パラメータはわかりやすいように別
-    with open(output_dir + '/params.json', 'w') as f:
-        json.dump(params, f, indent=4)
-
     # データを生成する
     snrs_db = np.linspace(params['SNR_MIN'], params['SNR_MAX'], params['SNR_NUM'])
     sigmas = m.sigmas(snrs_db)  # SNR(dB)を元に雑音電力を導出

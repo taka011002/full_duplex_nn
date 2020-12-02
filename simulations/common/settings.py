@@ -12,6 +12,7 @@ def init_simulation(simulation_name: str) -> (dict, str):
     params = get_params(args, simulation_name)
 
     init_output(output_dir)
+    dump_params(params, output_dir)
 
     return params, output_dir
 
@@ -40,6 +41,11 @@ def get_params(args: argparse.Namespace, simulation_name: str) -> dict:
     else:
         params = json.loads(configs)
     return params
+
+
+def dump_params(params: dict, output_dir: str):
+    with open(output_dir + '/params.json', 'w') as f:
+        json.dump(params, f, indent=4)
 
 
 def init_output(dirname: str = ''):
