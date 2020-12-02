@@ -7,5 +7,3 @@ services:
     tty: true
     env_file:
       - .env.docker-compose
-#    entrypoint:
-#      ['python', 'nn.py']
