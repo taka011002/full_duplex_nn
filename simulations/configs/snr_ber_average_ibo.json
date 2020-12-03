@@ -16,7 +16,7 @@
   "SNR_MIN": 0,
   "SNR_MAX": 25,
   "SNR_NUM": 6,
-  "SNR_AVERAGE": 1,
+  "SNR_AVERAGE": 10,
 
   "nHidden": [15],
   "nEpochs": 20,
@@ -25,8 +25,8 @@
   "batchSize": 32,
   "delay": 0,
 
-  "h_si_len": 2,
-  "h_s_len": 2,
+  "h_si_len": 1,
+  "h_s_len": 1,
 
   "receive_antenna": 1
 }

@@ -29,6 +29,8 @@ if __name__ == '__main__':
     SIMULATIONS_NAME = 'snr_ber_average_ibo'
 
     params, output_dir = settings.init_simulation(SIMULATIONS_NAME)
+    params["train_bits"] = NNModel.train_bits(params["n"], params['trainingRatio'])
+    params["test_bits"] = NNModel.test_bits(params["n"], params['trainingRatio'], params['h_si_len'])
 
     # データを生成する
     snrs_db = np.linspace(params['SNR_MIN'], params['SNR_MAX'], params['SNR_NUM'])
@@ -91,30 +93,24 @@ if __name__ == '__main__':
                 errors[IBO_index][sigma_index][trials_index] = nn_model.error
                 losss[IBO_index][sigma_index][trials_index][:] = nn_model.history.history['loss']
                 val_losss[IBO_index][sigma_index][trials_index][:] = nn_model.history.history['val_loss']
+
                 # 学習済みモデルはpklできないので削除する．
                 # del nn_model.model
                 # del nn_model.history
                 # nn_models[IBO_index][sigma_index][trials_index] = nn_model
 
-    # 結果をdumpしておく
-    # result = Result(params, errors, losss, val_losss, nn_models)
-    # with open(dirname + '/snr_ber_average_ibo.pkl', 'wb') as f:
-    #     pickle.dump(result, f)
-
     result = Result(params, errors, losss, val_losss, None)
-    with open(output_dir + '/snr_ber_average_ibo.pkl', 'wb') as f:
+    with open(output_dir + '/result.pkl', 'wb') as f:
         pickle.dump(result, f)
 
     ber_fig, ber_ax = graph.new_snr_ber_canvas(params['SNR_MIN'], params['SNR_MAX'])
 
-    train_data = params['n'] - (params['n'] * params['trainingRatio'])
-    train_data = train_data - params['h_si_len'] + 1
-    n_ave = train_data * params['SNR_AVERAGE']
+    n_sum = params["test_bits"] * params['SNR_AVERAGE']
 
     color_list = graph.plt_color_list()
     for IBO_index, IBO_db in enumerate(params['IBO_dB']):
         errors_sum = np.sum(errors[IBO_index], axis=1)
-        bers = errors_sum / n_ave
+        bers = errors_sum / n_sum
         ber_ax.plot(snrs_db, bers, color=color_list[IBO_index], marker='o', linestyle='--', label="IBO=%d[dB]" % IBO_db)
 
     ber_ax.legend()
@@ -129,10 +125,11 @@ if __name__ == '__main__':
         for IBO_index, IBO_db in enumerate(params['IBO_dB']):
             loss_avg = np.mean(losss[IBO_index][sigma_index], axis=0).T
             val_loss_avg = np.mean(val_losss[IBO_index][sigma_index], axis=0).T
-            learn_ax.plot(np.arange(1, len(loss_avg) + 1), loss_avg, color=color_list[IBO_index], marker='o',
+            epoch = np.arange(1, len(loss_avg) + 1)
+            learn_ax.plot(epoch, loss_avg, color=color_list[IBO_index], marker='o',
                           linestyle='--',
                           label='Training Frame (IBO=%d[dB])' % IBO_db)
-            learn_ax.plot(np.arange(1, len(loss_avg) + 1), val_loss_avg,
+            learn_ax.plot(epoch, val_loss_avg,
                           color=color_list[IBO_index + len(params['IBO_dB'])],
                           marker='o', linestyle='--', label='Test Frame (IBO=%d[dB])' % IBO_db)
 

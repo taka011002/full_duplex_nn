@@ -39,11 +39,16 @@ def get_params(args: argparse.Namespace, simulation_name: str) -> dict:
     # パラメータ
     configs = args.configs
     if configs is None:
-        with open('configs/%s.json' % simulation_name) as f:
-            params = json.load(f)
+        param_path = 'configs/%s.json' % simulation_name
+        params = load_param(param_path)
     else:
         params = json.loads(configs)
     return params
+
+
+def load_param(param_path: str) -> dict:
+    with open(param_path) as f:
+        return json.load(f)
 
 
 def dump_params(params: dict, output_dir: str):
@@ -71,8 +76,8 @@ def init_log(filename: str):
     logging.basicConfig(filename=filename, level=logging.INFO, format=formatter)
 
 
-def finish_simulation(params: dict, output_dir: str, output_png_path: str=None):
+def finish_simulation(params: dict, output_dir: str, output_png_path: str = None):
     dump_params(params, output_dir)
     if output_png_path is not None:
-        slack.upload_file(output_png_path, "end:" + output_dir + "\n" + json.dumps(params, indent=4))
+        slack.upload_file(output_png_path, "end: " + output_dir + "\n" + json.dumps(params, indent=4))
     logging.info("end")

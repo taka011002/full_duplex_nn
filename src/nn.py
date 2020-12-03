@@ -19,7 +19,8 @@ class NNModel:
     d_s_hat: np.ndarray
     error: np.ndarray
 
-    def __init__(self, n_hidden: list, learning_rate=0.001, h_si_len: int = 1, h_s_len: int = 1, receive_antenna: int = 1):
+    def __init__(self, n_hidden: list, learning_rate=0.001, h_si_len: int = 1, h_s_len: int = 1,
+                 receive_antenna: int = 1):
         input = Input(shape=((2 * h_si_len) + (2 * receive_antenna * h_s_len),))
         n_hidden = n_hidden.copy()  # popだと破壊的操作になり，元々のn_hiddenが壊れるので仕方なくcopyしている
         x = Dense(n_hidden.pop(0), activation='relu')(input)
@@ -36,21 +37,23 @@ class NNModel:
         self.model = model
 
     def learn(self, system_model: SystemModel, training_ratio: float, n_epochs: int, batch_size: int, h_si_len: int = 1,
-              h_s_len: int = 1, receive_antenna: int = 1, delay: int=0):
+              h_s_len: int = 1, receive_antenna: int = 1, delay: int = 0):
         self.system_model = system_model
 
         # トレーニングデータの生成
-        training_samples = int(np.floor(system_model.x.size * training_ratio))
+        training_samples = int(np.floor(system_model.x.size) * training_ratio)
 
         # チャネル数分つくる
-        x = np.reshape(np.array([system_model.x[i:i + h_si_len] for i in range(system_model.x.size - 2 * h_si_len + 2)]),
-                       (system_model.x.size - 2 * h_si_len + 2, h_si_len))
-        y = np.reshape(np.array([system_model.y[i:i + h_si_len] for i in range(system_model.y.shape[0] - h_si_len + 1)]),
-                       (system_model.y.shape[0] - h_si_len + 1, (h_si_len * receive_antenna)))
+        x = np.reshape(
+            np.array([system_model.x[i:i + h_si_len] for i in range(system_model.x.size - 2 * h_si_len + 2)]),
+            (system_model.x.size - 2 * h_si_len + 2, h_si_len))
+        y = np.reshape(
+            np.array([system_model.y[i:i + h_si_len] for i in range(system_model.y.shape[0] - h_si_len + 1)]),
+            (system_model.y.shape[0] - h_si_len + 1, (h_si_len * receive_antenna)))
 
         x_train = x[0:training_samples]
         y_train = y[0:training_samples]
-        s_train = system_model.s[0+delay:training_samples+delay] # 遅延をとる
+        s_train = system_model.s[0 + delay:training_samples + delay]  # 遅延をとる
 
         # 標準化
         # hensa = np.sqrt(np.var(y_train))
@@ -61,12 +64,14 @@ class NNModel:
         train[:, 0:h_si_len] = x_train.real
         train[:, h_si_len:(2 * h_si_len)] = x_train.imag
         train[:, (2 * h_si_len):(2 * h_si_len) + (receive_antenna * h_s_len)] = y_train.real
-        train[:, (2 * h_si_len) + (receive_antenna * h_s_len):(2 * h_si_len) + (receive_antenna * 2 * h_s_len)] = y_train.imag
+        train[:,
+        (2 * h_si_len) + (receive_antenna * h_s_len):(2 * h_si_len) + (receive_antenna * 2 * h_s_len)] = y_train.imag
 
         # テストデータの作成
         x_test = x[training_samples:]
         y_test = y[training_samples:]
-        s_test = system_model.s[training_samples+delay:(training_samples + x_test.shape[0] + delay)]  # 数が合わなくなる時があるのでx_sの大きさを合わせる
+        s_test = system_model.s[
+                 training_samples + delay:(training_samples + x_test.shape[0] + delay)]  # 数が合わなくなる時があるのでx_sの大きさを合わせる
 
         # 標準化
         # y_test = y_test / hensa
@@ -76,7 +81,8 @@ class NNModel:
         test[:, 0:h_si_len] = x_test.real
         test[:, h_si_len:(2 * h_si_len)] = x_test.imag
         test[:, (2 * h_si_len):(2 * h_si_len) + (receive_antenna * h_s_len)] = y_test.real
-        test[:, (2 * h_si_len) + (receive_antenna * h_s_len):(2 * h_si_len) + (receive_antenna * 2 * h_s_len)] = y_test.imag
+        test[:,
+        (2 * h_si_len) + (receive_antenna * h_s_len):(2 * h_si_len) + (receive_antenna * 2 * h_s_len)] = y_test.imag
 
         # 学習
         self.history = self.model.fit(train, [s_train.real, s_train.imag], epochs=n_epochs,
@@ -92,6 +98,18 @@ class NNModel:
         # 推定信号をデータへ復調する
         self.d_s_hat = m.demodulate_qpsk(s_hat)
         # 元々の外部信号のデータ
-        self.d_s_test = system_model.d_s[2 * (training_samples+delay):2 * (training_samples + x_test.shape[0] + delay)]
+        self.d_s_test = system_model.d_s[
+                        2 * (training_samples + delay):2 * (training_samples + x_test.shape[0] + delay)]
 
         self.error = np.sum(self.d_s_test != self.d_s_hat)
+
+    @staticmethod
+    def train_bits(bits: int, training_ratio: float) -> int:
+        return int(bits * training_ratio)
+
+    @staticmethod
+    def test_bits(bits: int, training_ratio: float, h_si_len: int = 1) -> int:
+        train_bits = NNModel.train_bits(bits, training_ratio)
+        test_bits = bits - train_bits
+        offset = (- 2 * h_si_len) + 2
+        return test_bits + offset
