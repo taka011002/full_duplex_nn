@@ -21,7 +21,7 @@ class Result:
 if __name__ == '__main__':
     # シミュレーション結果の保存先を作成する
     dt_now = datetime.datetime.now()
-    dirname = '../results/snr_ber_average_ibo/' + dt_now.strftime("%Y/%m/%d/%H_%M_%S")
+    dirname = '../results/non_cancell_snr_ber_average/' + dt_now.strftime("%Y/%m/%d/%H_%M_%S")
     os.makedirs(dirname, exist_ok=True)
 
     formatter = '%(levelname)s : %(asctime)s : %(message)s'
@@ -98,7 +98,7 @@ if __name__ == '__main__':
                     h_s,
                 )
 
-                demodulate = m.demodulate_qpsk(system_model.y)
+                demodulate = m.demodulate_qpsk(system_model.y.squeeze())
 
                 error = np.sum(system_model.d_s != demodulate)
 
