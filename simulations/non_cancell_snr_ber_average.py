@@ -5,26 +5,16 @@ import os
 import datetime
 import pickle
 import logging
+from simulations.common import settings
 from src import modules as m
 from src.system_model import SystemModel
 
+
 if __name__ == '__main__':
-    # シミュレーション結果の保存先を作成する
-    dt_now = datetime.datetime.now()
-    dirname = '../results/non_cancell_snr_ber_average/' + dt_now.strftime("%Y/%m/%d/%H_%M_%S")
-    # dirname = '../results/keep/momentam_double_hidden/merge/'
-    os.makedirs(dirname, exist_ok=True)
+    SIMULATIONS_NAME = 'non_cancell_snr_ber_average'
 
-    formatter = '%(levelname)s : %(asctime)s : %(message)s'
-    logging.basicConfig(filename=dirname + '/log.log', level=logging.INFO, format=formatter)
-    logging.info('start')
-    logging.info(dt_now.strftime("%Y/%m/%d %H:%M:%S"))
-
-    # グラフ
-    plt.rcParams["font.family"] = "Times New Roman"
-    plt.rcParams["font.size"] = 22
-    plt.rcParams["xtick.direction"] = "in"
-    plt.rcParams["ytick.direction"] = "in"
+    dirname = settings.dirname_current_datetime(SIMULATIONS_NAME)
+    settings.init_output(dirname)
 
     results = []
     pkl_paths = [
