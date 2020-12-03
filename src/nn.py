@@ -8,6 +8,15 @@ import tensorflow.keras.optimizers as optimizers
 import numpy as np
 
 
+def select_optimizers(key: str, learning_rate: float = None, momentum: float = None) -> object:
+    supports = {
+        "momentum": optimizers.SGD(learning_rate=learning_rate, momentum=momentum),
+        "adam": optimizers.Adam(lr=learning_rate)
+        # "radam": RAdam()
+    }
+    return supports.get(key, "nothing")
+
+
 class NNModel:
     system_model: SystemModel
     model: keras.models.Model
@@ -19,8 +28,8 @@ class NNModel:
     d_s_hat: np.ndarray
     error: np.ndarray
 
-    def __init__(self, n_hidden: list, learning_rate=0.001, h_si_len: int = 1, h_s_len: int = 1,
-                 receive_antenna: int = 1):
+    def __init__(self, n_hidden: list, optimizer_key: str, learning_rate: float, h_si_len: int = 1, h_s_len: int = 1,
+                 receive_antenna: int = 1, momentum: float = None):
         input = Input(shape=((2 * h_si_len) + (2 * receive_antenna * h_s_len),))
         n_hidden = n_hidden.copy()  # popだと破壊的操作になり，元々のn_hiddenが壊れるので仕方なくcopyしている
         x = Dense(n_hidden.pop(0), activation='relu')(input)
@@ -29,9 +38,7 @@ class NNModel:
         output1 = Dense(1, activation='linear')(x)
         output2 = Dense(1, activation='linear')(x)
         model = Model(inputs=input, outputs=[output1, output2])
-        # optimizer = optimizers.Adam(lr=learning_rate)
-        optimizer = optimizers.SGD(learning_rate=learning_rate, momentum=0.8)
-        # optimizer = RAdam()
+        optimizer = select_optimizers(optimizer_key, learning_rate, momentum)
         model.compile(optimizer, loss='mse')
 
         self.model = model

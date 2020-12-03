@@ -5,6 +5,9 @@ import argparse
 import json
 from simulations.common import graph
 from simulations.common import slack
+from src.nn import NNModel
+import numpy as np
+import time
 
 
 def init_simulation(simulation_name: str) -> (dict, str):
@@ -16,6 +19,12 @@ def init_simulation(simulation_name: str) -> (dict, str):
     logging.info('start')
     logging.info(output_dir)
     logging.info(params)
+
+    # 再現性を出す為にseedを記録しておく
+    set_seed(params)
+    set_simulation_bits_to_params(params)
+
+    dump_params(params, output_dir)
 
     return params, output_dir
 
@@ -77,7 +86,19 @@ def init_log(filename: str):
 
 
 def finish_simulation(params: dict, output_dir: str, output_png_path: str = None):
-    dump_params(params, output_dir)
     if output_png_path is not None:
         slack.upload_file(output_png_path, "end: " + output_dir + "\n" + json.dumps(params, indent=4))
     logging.info("end")
+
+
+def set_seed(params: dict, seed: int = None):
+    if seed is None:
+        seed = int(time.time())
+
+    params["seed"] = seed
+    np.random.seed(seed)
+
+
+def set_simulation_bits_to_params(params: dict):
+    params["train_bits"] = NNModel.train_bits(params["n"], params['trainingRatio'])
+    params["test_bits"] = NNModel.test_bits(params["n"], params['trainingRatio'], params['h_si_len'])

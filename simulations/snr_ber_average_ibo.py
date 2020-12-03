@@ -29,8 +29,6 @@ if __name__ == '__main__':
     SIMULATIONS_NAME = 'snr_ber_average_ibo'
 
     params, output_dir = settings.init_simulation(SIMULATIONS_NAME)
-    params["train_bits"] = NNModel.train_bits(params["n"], params['trainingRatio'])
-    params["test_bits"] = NNModel.test_bits(params["n"], params['trainingRatio'], params['h_si_len'])
 
     # データを生成する
     snrs_db = m.snr_db(params['SNR_MIN'], params['SNR_MAX'], params['SNR_NUM'])
@@ -74,10 +72,12 @@ if __name__ == '__main__':
                 # NNを生成
                 nn_model = NNModel(
                     params['nHidden'],
+                    params['optimizer'],
                     params['learningRate'],
                     params['h_si_len'],
                     params['h_s_len'],
                     params['receive_antenna'],
+                    params['momentum']
                 )
                 nn_model.learn(
                     system_model,
