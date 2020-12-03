@@ -38,16 +38,25 @@ if __name__ == '__main__':
     dirname = settings.dirname_current_datetime(SIMULATIONS_NAME)
     settings.init_output(dirname)
 
-    param_path = "../results/snr_ber_average_ibo/2020/12/03/15_45_12/params.json"
+    param_path = "../results/snr_ber_average_ibo/2020/12/03/17_10_42/params.json"
     params = settings.load_param(param_path)
 
     snrs_db = np.linspace(params['SNR_MIN'], params['SNR_MAX'], params['SNR_NUM'])
     n_sum = params["test_bits"] * params['SNR_AVERAGE'] * load_files
+
     fig, ax = graph.new_snr_ber_canvas(params['SNR_MIN'], params['SNR_MAX'])
 
-    pkl_paths = ["../results/snr_ber_average_ibo/2020/12/03/15_45_12/result.pkl"]
+    pkl_paths = ["../results/snr_ber_average_ibo/2020/12/03/17_10_22/result.pkl"]
+    draw_snr_ber(ax, snrs_db, n_sum, pkl_paths, 'receive_antenna: 1', 'k')
 
-    draw_snr_ber(ax, snrs_db, n_sum, pkl_paths, 'test', 'k')
+    pkl_paths = ["../results/snr_ber_average_ibo/2020/12/03/17_10_28/result.pkl"]
+    draw_snr_ber(ax, snrs_db, n_sum, pkl_paths, 'receive_antenna: 2', 'g')
+
+    pkl_paths = ["../results/snr_ber_average_ibo/2020/12/03/17_10_34/result.pkl"]
+    draw_snr_ber(ax, snrs_db, n_sum, pkl_paths, 'receive_antenna: 3', 'b')
+
+    pkl_paths = ["../results/snr_ber_average_ibo/2020/12/03/17_10_42/result.pkl"]
+    draw_snr_ber(ax, snrs_db, n_sum, pkl_paths, 'receive_antenna: 4', 'r')
 
     ax.legend(fontsize=12)
     plt.savefig(dirname + '/SNR_BER.pdf')
