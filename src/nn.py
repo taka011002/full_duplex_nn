@@ -118,5 +118,5 @@ class NNModel:
     def test_bits(bits: int, training_ratio: float, h_si_len: int = 1) -> int:
         train_bits = NNModel.train_bits(bits, training_ratio)
         test_bits = bits - train_bits
-        offset = (- 2 * h_si_len) + 2
+        offset = 2 * (- 2 * h_si_len + 2)
         return test_bits + offset
