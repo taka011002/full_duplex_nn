@@ -33,7 +33,7 @@ if __name__ == '__main__':
     params["test_bits"] = NNModel.test_bits(params["n"], params['trainingRatio'], params['h_si_len'])
 
     # データを生成する
-    snrs_db = np.linspace(params['SNR_MIN'], params['SNR_MAX'], params['SNR_NUM'])
+    snrs_db = m.snr_db(params['SNR_MIN'], params['SNR_MAX'], params['SNR_NUM'])
     sigmas = m.sigmas(snrs_db)  # SNR(dB)を元に雑音電力を導出
 
     errors = np.zeros((len(params['IBO_dB']), params['SNR_NUM'], params['SNR_AVERAGE']))

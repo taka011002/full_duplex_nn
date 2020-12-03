@@ -59,7 +59,7 @@ def sspa_rapp_ibo(input_signal: np.ndarray, IBO_dB: int = 0, rho: float = 0.5) -
     :return:
     """
     ibo = 10 ** (IBO_dB / 10)  # IBOをもとにアンプの飽和電力を決める
-    P_in = np.sum((input_signal * input_signal.conj()).real) / input_signal.shape[0] # nで割るべき？
+    P_in = np.sum((input_signal * input_signal.conj()).real) / input_signal.shape[0]  # nで割るべき？
     # P_in = np.sum(np.abs(input_signal)) / input_signal.shape[0]
     A = np.sqrt(P_in * ibo)
     return sspa_rapp(input_signal, A, rho)
@@ -81,7 +81,7 @@ def sspa_rapp(input_signal: np.ndarray, saturation: float = 1, rho: float = 0.5)
     return amp_output
 
 
-def channel(size: int = 1, length: int = 1, scale: float=1.0) -> np.ndarray:
+def channel(size: int = 1, length: int = 1, scale: float = 1.0) -> np.ndarray:
     """
     周波数非選択性通信路を生成する．
     生成する通信路の要素を全て違う値にする際はsizeを指定してあげる．
@@ -93,7 +93,8 @@ def channel(size: int = 1, length: int = 1, scale: float=1.0) -> np.ndarray:
     :return:
     """
     variance = np.reciprocal(np.sqrt(2 * length))
-    h = np.random.normal(loc=0, scale=scale, size=(size, length)) + 1j * np.random.normal(loc=0, scale=scale, size=(size, length))
+    h = np.random.normal(loc=0, scale=scale, size=(size, length)) + 1j * np.random.normal(loc=0, scale=scale,
+                                                                                          size=(size, length))
     h = h * variance
     return h
 
@@ -110,6 +111,10 @@ def awgn(size: tuple, sigma: float, length: int = 1) -> np.ndarray:
     v = np.random.normal(loc=0, scale=sigma, size=size) + 1j * np.random.normal(loc=0, scale=sigma, size=size)
     v = v * variance
     return v
+
+
+def snr_db(snr_min: int = 0, snr_max: int = 25, snr_num: int = 6):
+    return np.linspace(snr_min, snr_max, snr_num)
 
 
 def to_exact_number(db):
