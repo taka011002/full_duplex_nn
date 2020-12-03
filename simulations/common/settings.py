@@ -1,9 +1,10 @@
 import os
 import datetime
 import logging
-import matplotlib.pyplot as plt
 import argparse
 import json
+from simulations.common import graph
+from simulations.common import slack
 
 
 def init_simulation(simulation_name: str) -> (dict, str):
@@ -12,7 +13,9 @@ def init_simulation(simulation_name: str) -> (dict, str):
     params = get_params(args, simulation_name)
 
     init_output(output_dir)
-    dump_params(params, output_dir)
+    logging.info('start')
+    logging.info(output_dir)
+    logging.info(params)
 
     return params, output_dir
 
@@ -53,7 +56,7 @@ def init_output(dirname: str = ''):
     os.makedirs(dirname, exist_ok=True)
 
     init_log(dirname + '/log.log')
-    init_graph()
+    graph.init_graph()
 
 
 def dirname_current_datetime(identifier: str) -> str:
@@ -66,15 +69,10 @@ def dirname_current_datetime(identifier: str) -> str:
 def init_log(filename: str):
     formatter = '%(levelname)s : %(asctime)s : %(message)s'
     logging.basicConfig(filename=filename, level=logging.INFO, format=formatter)
-    logging.info('start')
 
 
-def init_graph():
-    plt.rcParams["font.family"] = "Times New Roman"
-    plt.rcParams["font.size"] = 22
-    plt.rcParams["xtick.direction"] = "in"
-    plt.rcParams["ytick.direction"] = "in"
-
-
-def plt_color_list() -> list:
-    return ["r", "g", "b", "c", "m", "y", "k", "w"]
+def finish_simulation(params: dict, output_dir: str, output_png_path: str=None):
+    dump_params(params, output_dir)
+    if output_png_path is not None:
+        slack.upload_file(output_png_path, "end:" + output_dir + "\n" + json.dumps(params, indent=4))
+    logging.info("end")

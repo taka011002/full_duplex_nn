@@ -1,14 +1,12 @@
 from src import modules as m
-from simulations.common import slack
 from simulations.common import settings
+from simulations.common import graph
 from src.system_model import SystemModel
 from src.nn import NNModel
 import numpy as np
 import matplotlib.pyplot as plt
-import time
 import pickle
 import logging
-import json
 from tqdm import tqdm
 
 
@@ -40,9 +38,6 @@ if __name__ == '__main__':
     losss = np.zeros((len(params['IBO_dB']), params['SNR_NUM'], params['SNR_AVERAGE'], params['nEpochs']))
     val_losss = np.zeros((len(params['IBO_dB']), params['SNR_NUM'], params['SNR_AVERAGE'], params['nEpochs']))
 
-    # 実行時の時間を記録する
-    start = time.time()
-
     # nn_models = [[[None] * params['SNR_AVERAGE'] for i in range(params['SNR_NUM'])] for j in
     #              range(len(params['IBO_dB']))]
     for trials_index in tqdm(range(params['SNR_AVERAGE'])):
@@ -58,7 +53,6 @@ if __name__ == '__main__':
                 logging.info("IBO_dB_index:" + str(IBO_index))
                 logging.info("SNR_AVERAGE_index:" + str(trials_index))
                 logging.info("sigma_index:" + str(sigma_index))
-                logging.info("time: %d[sec]" % int(time.time() - start))
                 system_model = SystemModel(
                     params['n'],
                     sigma,
@@ -102,7 +96,6 @@ if __name__ == '__main__':
                 # del nn_model.history
                 # nn_models[IBO_index][sigma_index][trials_index] = nn_model
 
-    logging.info("learn_end_time: %d[sec]" % int(time.time() - start))
     # 結果をdumpしておく
     # result = Result(params, errors, losss, val_losss, nn_models)
     # with open(dirname + '/snr_ber_average_ibo.pkl', 'wb') as f:
@@ -112,55 +105,38 @@ if __name__ == '__main__':
     with open(output_dir + '/snr_ber_average_ibo.pkl', 'wb') as f:
         pickle.dump(result, f)
 
-    # SNR-BERグラフ
-    fig = plt.figure(figsize=(8, 6))
-    ax = fig.add_subplot(111)
-    ax.set_xlabel("SNR (dB)")
-    ax.set_ylabel("BER")
-    ax.set_yscale('log')
-    ax.set_xlim(params['SNR_MIN'], params['SNR_MAX'])
-    y_min = pow(10, 0)
-    y_max = pow(10, -6)
-    ax.set_ylim(y_max, y_min)
-    ax.set_xlim(params['SNR_MIN'], params['SNR_MAX'])
-    ax.grid(linestyle='--')
+    ber_fig, ber_ax = graph.new_snr_ber_canvas(params['SNR_MIN'], params['SNR_MAX'])
 
     train_data = params['n'] - (params['n'] * params['trainingRatio'])
     train_data = train_data - params['h_si_len'] + 1
     n_ave = train_data * params['SNR_AVERAGE']
 
-    color_list = settings.plt_color_list()
+    color_list = graph.plt_color_list()
     for IBO_index, IBO_db in enumerate(params['IBO_dB']):
         errors_sum = np.sum(errors[IBO_index], axis=1)
         bers = errors_sum / n_ave
-        ax.plot(snrs_db, bers, color=color_list[IBO_index], marker='o', linestyle='--', label="IBO=%d[dB]" % IBO_db)
+        ber_ax.plot(snrs_db, bers, color=color_list[IBO_index], marker='o', linestyle='--', label="IBO=%d[dB]" % IBO_db)
 
-    ax.legend()
+    ber_ax.legend()
     plt.savefig(output_dir + '/SNR_BER.pdf')
 
-    output_png = output_dir + '/SNR_BER.png'
-    plt.savefig(output_png)
+    output_png_path = output_dir + '/SNR_BER.png'
+    plt.savefig(output_png_path)
 
-    # Plot learning curve
     for sigma_index, snr_db in enumerate(snrs_db):
-        plt.figure()
+        learn_fig, learn_ax = graph.new_learning_curve_canvas(params['nEpochs'])
 
         for IBO_index, IBO_db in enumerate(params['IBO_dB']):
             loss_avg = np.mean(losss[IBO_index][sigma_index], axis=0).T
             val_loss_avg = np.mean(val_losss[IBO_index][sigma_index], axis=0).T
-            plt.plot(np.arange(1, len(loss_avg) + 1), loss_avg, color=color_list[IBO_index], marker='o', linestyle='--',
-                     label='Training Frame (IBO=%d[dB])' % IBO_db)
-            plt.plot(np.arange(1, len(loss_avg) + 1), val_loss_avg, color=color_list[IBO_index + len(params['IBO_dB'])],
-                     marker='o', linestyle='--', label='Test Frame (IBO=%d[dB])' % IBO_db)
+            learn_ax.plot(np.arange(1, len(loss_avg) + 1), loss_avg, color=color_list[IBO_index], marker='o',
+                          linestyle='--',
+                          label='Training Frame (IBO=%d[dB])' % IBO_db)
+            learn_ax.plot(np.arange(1, len(loss_avg) + 1), val_loss_avg,
+                          color=color_list[IBO_index + len(params['IBO_dB'])],
+                          marker='o', linestyle='--', label='Test Frame (IBO=%d[dB])' % IBO_db)
 
-        plt.ylabel('less')
-        plt.yscale('log')
-        plt.xlabel('Training Epoch')
-        plt.legend()
-        plt.grid(which='major', alpha=0.25)
-        plt.xlim([0, params['nEpochs'] + 1])
-        plt.xticks(range(1, params['nEpochs'], 2))
+        learn_ax.legend()
         plt.savefig(output_dir + '/snr_db_' + str(snr_db) + '_NNconv.pdf', bbox_inches='tight')
 
-    slack.upload_file(output_png, "end:" + output_dir + "\n" + json.dumps(params, indent=4))
-    logging.info("end")
+    settings.finish_simulation(params, output_dir, output_png_path)
