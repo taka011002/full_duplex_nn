@@ -87,7 +87,8 @@ if __name__ == '__main__':
                     params['h_si_len'],
                     params['h_s_len'],
                     params['receive_antenna'],
-                    params['delay']
+                    params['delay'],
+                    params['standardization']
                 )
 
                 errors[IBO_index][sigma_index][trials_index] = nn_model.error

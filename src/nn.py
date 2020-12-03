@@ -44,7 +44,7 @@ class NNModel:
         self.model = model
 
     def learn(self, system_model: SystemModel, training_ratio: float, n_epochs: int, batch_size: int, h_si_len: int = 1,
-              h_s_len: int = 1, receive_antenna: int = 1, delay: int = 0):
+              h_s_len: int = 1, receive_antenna: int = 1, delay: int = 0, standardization: bool = False):
         self.system_model = system_model
 
         # トレーニングデータの生成
@@ -63,8 +63,9 @@ class NNModel:
         s_train = system_model.s[0 + delay:training_samples + delay]  # 遅延をとる
 
         # 標準化
-        # hensa = np.sqrt(np.var(y_train))
-        # y_train = y_train / hensa
+        if standardization is True:
+            hensa = np.sqrt(np.var(y_train))
+            y_train = y_train / hensa
 
         # NNの入力に合うように1つのベクトルにする
         train = np.zeros((x_train.shape[0], (2 * h_si_len) + (receive_antenna * 2 * h_si_len)))
@@ -81,7 +82,8 @@ class NNModel:
                  training_samples + delay:(training_samples + x_test.shape[0] + delay)]  # 数が合わなくなる時があるのでx_sの大きさを合わせる
 
         # 標準化
-        # y_test = y_test / hensa
+        if standardization is True:
+            y_test = y_test / hensa
 
         # NNの入力に合うように1つのベクトルにする
         test = np.zeros((x_test.shape[0], (2 * h_si_len) + (receive_antenna * 2 * h_si_len)))
