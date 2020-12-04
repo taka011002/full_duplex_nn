@@ -47,25 +47,25 @@ if __name__ == '__main__':
     fig, ax = graph.new_snr_ber_canvas(params['SNR_MIN'], params['SNR_MAX'])
 
     pkl_paths = ["../results/keep/frequency_selective/ch_10_anthena_1/result.pkl"]
-    draw_snr_ber(ax, snrs_db, n_sum, pkl_paths, 'receive_antenna: 1', 'r')
+    draw_snr_ber(ax, snrs_db, n_sum, pkl_paths, 'receive_antenna: 1', 'k')
 
     pkl_paths = ["../results/keep/frequency_selective/ch_10_anthena_1_delay/result.pkl"]
-    draw_snr_ber(ax, snrs_db, n_sum, pkl_paths, 'receive_antenna: 1(delay)', 'g')
+    draw_snr_ber(ax, snrs_db, n_sum, pkl_paths, 'receive_antenna: 1(delay)', 'm')
 
     pkl_paths = ["../results/keep/frequency_selective/ch_10_anthena_2/result.pkl"]
-    draw_snr_ber(ax, snrs_db, n_sum, pkl_paths, 'receive_antenna: 2', 'b')
+    draw_snr_ber(ax, snrs_db, n_sum, pkl_paths, 'receive_antenna: 2', 'g')
 
     pkl_paths = ["../results/keep/frequency_selective/ch_10_anthena_2_delay/result.pkl"]
-    draw_snr_ber(ax, snrs_db, n_sum, pkl_paths, 'receive_antenna: 2(delay)', 'c')
+    draw_snr_ber(ax, snrs_db, n_sum, pkl_paths, 'receive_antenna: 2(delay)', 'y')
 
     pkl_paths = ["../results/keep/frequency_selective/ch_10_anthena_3/result.pkl"]
-    draw_snr_ber(ax, snrs_db, n_sum, pkl_paths, 'receive_antenna: 3', 'm')
+    draw_snr_ber(ax, snrs_db, n_sum, pkl_paths, 'receive_antenna: 3', 'b')
 
     pkl_paths = ["../results/keep/frequency_selective/ch_10_anthena_3_delay/result.pkl"]
-    draw_snr_ber(ax, snrs_db, n_sum, pkl_paths, 'receive_antenna: 3(delay)', 'y')
+    draw_snr_ber(ax, snrs_db, n_sum, pkl_paths, 'receive_antenna: 3(delay)', 'c')
 
     pkl_paths = ["../results/keep/frequency_selective/ch_10_anthena_4/result.pkl"]
-    draw_snr_ber(ax, snrs_db, n_sum, pkl_paths, 'receive_antenna: 4', 'k')
+    draw_snr_ber(ax, snrs_db, n_sum, pkl_paths, 'receive_antenna: 4', 'r')
 
     pkl_paths = ["../results/keep/frequency_selective/ch_10_anthena_4_delay/result.pkl"]
     draw_snr_ber(ax, snrs_db, n_sum, pkl_paths, 'receive_antenna: 4(delay)', '#a65628')
