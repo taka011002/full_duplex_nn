@@ -68,7 +68,7 @@ class NNModel:
         ##### Training #####
         # Step 2: train NN to do non-linear cancellation
         self.history = self.model.fit(x_train, [y_train.real, y_train.imag], epochs=epochs, batch_size=batch_size,
-                            verbose=2, validation_data=(x_test, [y_test.real, y_test.imag]))
+                            verbose=0, validation_data=(x_test, [y_test.real, y_test.imag]))
 
         ##### Test #####
         # Do inference step

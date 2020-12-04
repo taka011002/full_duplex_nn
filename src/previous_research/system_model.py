@@ -18,8 +18,10 @@ class SystemModel:
 
     def learning_phase(self, n, sigma, gamma=0.0, phi=0.0, PA_IBO_dB=5, PA_rho=2, LNA_IBO_dB=5, LNA_rho=2, h_si: np.ndarray=None,
                  h_si_len=1):
+        offset_n = n + 2 * (h_si_len - 1) # 遅延を取る為に多く作っておく
+
         # 送信信号
-        self.d = np.random.choice([0, 1], n)
+        self.d = np.random.choice([0, 1], offset_n)
         self.x = m.modulate_qpsk(self.d)
 
         # 送信側非線形

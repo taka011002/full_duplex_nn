@@ -2,13 +2,15 @@ from src import modules as m
 from src.previous_research.nn import NNModel as PreviousNNModel
 from src.previous_research.system_model import SystemModel as PreviousSystemModel
 import matplotlib.pyplot as plt
+from simulations.common import graph
+import numpy as np
 
 
 if __name__ == '__main__':
     SIMULATIONS_NAME = 'previous_research'
 
     params = {
-        'n': 2 * 10 ** 4,  # サンプルのn数
+        'n': 20000,  # サンプルのn数
         'gamma': 0.3,
 
         'phi': 3.0,
@@ -21,7 +23,9 @@ if __name__ == '__main__':
         "h_si_len": 13,
         "n_hidden": 17,
         "learning_rate": 0.004,
-        "batch_size": 32
+        "training_ratio": 0.8,
+        "batch_size": 32,
+        "nEpochs": 20
     }
 
     h_si = m.channel(1, params['h_si_len'])
@@ -45,4 +49,31 @@ if __name__ == '__main__':
     plt.legend()
     plt.show()
 
-    # previous_nn_model = PreviousNNModel(13, 17, 0.004)
+    previous_nn_model = PreviousNNModel(
+        params['h_si_len'],
+        params['n_hidden'],
+        params['learning_rate']
+    )
+
+    previous_nn_model.learn(
+        system_model.x[0:int(params['n'] / 2)],
+        system_model.y,
+        params['training_ratio'],
+        params['h_si_len'],
+        params['nEpochs'],
+        params['batch_size']
+    )
+
+    learn_fig, learn_ax = graph.new_learning_curve_canvas(params['nEpochs'])
+    epoch = np.arange(1, len(previous_nn_model.history.history['loss']) + 1)
+    learn_ax.plot(epoch,
+                  previous_nn_model.history.history['loss'],
+                  color="k", marker='o',
+                  linestyle='--',
+                  label='Training Frame')
+    learn_ax.plot(epoch,
+                  previous_nn_model.history.history['val_loss'],
+                  color="r",
+                  marker='o', linestyle='--', label='Test Frame')
+    learn_ax.legend()
+    plt.show()
