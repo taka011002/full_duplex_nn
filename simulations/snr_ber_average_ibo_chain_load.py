@@ -35,27 +35,27 @@ if __name__ == '__main__':
     SIMULATIONS_NAME = 'snr_ber_average_ibo_chain_load'
     load_files = 1 # 同じ条件で読み込む数
 
-    dirname = settings.dirname_current_datetime(SIMULATIONS_NAME)
+    # dirname = settings.dirname_current_datetime(SIMULATIONS_NAME)
+    dirname = "../results/keep/frequency_selective/ch_2_graph"
     settings.init_output(dirname)
 
-    param_path = "../results/snr_ber_average_ibo/2020/12/03/17_10_42/params.json"
+    param_path = "../results/keep/frequency_selective/ch_2_anthena_1/params.json"
     params = settings.load_param(param_path)
-
-    snrs_db = np.linspace(params['SNR_MIN'], params['SNR_MAX'], params['SNR_NUM'])
     n_sum = params["test_bits"] * params['SNR_AVERAGE'] * load_files
 
+    snrs_db = np.linspace(params['SNR_MIN'], params['SNR_MAX'], params['SNR_NUM'])
     fig, ax = graph.new_snr_ber_canvas(params['SNR_MIN'], params['SNR_MAX'])
 
-    pkl_paths = ["../results/snr_ber_average_ibo/2020/12/03/17_10_22/result.pkl"]
+    pkl_paths = ["../results/keep/frequency_selective/ch_2_anthena_1/result.pkl"]
     draw_snr_ber(ax, snrs_db, n_sum, pkl_paths, 'receive_antenna: 1', 'k')
 
-    pkl_paths = ["../results/snr_ber_average_ibo/2020/12/03/17_10_28/result.pkl"]
+    pkl_paths = ["../results/keep/frequency_selective/ch_2_anthena_2/result.pkl"]
     draw_snr_ber(ax, snrs_db, n_sum, pkl_paths, 'receive_antenna: 2', 'g')
 
-    pkl_paths = ["../results/snr_ber_average_ibo/2020/12/03/17_10_34/result.pkl"]
+    pkl_paths = ["../results/keep/frequency_selective/ch_2_anthena_3/result.pkl"]
     draw_snr_ber(ax, snrs_db, n_sum, pkl_paths, 'receive_antenna: 3', 'b')
 
-    pkl_paths = ["../results/snr_ber_average_ibo/2020/12/03/17_10_42/result.pkl"]
+    pkl_paths = ["../results/keep/frequency_selective/ch_2_anthena_4/result.pkl"]
     draw_snr_ber(ax, snrs_db, n_sum, pkl_paths, 'receive_antenna: 4', 'r')
 
     ax.legend(fontsize=12)
