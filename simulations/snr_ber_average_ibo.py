@@ -115,10 +115,10 @@ if __name__ == '__main__':
         ber_ax.plot(snrs_db, bers, color=color_list[IBO_index], marker='o', linestyle='--', label="IBO=%d[dB]" % IBO_db)
 
     ber_ax.legend()
-    plt.savefig(output_dir + '/SNR_BER.pdf')
+    plt.savefig(output_dir + '/SNR_BER.pdf', bbox_inches='tight')
 
     output_png_path = output_dir + '/SNR_BER.png'
-    plt.savefig(output_png_path)
+    plt.savefig(output_png_path, bbox_inches='tight')
 
     for sigma_index, snr_db in enumerate(snrs_db):
         learn_fig, learn_ax = graph.new_learning_curve_canvas(params['nEpochs'])
