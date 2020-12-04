@@ -31,11 +31,10 @@ class NNModel:
         y_test = y[training_samples:]
 
         # Step 1: Estimate linear cancellation arameters and perform linear cancellation
-        hLin = fd.ls_estimation(x_train, y_train, chanLen)
-        yCanc = fd.si_cancellation_linear(x_train, hLin)
+        self.h_lin = fd.ls_estimation(x_train, y_train, chanLen)
+        yCanc = fd.si_cancellation_linear(x_train, self.h_lin)
 
         # Normalize data for NN
-        yOrig = y_train
         y_train = y_train - yCanc
         yVar = np.var(y_train)
         y_train = y_train / np.sqrt(yVar)
@@ -51,8 +50,7 @@ class NNModel:
         y_train = np.reshape(y_train[chanLen:], (y_train.size - chanLen, 1))
 
         # Prepare test data for NN
-        yCanc = fd.si_cancellation_linear(x_test, hLin)
-        yOrig = y_test
+        yCanc = fd.si_cancellation_linear(x_test, self.h_lin)
         y_test = y_test - yCanc
         y_test = y_test / np.sqrt(yVar)
 
@@ -70,7 +68,20 @@ class NNModel:
         self.history = self.model.fit(x_train, [y_train.real, y_train.imag], epochs=epochs, batch_size=batch_size,
                             verbose=0, validation_data=(x_test, [y_test.real, y_test.imag]))
 
-        ##### Test #####
-        # Do inference step
-        self.pred = self.model.predict(x_test)
+    def cancel(self, x: np.ndarray, y: np.ndarray, chanLen: int):
+        x_real = np.reshape(np.array([x[i:i + chanLen].real for i in range(x.size - chanLen)]),
+                                 (x.size - chanLen, chanLen))
+        x_imag = np.reshape(np.array([x[i:i + chanLen].imag for i in range(x.size - chanLen)]),
+                                 (x.size - chanLen, chanLen))
+        x_pred = np.zeros((x.size - chanLen, 2 * chanLen))
+        x_pred[:, 0:chanLen] = x_real
+        x_pred[:, chanLen:2 * chanLen] = x_imag
+
+        self.pred = self.model.predict(x_pred)
+
+        yCanc = fd.si_cancellation_linear(x, self.h_lin)
+        y_lin_canc = y - yCanc
+
         self.y_canc_non_lin = np.squeeze(self.pred[0] + 1j * self.pred[1], axis=1)
+
+        self.cancelled_y = y_lin_canc - self.y_canc_non_lin
