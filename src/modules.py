@@ -99,7 +99,7 @@ def channel(size: int = 1, length: int = 1, scale: float = 1.0) -> np.ndarray:
     return h
 
 
-def awgn(size: tuple, sigma: float, length: int = 1) -> np.ndarray:
+def awgn(size: tuple, sigma: float) -> np.ndarray:
     """
     AWGNの値を取得する
 
@@ -107,7 +107,7 @@ def awgn(size: tuple, sigma: float, length: int = 1) -> np.ndarray:
     :param sigma:
     :return:
     """
-    variance = np.reciprocal(np.sqrt(2 * length))
+    variance = np.reciprocal(np.sqrt(2))
     v = np.random.normal(loc=0, scale=sigma, size=size) + 1j * np.random.normal(loc=0, scale=sigma, size=size)
     v = v * variance
     return v
