@@ -82,7 +82,7 @@ if __name__ == '__main__':
             loss_array[sigma_index][trials_index][:] = previous_nn_model.history.history['loss']
             val_loss_array[sigma_index][trials_index][:] = previous_nn_model.history.history['val_loss']
 
-            H = fd.toeplitz_h(h_s.T, params['h_s_len'], params['h_si_len'] - 1)
+            H = fd.toeplitz_chanel(h_s.T, params['h_s_len'], params['h_si_len'] - 1)
             W = fd.mmse(H, sigma**2)
 
             training_samples = int(np.floor(params['n'] * params['training_ratio']))

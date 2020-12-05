@@ -16,7 +16,7 @@ def mmse(channel: np.ndarray, noise_var: float) -> np.ndarray:
 
 def toeplitz_chanel(h: np.ndarray, h_len: int, L_w: int) -> np.ndarray:
     H_row = np.zeros((h_len + L_w, 1), dtype=complex)
-    H_row[:h_s_len] = h
+    H_row[:h_len] = h
     H_col = np.zeros((L_w + 1, 1), dtype=complex)
     H_col[0] = h[0]
     H = toeplitz(H_col, r=H_row)
@@ -30,7 +30,7 @@ if __name__ == '__main__':
     ave = 100
     h_s_len = 2
     L_h = h_s_len - 1
-    L_w = L_h
+    L_w = 2
     snr_min = 0
     snr_max = 25
     snr_dots = 6
@@ -40,8 +40,8 @@ if __name__ == '__main__':
 
     error_array = np.zeros((len(snrs_db), ave))
     for trials_index in tqdm(range(ave)):
-        # h_s = m.channel(1, h_s_len)
-        h_s = np.array([1 +1j, 1 + 1j]).reshape((1, 2))
+        h_s = m.channel(1, h_s_len)
+        # h_s = np.array([1 +1j, 1 + 1j]).reshape((1, 2))
 
         for sigma_index, sigma in enumerate(sigmas):
             noise_var = sigma ** 2

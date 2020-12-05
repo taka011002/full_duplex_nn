@@ -25,15 +25,15 @@ def si_cancellation_linear(x: np.ndarray, h: np.ndarray) -> np.ndarray:
     return xcan
 
 
-def mmse(H, noise_var):
-    H_H = H.conj().T
-    L_w = H.shape[0]
-    h_1 = H[:, 0].reshape(L_w, 1)
-    W = np.linalg.inv(H @ H_H + noise_var * np.eye(L_w)) @ h_1
-    return W
+def mmse(channel: np.ndarray, noise_var: float) -> np.ndarray:
+    H_H = channel.conj().T
+    L_w = channel.shape[0]
+    h_1 = channel[:, 0].reshape(L_w, 1)
+    w = np.linalg.inv(channel @ H_H + noise_var * np.eye(L_w)) @ h_1
+    return w
 
 
-def toeplitz_h(h, h_len, L_w):
+def toeplitz_chanel(h: np.ndarray, h_len: int, L_w: int) -> np.ndarray:
     H_row = np.zeros((h_len + L_w, 1), dtype=complex)
     H_row[:h_len] = h
     H_col = np.zeros((L_w + 1, 1), dtype=complex)
