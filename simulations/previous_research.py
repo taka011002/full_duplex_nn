@@ -1,6 +1,7 @@
 from src import modules as m
 from src.previous_research.nn import NNModel as PreviousNNModel
 from src.previous_research.system_model import SystemModel as PreviousSystemModel
+import src.previous_research.fulldeplex as fd
 import matplotlib.pyplot as plt
 from simulations.common import graph
 import numpy as np
@@ -21,9 +22,9 @@ if __name__ == '__main__':
         'LNA_IBO_dB': 7,
         'LNA_rho': 2,
 
-        'SNR_MIN': 25,
+        'SNR_MIN': 0,
         'SNR_MAX': 25,
-        'SNR_NUM': 1,
+        'SNR_NUM': 6,
         'SNR_AVERAGE': 1,
 
         "h_si_len": 13,
@@ -42,6 +43,7 @@ if __name__ == '__main__':
 
     loss_array = np.zeros((params['SNR_NUM'], params['SNR_AVERAGE'], params['nEpochs']))
     val_loss_array = np.zeros((params['SNR_NUM'], params['SNR_AVERAGE'], params['nEpochs']))
+    error_array = np.zeros((len(snrs_db), params['SNR_AVERAGE']))
 
     for trials_index in tqdm(range(params['SNR_AVERAGE'])):
         h_si = m.channel(1, params['h_si_len'])
@@ -80,6 +82,9 @@ if __name__ == '__main__':
             loss_array[sigma_index][trials_index][:] = previous_nn_model.history.history['loss']
             val_loss_array[sigma_index][trials_index][:] = previous_nn_model.history.history['val_loss']
 
+            H = fd.toeplitz_h(h_s.T, params['h_s_len'], params['h_si_len'] - 1)
+            W = fd.mmse(H, sigma**2)
+
             training_samples = int(np.floor(params['n'] * params['training_ratio']))
             n = params['n'] - training_samples
             system_model.cancelling_phase(
@@ -104,7 +109,15 @@ if __name__ == '__main__':
             )
 
             cancelled_y = previous_nn_model.cancelled_y # これが希望信号成分
-            print(cancelled_y)
+            r_vec = np.array([cancelled_y[i:i + params['h_s_len']] for i in range(cancelled_y.shape[0] - params['h_s_len'] + 1)])
+            z = W.conj().T * r_vec
+            z = np.sum(z, axis=1)
+
+            d_hat = m.demodulate_qpsk(z)
+            d_hat_len = d_hat.shape[0]
+            error = np.sum(system_model.d_s[0:d_hat_len] != d_hat)
+
+            error_array[sigma_index][trials_index] = error
 
     # for sigma_index, snr_db in enumerate(snrs_db):
     #     learn_fig, learn_ax = graph.new_learning_curve_canvas(params['nEpochs'])
@@ -123,3 +136,13 @@ if __name__ == '__main__':
     #                   marker='o', linestyle='--', label='Test Frame')
     #     learn_ax.legend()
     #     plt.show()
+
+    ber_fig, ber_ax = graph.new_snr_ber_canvas(params['SNR_MIN'], params['SNR_MAX'])
+    n_sum = d_hat_len * params['SNR_AVERAGE']
+
+    errors_sum = np.sum(error_array, axis=1)
+    bers = errors_sum / n_sum
+    ber_ax.plot(snrs_db, bers, color="k", marker='o', linestyle='--', label="MMSE")
+
+    ber_ax.legend()
+    plt.show()

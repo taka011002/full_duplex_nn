@@ -84,4 +84,4 @@ class NNModel:
 
         self.y_canc_non_lin = np.squeeze(self.pred[0] + 1j * self.pred[1], axis=1)
 
-        self.cancelled_y = y_lin_canc - self.y_canc_non_lin
+        self.cancelled_y = y_lin_canc[0:self.y_canc_non_lin.shape[0]] - self.y_canc_non_lin
