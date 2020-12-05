@@ -1,5 +1,7 @@
 import numpy as np
 from scipy.linalg import toeplitz
+import scipy.io
+
 
 # Estimates parameters for linear cancellation
 def ls_estimation(x: np.ndarray, y: np.ndarray, chan_length: int) -> np.ndarray:
@@ -13,13 +15,15 @@ def ls_estimation(x: np.ndarray, y: np.ndarray, chan_length: int) -> np.ndarray:
     # Output estimated channels
     return h
 
-def si_cancellation_linear(x: np.ndarray, h: np.ndarray)->np.ndarray:
+
+def si_cancellation_linear(x: np.ndarray, h: np.ndarray) -> np.ndarray:
     # Calculate the cancellation signal
     xcan = np.convolve(x, h, mode='full')
     xcan = xcan[0:x.size]
 
     # Output
     return xcan
+
 
 def mmse(H, noise_var):
     H_H = H.conj().T
@@ -36,3 +40,24 @@ def toeplitz_h(h, h_len, L_w):
     H_col[0] = h[0]
     H = toeplitz(H_col, r=H_row)
     return H
+
+
+# Loads testbed data from file
+def loadData(fileName, params):
+    # Get parameters
+    dataOffset = params['dataOffset']
+    chanLen = params['hSILen']
+    offset = np.maximum(dataOffset - int(np.ceil(chanLen / 2)), 1)
+
+    # Load the file
+    matFile = scipy.io.loadmat(fileName)
+
+    # Prepare data
+    x = np.squeeze(matFile['txSamples'], axis=1)[:-offset]
+    y = np.squeeze(matFile['analogResidual'], axis=1)[offset:]
+    y = y - np.mean(y)
+    noise = np.squeeze(matFile['noiseSamples'], axis=1)
+    noisePower = np.squeeze(matFile['noisePower'], axis=1)
+
+    # Return
+    return x, y, noise, noisePower

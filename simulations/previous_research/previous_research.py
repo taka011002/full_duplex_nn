@@ -27,12 +27,12 @@ if __name__ == '__main__':
         'SNR_NUM': 6,
         'SNR_AVERAGE': 1,
 
-        "h_si_len": 13,
-        "h_s_len": 13,
+        "h_si_len": 2,
+        "h_s_len": 2,
 
-        "n_hidden": 17,
-        "learning_rate": 0.004,
-        "training_ratio": 0.8,
+        "n_hidden": 10,
+        "learning_rate": 0.001,
+        "training_ratio": 0.9,
         "batch_size": 32,
         "nEpochs": 20
     }
@@ -119,23 +119,23 @@ if __name__ == '__main__':
 
             error_array[sigma_index][trials_index] = error
 
-    # for sigma_index, snr_db in enumerate(snrs_db):
-    #     learn_fig, learn_ax = graph.new_learning_curve_canvas(params['nEpochs'])
-    #     loss_avg = np.mean(loss_array[sigma_index], axis=0).T
-    #     val_loss_avg = np.mean(val_loss_array[sigma_index], axis=0).T
-    #     epoch = np.arange(1, len(loss_avg) + 1)
-    #
-    #     learn_ax.plot(epoch,
-    #                   loss_avg,
-    #                   color="k", marker='o',
-    #                   linestyle='--',
-    #                   label='Training Frame')
-    #     learn_ax.plot(epoch,
-    #                   val_loss_avg,
-    #                   color="r",
-    #                   marker='o', linestyle='--', label='Test Frame')
-    #     learn_ax.legend()
-    #     plt.show()
+    for sigma_index, snr_db in enumerate(snrs_db):
+        learn_fig, learn_ax = graph.new_learning_curve_canvas(params['nEpochs'])
+        loss_avg = np.mean(loss_array[sigma_index], axis=0).T
+        val_loss_avg = np.mean(val_loss_array[sigma_index], axis=0).T
+        epoch = np.arange(1, len(loss_avg) + 1)
+
+        learn_ax.plot(epoch,
+                      loss_avg,
+                      color="k", marker='o',
+                      linestyle='--',
+                      label='Training Frame')
+        learn_ax.plot(epoch,
+                      val_loss_avg,
+                      color="r",
+                      marker='o', linestyle='--', label='Test Frame')
+        learn_ax.legend()
+        plt.show()
 
     ber_fig, ber_ax = graph.new_snr_ber_canvas(params['SNR_MIN'], params['SNR_MAX'])
     n_sum = d_hat_len * params['SNR_AVERAGE']
