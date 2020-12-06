@@ -38,6 +38,25 @@ class SystemModel:
         # 受信側非線形
         self.y = m.sspa_rapp_ibo(r, LNA_IBO_dB, LNA_rho).squeeze()
 
+    def equalizer(self, n, sigma, LNA_IBO_dB=5, LNA_rho=2, h_s: np.ndarray=None, h_s_len=1):
+        offset_n = n + 2 * (h_s_len - 1) # 遅延を取る為に多く作っておく
+
+        # 希望信号
+        self.d_s = np.random.choice([0, 1], offset_n)
+        self.s = m.modulate_qpsk(self.d_s)
+
+        self.h_s = h_s
+
+        chanels_s = np.array([self.s[i:i + h_s_len] for i in range(self.s.size - h_s_len + 1)])  # [[x[n], x[n-1]], x[x-1], x[n-1]]のように通信路の数に合わせる
+        chanels_s = h_s * chanels_s
+        y_s = np.sum(chanels_s, axis=1)
+
+        r = y_s + m.awgn(y_s.shape, sigma, h_s_len)
+
+        # 受信側非線形
+        self.y = m.sspa_rapp_ibo(r, LNA_IBO_dB, LNA_rho).squeeze()
+
+
     def cancelling_phase(self, n, sigma, gamma=0.0, phi=0.0, PA_IBO_dB=5, PA_rho=2, LNA_IBO_dB=5, LNA_rho=2, h_si: np.ndarray=None,
                  h_si_len=1, h_s=None, h_s_len=1):
         offset_n = n + 2 * (h_si_len - 1) # 遅延を取る為に多く作っておく

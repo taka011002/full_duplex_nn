@@ -51,21 +51,21 @@ if __name__ == '__main__':
 
             H = toeplitz_chanel(h_s.T, h_s_len, L_w)
 
-            size = s.shape[0]
-            chanels_s = np.array(
-                [s[i:i + size - L_h - L_w] for i in range(L_h + L_w + 1)])  # [s_k, s_k-1, s_k-2]のように通信路の数に合わせる
-            y_s = np.matmul(H, chanels_s)
+            chanels_s = np.array([s[i:i + h_s_len] for i in range(s.size - h_s_len + 1)])  # [[x[n], x[n-1]], x[x-1], x[n-1]]のように通信路の数に合わせる
+            chanels_s = h_s * chanels_s
+            y_s = np.sum(chanels_s, axis=1)
 
             r = y_s + m.awgn(y_s.shape, sigma)
+            size = r.shape[0]
+            r_vec = np.array([r[i:i + size - L_w] for i in range(L_w + 1)])
 
             W = mmse(H, noise_var)
-            z = np.matmul(W.conj().T, r)
+            z = np.matmul(W.conj().T, r_vec)
 
             d_hat = m.demodulate_qpsk(z)
             error = np.sum(d_s[0:d_hat.shape[0]] != d_hat)
 
             error_array[sigma_index][trials_index] = error
-            # print(error / d_hat.shape[0])
 
     ber_fig, ber_ax = graph.new_snr_ber_canvas(snr_min, snr_max)
     n_sum = (n - 2 * h_s_len) * ave
