@@ -49,7 +49,7 @@ class SystemModel:
             chanels_s = np.array([self.s[i:i + h_s_len] for i in range(self.s.size - h_s_len + 1)]) # [[x[n], x[n-1]], x[x-1], x[n-1]]のように通信路の数に合わせる
             chanels_s = h_s * chanels_s
             y_s = np.sum(chanels_s, axis=1)
-            r = y_si + y_s + m.awgn(y_s.shape, sigma, h_s_len)
+            r = y_si + y_s + m.awgn(y_s.shape, sigma)
 
             # 受信側非線形
             self.y[:, i] = m.sspa_rapp_ibo(r, LNA_IBO_dB, LNA_rho).squeeze()
