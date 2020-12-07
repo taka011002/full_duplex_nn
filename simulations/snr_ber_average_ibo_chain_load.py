@@ -13,7 +13,7 @@ def load_pkl_file(pkl_path: str) -> Result:
         return pickle.load(f)
 
 
-def draw_snr_ber(ax: plt.Axes, snrs_db: np.ndarray, n_sum: int, pkl_paths: list, label: str = 'SNR_BER', color: str = 'k'):
+def draw_snr_ber(ax: plt.Axes, snrs_db: np.ndarray, n_sum: int, pkl_paths: list, label: str = 'SNR_BER', color: str = 'k', marker='o',line: str='--'):
     results = map(load_pkl_file, pkl_paths)
 
     # 結合させる
@@ -28,7 +28,7 @@ def draw_snr_ber(ax: plt.Axes, snrs_db: np.ndarray, n_sum: int, pkl_paths: list,
     errors_sum = np.sum(errors[IBO_index], axis=1)
     bers = errors_sum / n_sum
     np.place(bers, bers == 0, None)
-    ax.plot(snrs_db, bers, color=color, marker='o', linestyle='--', label=label)
+    ax.plot(snrs_db, bers, color=color, marker=marker, linestyle=line, label=label)
 
 
 if __name__ == '__main__':
@@ -36,39 +36,39 @@ if __name__ == '__main__':
     load_files = 1 # 同じ条件で読み込む数
 
     # dirname = settings.dirname_current_datetime(SIMULATIONS_NAME)
-    dirname = "../results/keep/frequency_selective/ch_5_delay_graph"
+    dirname = "../results/keep/frequency_selective/fixed_snr/ch_5_graph_delay"
     settings.init_output(dirname)
 
-    param_path = "../results/keep/frequency_selective/ch_5_anthena_1/params.json"
+    param_path = "../results/keep/frequency_selective/fixed_snr/ch_5_anthena_1/params.json"
     params = settings.load_param(param_path)
     n_sum = params["test_bits"] * params['SNR_AVERAGE'] * load_files
 
     snrs_db = np.linspace(params['SNR_MIN'], params['SNR_MAX'], params['SNR_NUM'])
     fig, ax = graph.new_snr_ber_canvas(params['SNR_MIN'], params['SNR_MAX'])
 
-    pkl_paths = ["../results/keep/frequency_selective/ch_5_anthena_1/result.pkl"]
+    pkl_paths = ["../results/keep/frequency_selective/fixed_snr/ch_5_anthena_1/result.pkl"]
     draw_snr_ber(ax, snrs_db, n_sum, pkl_paths, 'receive_antenna: 1', 'k')
 
-    pkl_paths = ["../results/keep/frequency_selective/ch_5_anthena_1_delay/result.pkl"]
-    draw_snr_ber(ax, snrs_db, n_sum, pkl_paths, 'receive_antenna: 1(delay)', 'm')
+    pkl_paths = ["../results/keep/frequency_selective/fixed_snr/ch_5_anthena_1_delay/result.pkl"]
+    draw_snr_ber(ax, snrs_db, n_sum, pkl_paths, 'receive_antenna: 1(delay)', 'k', 'x', ':')
 
-    pkl_paths = ["../results/keep/frequency_selective/ch_5_anthena_2/result.pkl"]
+    pkl_paths = ["../results/keep/frequency_selective/fixed_snr/ch_5_anthena_2/result.pkl"]
     draw_snr_ber(ax, snrs_db, n_sum, pkl_paths, 'receive_antenna: 2', 'g')
 
-    pkl_paths = ["../results/keep/frequency_selective/ch_5_anthena_2_delay/result.pkl"]
-    draw_snr_ber(ax, snrs_db, n_sum, pkl_paths, 'receive_antenna: 2(delay)', 'y')
+    pkl_paths = ["../results/keep/frequency_selective/fixed_snr/ch_5_anthena_2_delay/result.pkl"]
+    draw_snr_ber(ax, snrs_db, n_sum, pkl_paths, 'receive_antenna: 2(delay)', 'g', 'x', ':')
 
-    pkl_paths = ["../results/keep/frequency_selective/ch_5_anthena_3/result.pkl"]
+    pkl_paths = ["../results/keep/frequency_selective/fixed_snr/ch_5_anthena_3/result.pkl"]
     draw_snr_ber(ax, snrs_db, n_sum, pkl_paths, 'receive_antenna: 3', 'b')
 
-    pkl_paths = ["../results/keep/frequency_selective/ch_5_anthena_3_delay/result.pkl"]
-    draw_snr_ber(ax, snrs_db, n_sum, pkl_paths, 'receive_antenna: 3(delay)', 'c')
+    pkl_paths = ["../results/keep/frequency_selective/fixed_snr/ch_5_anthena_3_delay/result.pkl"]
+    draw_snr_ber(ax, snrs_db, n_sum, pkl_paths, 'receive_antenna: 3(delay)', 'b', 'x', ':')
 
-    pkl_paths = ["../results/keep/frequency_selective/ch_5_anthena_4/result.pkl"]
+    pkl_paths = ["../results/keep/frequency_selective/fixed_snr/ch_5_anthena_4/result.pkl"]
     draw_snr_ber(ax, snrs_db, n_sum, pkl_paths, 'receive_antenna: 4', 'r')
 
-    pkl_paths = ["../results/keep/frequency_selective/ch_5_anthena_4_delay/result.pkl"]
-    draw_snr_ber(ax, snrs_db, n_sum, pkl_paths, 'receive_antenna: 4(delay)', '#a65628')
+    pkl_paths = ["../results/keep/frequency_selective/fixed_snr/ch_5_anthena_4_delay/result.pkl"]
+    draw_snr_ber(ax, snrs_db, n_sum, pkl_paths, 'receive_antenna: 4(delay)', 'r', 'x', ':')
 
     ax.legend(fontsize=12)
     plt.savefig(dirname + '/SNR_BER.pdf')
