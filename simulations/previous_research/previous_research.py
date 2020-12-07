@@ -112,7 +112,8 @@ if __name__ == '__main__':
                 params['h_si_len'],
             )
 
-            cancelled_y = previous_nn_model.cancelled_y # これが希望信号成分
+            # ISIを含んだ希望信号成分
+            cancelled_y = previous_nn_model.cancelled_y
             size = cancelled_y.shape[0]
             y_vec = np.array([cancelled_y[i:i + size - L_w] for i in range(L_w + 1)])
 

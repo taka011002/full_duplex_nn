@@ -69,6 +69,7 @@ class NNModel:
                             verbose=0, validation_data=(x_test, [y_test.real, y_test.imag]))
 
     def cancel(self, x: np.ndarray, y: np.ndarray, chanLen: int):
+        # Prepare test data for NN
         x_real = np.reshape(np.array([x[i:i + chanLen].real for i in range(x.size - chanLen)]),
                                  (x.size - chanLen, chanLen))
         x_imag = np.reshape(np.array([x[i:i + chanLen].imag for i in range(x.size - chanLen)]),
@@ -77,11 +78,11 @@ class NNModel:
         x_pred[:, 0:chanLen] = x_real
         x_pred[:, chanLen:2 * chanLen] = x_imag
 
-        self.pred = self.model.predict(x_pred)
-
+        # Normalize data for NN
         yCanc = fd.si_cancellation_linear(x, self.h_lin)
         y_lin_canc = y - yCanc
 
+        self.pred = self.model.predict(x_pred)
         self.y_canc_non_lin = np.squeeze(self.pred[0] + 1j * self.pred[1], axis=1)
 
         self.cancelled_y = y_lin_canc[0:self.y_canc_non_lin.shape[0]] - self.y_canc_non_lin

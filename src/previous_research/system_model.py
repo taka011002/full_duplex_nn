@@ -46,7 +46,7 @@ class SystemModel:
         chanels_x_pa = np.array([self.x_pa[i:i + self.h_si_len] for i in range(self.x_pa.size - self.h_si_len + 1)])
         chanels_y_si = self.h_si * chanels_x_pa
         y_si = np.sum(chanels_y_si, axis=1)
-        r = y_si + m.awgn(y_si.shape, self.sigma, self.h_si_len)
+        r = y_si + m.awgn(y_si.shape, self.sigma)
 
         # 受信側非線形
         self.y = m.sspa_rapp_ibo(r, self.LNA_IBO_dB, self.LNA_rho).squeeze()
@@ -63,7 +63,7 @@ class SystemModel:
         chanels_s = self.h_s * chanels_s
         y_s = np.sum(chanels_s, axis=1)
 
-        r = y_s + m.awgn(y_s.shape, self.sigma, self.h_s_len)
+        r = y_s + m.awgn(y_s.shape, self.sigma)
 
         # 受信側非線形
         self.y = m.sspa_rapp_ibo(r, self.LNA_IBO_dB, self.LNA_rho).squeeze()
@@ -94,7 +94,7 @@ class SystemModel:
         chanels_s = self.h_s * chanels_s
         y_s = np.sum(chanels_s, axis=1)
 
-        r = y_si + y_s + m.awgn(y_si.shape, self.sigma, self.h_si_len)
+        r = y_si + y_s + m.awgn(y_si.shape, self.sigma)
 
         # 受信側非線形
         self.y = m.sspa_rapp_ibo(r, self.LNA_IBO_dB, self.LNA_rho).squeeze()
