@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 from simulations.common import graph
 import numpy as np
 from tqdm import tqdm
+import logging
 import pickle
 
 
@@ -41,6 +42,9 @@ if __name__ == '__main__':
         h_s = m.channel(1, params['h_s_len'])
 
         for sigma_index, sigma in enumerate(sigmas):
+            logging.info("SNR_AVERAGE_index:" + str(trials_index))
+            logging.info("sigma_index:" + str(sigma_index))
+
             system_model = PreviousSystemModel(
                 sigma,
                 params['gamma'],
