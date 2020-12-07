@@ -25,7 +25,7 @@ if __name__ == '__main__':
         'SNR_MIN': 0,
         'SNR_MAX': 25,
         'SNR_NUM': 6,
-        'SNR_AVERAGE': 100,
+        'SNR_AVERAGE': 10,
 
         "h_si_len": 2,
         "h_s_len": 2,
@@ -34,7 +34,8 @@ if __name__ == '__main__':
         "learning_rate": 0.001,
         "training_ratio": 0.9,
         "batch_size": 32,
-        "nEpochs": 20
+        "nEpochs": 20,
+        "L_w": 10
     }
 
     # データを生成する
@@ -50,9 +51,7 @@ if __name__ == '__main__':
         h_s = m.channel(1, params['h_s_len'])
 
         for sigma_index, sigma in enumerate(sigmas):
-            system_model = PreviousSystemModel()
-            system_model.learning_phase(
-                params['n'],
+            system_model = PreviousSystemModel(
                 sigma,
                 params['gamma'],
                 params['phi'],
@@ -62,6 +61,11 @@ if __name__ == '__main__':
                 params['LNA_rho'],
                 h_si,
                 params['h_si_len'],
+                h_s,
+                params['h_s_len'],
+            )
+            system_model.transceive_si(
+                params['n']
             )
 
             previous_nn_model = PreviousNNModel(
@@ -83,42 +87,27 @@ if __name__ == '__main__':
             val_loss_array[sigma_index][trials_index][:] = previous_nn_model.history.history['val_loss']
 
             training_samples = int(np.floor(params['n'] * params['training_ratio']))
-            n = params['n'] - training_samples
+            test_n = params['n'] - training_samples
 
-            system_model.equalizer(
-                n,
-                sigma,
-                params['LNA_IBO_dB'],
-                params['LNA_rho'],
-                h_s,
-                params['h_s_len'],
+            system_model.transceive_s(
+                test_n,
             )
 
             h_s_len = params['h_s_len']
             L_h = params['h_s_len'] - 1
-            L_w = params['h_si_len']
-            h_s_hat = fd.ls_estimation(system_model.x[0:int(n / 2)], system_model.y, params['h_s_len'])
+            L_w = params['L_w']
+
+            h_s_hat = fd.ls_estimation(system_model.x[0:int(test_n / 2)], system_model.y, h_s_len)
             h_s_hat = h_s_hat.reshape(1, 2)
             H = fd.toeplitz_chanel(h_s_hat.T, h_s_len, L_w)
             W = fd.mmse(H, sigma**2)
 
-            system_model.cancelling_phase(
-                n,
-                sigma,
-                params['gamma'],
-                params['phi'],
-                params['PA_IBO_dB'],
-                params['PA_rho'],
-                params['LNA_IBO_dB'],
-                params['LNA_rho'],
-                h_si,
-                params['h_si_len'],
-                h_s,
-                params['h_s_len'],
+            system_model.transceive_si_s(
+                test_n,
             )
 
             previous_nn_model.cancel(
-                system_model.x[0:int(n / 2)],
+                system_model.x[0:int(test_n / 2)],
                 system_model.y,
                 params['h_si_len'],
             )

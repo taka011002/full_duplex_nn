@@ -41,7 +41,7 @@ if __name__ == '__main__':
 
     for sigma_index, sigma in enumerate(sigmas):
         system_model = PreviousSystemModel()
-        system_model.learning_phase(
+        system_model.transceive_si(
             params['n'],
             0,
             params['gamma'],
