@@ -16,7 +16,7 @@ class SystemModel:
     r: np.ndarray
     y: np.ndarray
 
-    def __init__(self, n, sigma, gamma=0.0, phi=0.0, PA_IBO_dB=5, PA_rho=2, LNA_IBO_dB=5, LNA_rho=2,
+    def __init__(self, sigma, gamma=0.0, phi=0.0, PA_IBO_dB=5, PA_rho=2, LNA_IBO_dB=5, LNA_rho=2,
                  h_si: np.ndarray = None, h_si_len=1, h_s=None, h_s_len=1):
         self.sigma = sigma
         self.gamma = gamma
