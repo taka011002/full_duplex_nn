@@ -33,7 +33,7 @@ if __name__ == '__main__':
     # データを生成する
     snrs_db = m.snr_db(params['SNR_MIN'], params['SNR_MAX'], params['SNR_NUM'])
     sigmas = m.sigmas(snrs_db)  # SNR(dB)を元に雑音電力を導出
-    sigmas = sigmas * params['receive_antenna']
+    sigmas = sigmas * np.sqrt(params['receive_antenna'])
 
     errors = np.zeros((len(params['IBO_dB']), params['SNR_NUM'], params['SNR_AVERAGE']))
     losss = np.zeros((len(params['IBO_dB']), params['SNR_NUM'], params['SNR_AVERAGE'], params['nEpochs']))
