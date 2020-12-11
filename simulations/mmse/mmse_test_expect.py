@@ -30,7 +30,7 @@ if __name__ == '__main__':
     ave = 100
     h_s_len = 2
     L_h = h_s_len - 1
-    L_w = 10
+    L_w = 2
     snr_min = 0
     snr_max = 25
     snr_dots = 6
@@ -41,7 +41,8 @@ if __name__ == '__main__':
     error_array = np.zeros((len(snrs_db), ave))
     for trials_index in tqdm(range(ave)):
         # h_s = m.channel(1, h_s_len)
-        h_s = np.array([1 +1j, 1 + 1j]).reshape((1, 2))
+        # h_s = np.array([1 +1j, 1 + 1j]).reshape((1, 2))
+        h_s = np.array([0.1 + 1j, 1 + 1j]).reshape((1, 2))
 
         for sigma_index, sigma in enumerate(sigmas):
             noise_var = sigma ** 2
