@@ -114,7 +114,7 @@ if __name__ == '__main__':
 
     errors_sum = np.sum(error_array, axis=1)
     bers = errors_sum / n_sum
-    ber_ax.plot(snrs_db, bers, color="k", marker='o', linestyle='--', label="Previous research + MMSE")
+    ber_ax.plot(snrs_db, bers, color="k", marker='o', linestyle='--', label="Previous research")
     ber_ax.legend()
     plt.savefig(output_dir + '/SNR_BER.pdf', bbox_inches='tight')
 
