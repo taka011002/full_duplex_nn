@@ -49,7 +49,7 @@ class SystemModel:
         r = y_si + m.awgn(y_si.shape, self.sigma)
 
         # 受信側非線形
-        self.y = m.sspa_rapp_ibo(r, self.LNA_IBO_dB, self.LNA_rho).squeeze()
+        self.y = m.sspa_rapp(r, self.a_sat, self.LNA_rho).squeeze()
 
     def transceive_s(self, n):
         offset_n = n + 2 * (self.h_s_len - 1)  # 遅延を取る為に多く作っておく
@@ -66,7 +66,7 @@ class SystemModel:
         r = y_s + m.awgn(y_s.shape, self.sigma)
 
         # 受信側非線形
-        self.y = m.sspa_rapp_ibo(r, self.LNA_IBO_dB, self.LNA_rho).squeeze()
+        self.y = m.sspa_rapp(r, self.a_sat, self.LNA_rho).squeeze()
 
     def transceive_si_s(self, n):
         offset_n = n + 2 * (self.h_si_len - 1)  # 遅延を取る為に多く作っておく
@@ -97,4 +97,34 @@ class SystemModel:
         r = y_si + y_s + m.awgn(y_si.shape, self.sigma)
 
         # 受信側非線形
-        self.y = m.sspa_rapp_ibo(r, self.LNA_IBO_dB, self.LNA_rho).squeeze()
+        self.y = m.sspa_rapp(r, self.a_sat, self.LNA_rho).squeeze()
+
+    def set_lna_a_sat(self, n, LNA_IBO_dB):
+        # TODO 調整する
+        offset_n = n + 2 * (self.h_si_len - 1)  # 遅延を取る為に多く作っておく
+
+        # 送信信号
+        d = np.random.choice([0, 1], offset_n)
+        x = m.modulate_qpsk(d)
+
+        # 希望信号
+        d_s = np.random.choice([0, 1], offset_n)
+        s = m.modulate_qpsk(d_s)
+
+        # 送信側非線形
+        x_iq = m.iq_imbalance(x, self.gamma, self.phi)
+        x_pa = m.sspa_rapp_ibo(x_iq, self.PA_IBO_dB, self.PA_rho)
+
+        # 通信路
+        # [[x[n], x[n-1]], x[x-1], x[n-1]]のように通信路の数に合わせる
+        chanels_x_pa = np.array([x_pa[i:i + self.h_si_len] for i in range(x_pa.size - self.h_si_len + 1)])
+        chanels_y_si = self.h_si * chanels_x_pa
+        y_si = np.sum(chanels_y_si, axis=1)
+
+        # [[x[n], x[n-1]], x[x-1], x[n-1]]のように通信路の数に合わせる
+        chanels_s = np.array([s[i:i + self.h_s_len] for i in range(s.size - self.h_s_len + 1)])
+        chanels_s = self.h_s * chanels_s
+        y_s = np.sum(chanels_s, axis=1)
+
+        r = y_si + y_s + m.awgn(y_si.shape, self.sigma)
+        self.a_sat = m.a_sat(r, LNA_IBO_dB)

@@ -45,6 +45,9 @@ if __name__ == '__main__':
             logging.info("SNR_AVERAGE_index:" + str(trials_index))
             logging.info("sigma_index:" + str(sigma_index))
 
+            training_samples = int(np.floor(params['n'] * params['trainingRatio']))
+            test_n = params['n'] - training_samples
+
             system_model = PreviousSystemModel(
                 sigma,
                 params['gamma'],
@@ -58,6 +61,12 @@ if __name__ == '__main__':
                 h_s,
                 params['h_s_len'],
             )
+
+            system_model.set_lna_a_sat(
+                test_n,
+                params['LNA_IBO_dB'],
+            )
+
             system_model.transceive_si(
                 params['n']
             )
@@ -79,13 +88,6 @@ if __name__ == '__main__':
 
             loss_array[sigma_index][trials_index][:] = previous_nn_model.history.history['loss']
             val_loss_array[sigma_index][trials_index][:] = previous_nn_model.history.history['val_loss']
-
-            training_samples = int(np.floor(params['n'] * params['trainingRatio']))
-            test_n = params['n'] - training_samples
-
-            system_model.transceive_s(
-                test_n,
-            )
 
             system_model.transceive_si_s(
                 test_n,

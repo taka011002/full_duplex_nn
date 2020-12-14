@@ -20,9 +20,9 @@ class NNModel:
         output1 = Dense(1, activation='linear')(hidden1)
         output2 = Dense(1, activation='linear')(hidden1)
         model = Model(inputs=input, outputs=[output1, output2])
-        # adam = optimizers.Adam(lr=learning_rate)
+        # optimizer = optimizers.Adam(lr=learning_rate)
         optimizer = RAdam()
-        # optimizer = optimizers.SGD(learning_rate=0.01, momentum=0.8)
+        # optimizer = optimizers.SGD(learning_rate=0.001, momentum=0.8)
         model.compile(optimizer, loss="mse")
 
         self.model = model
