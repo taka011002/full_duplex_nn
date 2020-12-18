@@ -25,7 +25,7 @@ class Result:
 
 
 if __name__ == '__main__':
-    SIMULATIONS_NAME = 'previous_research_non_selective'
+    SIMULATIONS_NAME = 'previous_research_non_selective_lin'
 
     params, output_dir = settings.init_simulation(SIMULATIONS_NAME)
 
@@ -33,8 +33,6 @@ if __name__ == '__main__':
     snrs_db = np.linspace(params['SNR_MIN'], params['SNR_MAX'], params['SNR_NUM'])
     sigmas = m.sigmas(snrs_db)  # SNR(dB)を元に雑音電力を導出
 
-    loss_array = np.zeros((params['SNR_NUM'], params['SNR_AVERAGE'], params['nEpochs']))
-    val_loss_array = np.zeros((params['SNR_NUM'], params['SNR_AVERAGE'], params['nEpochs']))
     error_array = np.zeros((len(snrs_db), params['SNR_AVERAGE']))
 
     for trials_index in tqdm(range(params['SNR_AVERAGE'])):
@@ -46,7 +44,6 @@ if __name__ == '__main__':
             logging.info("sigma_index:" + str(sigma_index))
 
             training_samples = int(np.floor(params['n'] * params['trainingRatio']))
-            test_n = params['n'] - training_samples
 
             system_model = PreviousSystemModel(
                 sigma,
@@ -63,7 +60,7 @@ if __name__ == '__main__':
             )
 
             system_model.set_lna_a_sat(
-                test_n,
+                params['n'],
                 params['LNA_IBO_dB'],
             )
 
@@ -71,35 +68,15 @@ if __name__ == '__main__':
                 params['n']
             )
 
-            previous_nn_model = PreviousNNModel(
-                params['h_si_len'],
-                params['nHidden'],
-                params['learningRate']
-            )
-
-            previous_nn_model.learn(
-                system_model.x[0:int(params['n'] / 2)],
-                system_model.y,
-                params['trainingRatio'],
-                params['h_si_len'],
-                params['nEpochs'],
-                params['batchSize']
-            )
-
-            loss_array[sigma_index][trials_index][:] = previous_nn_model.history.history['loss']
-            val_loss_array[sigma_index][trials_index][:] = previous_nn_model.history.history['val_loss']
+            h_lin = fd.ls_estimation(system_model.x[0:int(params['n'] / 2)], system_model.y, params['h_si_len'])
 
             system_model.transceive_si_s(
-                test_n,
+                params['n'],
             )
 
-            previous_nn_model.cancel(
-                system_model.x[0:int(test_n / 2)],
-                system_model.y,
-                params['h_si_len'],
-            )
-
-            s_hat = previous_nn_model.cancelled_y * h_s.conj() / (np.abs(h_s)**2)
+            yCanc = fd.si_cancellation_linear(system_model.x[0:int(params['n'] / 2)], h_lin)
+            cancelled_y = system_model.y - yCanc
+            s_hat = cancelled_y * h_s.conj() / (np.abs(h_s)**2)
 
             d_hat = m.demodulate_qpsk(s_hat)
             d_hat_len = d_hat.shape[0]
@@ -107,7 +84,7 @@ if __name__ == '__main__':
 
             error_array[sigma_index][trials_index] = error
 
-    result = Result(params, error_array, loss_array, val_loss_array)
+    result = Result(params, error_array, None, None)
     with open(output_dir + '/result.pkl', 'wb') as f:
         pickle.dump(result, f)
 
@@ -122,16 +99,5 @@ if __name__ == '__main__':
 
     output_png_path = output_dir + '/SNR_BER.png'
     plt.savefig(output_png_path, bbox_inches='tight')
-
-    for sigma_index, snr_db in enumerate(snrs_db):
-        learn_fig, learn_ax = graph.new_learning_curve_canvas(params['nEpochs'])
-        loss_avg = np.mean(loss_array[sigma_index], axis=0).T
-        val_loss_avg = np.mean(val_loss_array[sigma_index], axis=0).T
-        epoch = np.arange(1, len(loss_avg) + 1)
-
-        learn_ax.plot(epoch, loss_avg, color="k", marker='o', linestyle='--', label='Training Frame')
-        learn_ax.plot(epoch, val_loss_avg, color="r", marker='o', linestyle='--', label='Test Frame')
-        learn_ax.legend()
-        plt.savefig(output_dir + '/snr_db_' + str(snr_db) + '_NNconv.pdf', bbox_inches='tight')
 
     # settings.finish_simulation(params, output_dir, output_png_path)
