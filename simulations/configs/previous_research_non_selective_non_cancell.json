@@ -12,7 +12,7 @@
   "SNR_MIN": 0,
   "SNR_MAX": 25,
   "SNR_NUM": 6,
-  "SNR_AVERAGE": 1,
+  "SNR_AVERAGE": 100,
 
   "nHidden": 10,
   "nEpochs": 20,
@@ -20,8 +20,6 @@
   "trainingRatio": 0.8,
   "batchSize": 32,
 
-  "h_si_len": 2,
-  "h_s_len": 2,
-
-  "L_w": 2
+  "h_si_len": 1,
+  "h_s_len": 1
 }

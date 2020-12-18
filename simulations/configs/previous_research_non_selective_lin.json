@@ -20,8 +20,6 @@
   "trainingRatio": 0.8,
   "batchSize": 32,
 
-  "h_si_len": 2,
-  "h_s_len": 2,
-
-  "L_w": 2
+  "h_si_len": 1,
+  "h_s_len": 1
 }
