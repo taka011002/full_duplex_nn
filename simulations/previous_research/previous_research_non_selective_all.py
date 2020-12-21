@@ -9,19 +9,16 @@ import numpy as np
 from tqdm import tqdm
 import logging
 import pickle
+import dataclasses
 
-
+@dataclasses.dataclass
 class Result:
     params: dict
-    errors: np.ndarray
-    losss: np.ndarray
-    val_losss: np.ndarray
-
-    def __init__(self, params, errors, losss, val_losss):
-        self.params = params
-        self.errors = errors
-        self.losss = losss
-        self.val_losss = val_losss
+    error_array: np.ndarray
+    loss_array: np.ndarray
+    val_loss_array: np.ndarray
+    lin_error_array: np.ndarray
+    non_cancell_error_array: np.ndarray
 
 def non_cancel_simulation(param: dict, sigma, h_si, h_s) -> np.ndarray:
         system_model = PreviousSystemModel(
@@ -185,7 +182,7 @@ if __name__ == '__main__':
             non_cancell_error_array[sigma_index][trials_index] = non_cancel_simulation(params, sigma, h_si, h_s)
             lin_error_array[sigma_index][trials_index] = lin_cancel_simulation(params, sigma, h_si, h_s)
 
-    result = Result(params, error_array, loss_array, val_loss_array)
+    result = Result(params, error_array, loss_array, val_loss_array, lin_error_array, non_cancell_error_array)
     with open(output_dir + '/result.pkl', 'wb') as f:
         pickle.dump(result, f)
 
