@@ -1,0 +1,26 @@
+{
+  "n": 20000,
+  "lin_n": 4000,
+  "gamma": 0.3,
+  "phi": 3.0,
+
+  "PA_rho": 2,
+  "PA_IBO_dB": 7,
+
+  "LNA_rho": 2,
+  "LNA_IBO_dB": 7,
+
+  "SNR_MIN": 0,
+  "SNR_MAX": 25,
+  "SNR_NUM": 6,
+  "SNR_AVERAGE": 100,
+
+  "nHidden": 10,
+  "nEpochs": 20,
+  "learningRate": 0.001,
+  "trainingRatio": 0.8,
+  "batchSize": 32,
+
+  "h_si_len": 1,
+  "h_s_len": 1
+}
