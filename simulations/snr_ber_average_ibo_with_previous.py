@@ -254,27 +254,26 @@ if __name__ == '__main__':
         pickle.dump(result, f)
 
     ber_fig, ber_ax = graph.new_snr_ber_canvas(params['SNR_MIN'], params['SNR_MAX'])
-
-    n_sum = params["test_bits"] * params['SNR_AVERAGE']
-
-    errors_sum = np.sum(errors, axis=1)
+    n_sum = params['lin_n'] * params['SNR_AVERAGE']
+    errors_sum = np.sum(non_cancell_error_array, axis=1)
     bers = errors_sum / n_sum
-    ber_ax.plot(snrs_db, bers, color="k",
-                marker='o', linestyle='--', label="BER")
-
-    n_sum = params["test_bits"] * params['SNR_AVERAGE']
-    errors_sum = np.sum(error_array, axis=1)
-    bers = errors_sum / n_sum
-    ber_ax.plot(snrs_db, bers, color="r", marker='o', linestyle='--', label="nonlin cancel")
+    ber_ax.plot(snrs_db, bers, color="k", marker='o', linestyle='--', label="Without cancel")
 
     n_sum = params['lin_n'] * params['SNR_AVERAGE']
     errors_sum = np.sum(lin_error_array, axis=1)
     bers = errors_sum / n_sum
-    ber_ax.plot(snrs_db, bers, color="g", marker='o', linestyle='--', label="lin cancel")
+    ber_ax.plot(snrs_db, bers, color="g", marker='o', linestyle='--', label="Previous(Linear)")
 
-    errors_sum = np.sum(non_cancell_error_array, axis=1)
+    n_sum = params["test_bits"] * params['SNR_AVERAGE']
+    errors_sum = np.sum(error_array, axis=1)
     bers = errors_sum / n_sum
-    ber_ax.plot(snrs_db, bers, color="b", marker='o', linestyle='--', label="non cancel")
+    ber_ax.plot(snrs_db, bers, color="b", marker='o', linestyle='--', label="Previous(Linear+Nonlinear)")
+
+    n_sum = params["test_bits"] * params['SNR_AVERAGE']
+    errors_sum = np.sum(errors, axis=1)
+    bers = errors_sum / n_sum
+    ber_ax.plot(snrs_db, bers, color="r",
+                marker='o', linestyle='--', label="Proposal")
 
     ber_ax.legend()
     plt.savefig(output_dir + '/SNR_BER.pdf', bbox_inches='tight')
