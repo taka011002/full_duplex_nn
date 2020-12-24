@@ -52,4 +52,7 @@ class SystemModel:
             r = y_si + y_s + m.awgn(y_s.shape, sigma)
 
             # 受信側非線形
-            self.y[:, i] = m.sspa_rapp_ibo(r, LNA_IBO_dB, LNA_rho).squeeze()
+            y_lna = m.sspa_rapp_ibo(r, LNA_IBO_dB, LNA_rho).squeeze()
+            y_iq = m.iq_imbalance(y_lna, gamma, phi)
+
+            self.y[:, i] = y_iq
