@@ -58,10 +58,16 @@ if __name__ == '__main__':
     snrs_db = np.linspace(params['SNR_MIN'], params['SNR_MAX'], params['SNR_NUM'])
     fig, ax = graph.new_snr_ber_canvas(params['SNR_MIN'], params['SNR_MAX'])
 
-    pkl_paths = ["../results/keep/previous_research_non_selective/02_10_31/result.pkl"]
-    draw_snr_ber(ax, snrs_db, n_sum, pkl_paths, 'non lin', 'r')
+    pkl_paths = ["../results/keep/previous_research_non_selective/01_59_42/result.pkl"]
+    draw_snr_ber(ax, snrs_db, n_sum, pkl_paths, 'non lin[7db]', 'g')
 
-    pkl_paths = ["../results/keep/previous_research_non_selective_lin/18_01_07/result.pkl"]
+    pkl_paths = ["../results/keep/previous_research_non_selective/02_00_39/result.pkl"]
+    draw_snr_ber(ax, snrs_db, n_sum, pkl_paths, 'non lin[1000db]', 'r')
+
+    pkl_paths = ["../results/keep/previous_research_non_selective/02_10_31/result.pkl"]
+    draw_snr_ber(ax, snrs_db, n_sum, pkl_paths, 'non lin[1db]', 'c')
+
+    pkl_paths = ["../results/keep/previous_research_non_selective_lin/14_58_23/result.pkl"]
     n_sum = 4000 * params['SNR_AVERAGE']
     draw_snr_ber(ax, snrs_db, n_sum, pkl_paths, 'lin', 'b')
 
