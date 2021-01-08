@@ -13,6 +13,7 @@ import logging
 from tqdm import tqdm
 import dataclasses
 
+
 @dataclasses.dataclass
 class Result:
     params: dict
@@ -24,6 +25,7 @@ class Result:
     previous_val_losss: np.ndarray
     lin_error_array: np.ndarray
     non_cancell_error_array: np.ndarray
+
 
 def proposal(params: dict, sigma, h_si, h_s) -> NNModel:
     system_model = SystemModel(
@@ -71,41 +73,43 @@ def proposal(params: dict, sigma, h_si, h_s) -> NNModel:
 
     return nn_model
 
+
 def non_cancel_simulation(param: dict, sigma, h_si, h_s) -> np.ndarray:
-        system_model = PreviousSystemModel(
-            sigma,
-            params['gamma'],
-            params['phi'],
-            params['PA_IBO_dB'],
-            params['PA_rho'],
-            params['LNA_IBO_dB'],
-            params['LNA_rho'],
-            h_si,
-            params['h_si_len'],
-            h_s,
-            params['h_s_len'],
-            params['TX_IQI'],
-            params['PA'],
-            params['LNA'],
-            params['RX_IQI']
-        )
+    system_model = PreviousSystemModel(
+        sigma,
+        params['gamma'],
+        params['phi'],
+        params['PA_IBO_dB'],
+        params['PA_rho'],
+        params['LNA_IBO_dB'],
+        params['LNA_rho'],
+        h_si,
+        params['h_si_len'],
+        h_s,
+        params['h_s_len'],
+        params['TX_IQI'],
+        params['PA'],
+        params['LNA'],
+        params['RX_IQI']
+    )
 
-        system_model.set_lna_a_sat(
-            params['lin_n'],
-            params['LNA_IBO_dB'],
-        )
+    system_model.set_lna_a_sat(
+        params['lin_n'],
+        params['LNA_IBO_dB'],
+    )
 
-        system_model.transceive_si_s(
-            params['lin_n'],
-        )
+    system_model.transceive_si_s(
+        params['lin_n'],
+    )
 
-        s_hat = system_model.y * h_s.conj() / (np.abs(h_s)**2)
+    s_hat = system_model.y * h_s.conj() / (np.abs(h_s) ** 2)
 
-        d_hat = m.demodulate_qpsk(s_hat)
-        d_hat_len = d_hat.shape[0]
-        error = np.sum(system_model.d_s[0:d_hat_len] != d_hat)
+    d_hat = m.demodulate_qpsk(s_hat)
+    d_hat_len = d_hat.shape[0]
+    error = np.sum(system_model.d_s[0:d_hat_len] != d_hat)
 
-        return error
+    return error
+
 
 def lin_cancel_simulation(param: dict, sigma, h_si, h_s) -> np.ndarray:
     system_model = PreviousSystemModel(
@@ -143,13 +147,14 @@ def lin_cancel_simulation(param: dict, sigma, h_si, h_s) -> np.ndarray:
 
     yCanc = fd.si_cancellation_linear(system_model.x[0:int(params['lin_n'] / 2)], h_lin)
     cancelled_y = system_model.y - yCanc
-    s_hat = cancelled_y * h_s.conj() / (np.abs(h_s)**2)
+    s_hat = cancelled_y * h_s.conj() / (np.abs(h_s) ** 2)
 
     d_hat = m.demodulate_qpsk(s_hat)
     d_hat_len = d_hat.shape[0]
     error = np.sum(system_model.d_s[0:d_hat_len] != d_hat)
 
     return error
+
 
 def previous_non_lin(params: dict, sigma, h_si, h_s) -> PreviousNNModel:
     training_samples = int(np.floor(params['n'] * params['trainingRatio']))
@@ -207,7 +212,7 @@ def previous_non_lin(params: dict, sigma, h_si, h_s) -> PreviousNNModel:
         params['h_si_len'],
     )
 
-    s_hat = previous_nn_model.cancelled_y * h_s.conj() / (np.abs(h_s)**2)
+    s_hat = previous_nn_model.cancelled_y * h_s.conj() / (np.abs(h_s) ** 2)
 
     d_hat = m.demodulate_qpsk(s_hat)
     d_hat_len = d_hat.shape[0]
@@ -264,8 +269,9 @@ if __name__ == '__main__':
             error_array[sigma_index][trials_index] = previous_nn_model.error
             previous_losss[sigma_index][trials_index][:] = previous_nn_model.history.history['loss']
             previous_val_losss[sigma_index][trials_index][:] = previous_nn_model.history.history['val_loss']
-            
-    result = Result(params, errors, losss, val_losss, error_array, previous_losss, previous_val_losss, lin_error_array, non_cancell_error_array)
+
+    result = Result(params, errors, losss, val_losss, error_array, previous_losss, previous_val_losss, lin_error_array,
+                    non_cancell_error_array)
     with open(output_dir + '/result.pkl', 'wb') as f:
         pickle.dump(result, f)
 

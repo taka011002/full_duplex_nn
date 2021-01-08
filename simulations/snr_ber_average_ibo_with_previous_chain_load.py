@@ -7,6 +7,7 @@ from simulations.common import settings
 from simulations.common import graph
 import dataclasses
 
+
 @dataclasses.dataclass
 class Result:
     params: dict
@@ -26,7 +27,8 @@ def load_pkl_file(pkl_path: str) -> Result:
         return pickle.load(f)
 
 
-def draw_snr_ber(ax: plt.Axes, snrs_db: np.ndarray, n_sum: int, pkl_path: str, label: str = 'SNR_BER', color: str = 'k'):
+def draw_snr_ber(ax: plt.Axes, snrs_db: np.ndarray, n_sum: int, pkl_path: str, label: str = 'SNR_BER',
+                 color: str = 'k'):
     result = load_pkl_file(pkl_path)
 
     errors_sum = np.sum(result.errors, axis=1)
@@ -37,7 +39,7 @@ def draw_snr_ber(ax: plt.Axes, snrs_db: np.ndarray, n_sum: int, pkl_path: str, l
 
 if __name__ == '__main__':
     SIMULATIONS_NAME = 'snr_ber_average_ibo_with_previous_chain_load'
-    load_files = 1 # 同じ条件で読み込む数
+    load_files = 1  # 同じ条件で読み込む数
 
     # dirname = settings.dirname_current_datetime(SIMULATIONS_NAME)
     dirname = "../results/keep/snr_ber_average_ibo_with_previous_chain_load"
