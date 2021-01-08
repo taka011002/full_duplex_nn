@@ -74,7 +74,7 @@ def proposal(params: dict, sigma, h_si, h_s) -> NNModel:
     return nn_model
 
 
-def non_cancel_simulation(param: dict, sigma, h_si, h_s) -> np.ndarray:
+def non_cancel_simulation(params: dict, sigma, h_si, h_s) -> np.ndarray:
     system_model = PreviousSystemModel(
         sigma,
         params['gamma'],
@@ -111,7 +111,7 @@ def non_cancel_simulation(param: dict, sigma, h_si, h_s) -> np.ndarray:
     return error
 
 
-def lin_cancel_simulation(param: dict, sigma, h_si, h_s) -> np.ndarray:
+def lin_cancel_simulation(params: dict, sigma, h_si, h_s) -> np.ndarray:
     system_model = PreviousSystemModel(
         sigma,
         params['gamma'],
