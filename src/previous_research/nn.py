@@ -13,6 +13,7 @@ class NNModel:
     history: keras.callbacks.History
     pred: np.ndarray
     y_canc_non_lin: np.ndarray
+    error: np.ndarray
 
     def __init__(self, chan_len: int, n_hidden: int, learning_rate: float):
         input = Input(shape=(2 * chan_len,))  # 13*2=26個
