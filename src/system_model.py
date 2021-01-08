@@ -17,7 +17,7 @@ class SystemModel:
     y: np.ndarray
 
     def __init__(self, n, sigma, gamma=0.0, phi=0.0, PA_IBO_dB=5, PA_rho=2, LNA_IBO_dB=5, LNA_rho=2, h_si_list=None,
-                 h_s_list=None, h_si_len=1, h_s_len=1, receive_antenna=1):
+                 h_s_list=None, h_si_len=1, h_s_len=1, receive_antenna=1, tx_iqi=True, pa=True, lna=True, rx_iqi=True):
         # 送信信号
         self.d = np.random.choice([0, 1], n)
         self.x = m.modulate_qpsk(self.d)
@@ -27,8 +27,16 @@ class SystemModel:
         self.s = m.modulate_qpsk(self.d_s)
 
         # 送信側非線形
-        self.x_iq = m.iq_imbalance(self.x, gamma, phi)
-        self.x_pa = m.sspa_rapp_ibo(self.x_iq, PA_IBO_dB, PA_rho)
+
+        if tx_iqi == True:
+            self.x_iq = m.iq_imbalance(self.x, gamma, phi)
+        else:
+            self.x_iq = self.x
+        
+        if pa == True:
+            self.x_pa = m.sspa_rapp_ibo(self.x_iq, PA_IBO_dB, PA_rho)
+        else:
+            self.x_pa = self.x_iq
 
         # 通信路
         # 通信路がランダムの場合
@@ -52,7 +60,14 @@ class SystemModel:
             r = y_si + y_s + m.awgn(y_s.shape, sigma)
 
             # 受信側非線形
-            y_lna = m.sspa_rapp_ibo(r, LNA_IBO_dB, LNA_rho).squeeze()
-            y_iq = m.iq_imbalance(y_lna, gamma, phi)
+            if lna == True:
+                y_lna = m.sspa_rapp_ibo(r, LNA_IBO_dB, LNA_rho).squeeze()
+            else:
+                y_lna = r
+
+            if rx_iqi == True:
+                y_iq = m.iq_imbalance(y_lna, gamma, phi)
+            else:
+                y_iq = y_lna            
 
             self.y[:, i] = y_iq

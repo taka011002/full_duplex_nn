@@ -40,6 +40,10 @@ def proposal(params: dict, sigma, h_si, h_s) -> NNModel:
         params['h_si_len'],
         params['h_s_len'],
         params['receive_antenna'],
+        params['TX_IQI'],
+        params['PA'],
+        params['LNA'],
+        params['RX_IQI']
     )
 
     # NNを生成
@@ -80,6 +84,10 @@ def non_cancel_simulation(param: dict, sigma, h_si, h_s) -> np.ndarray:
             params['h_si_len'],
             h_s,
             params['h_s_len'],
+            params['TX_IQI'],
+            params['PA'],
+            params['LNA'],
+            params['RX_IQI']
         )
 
         system_model.set_lna_a_sat(
@@ -112,6 +120,10 @@ def lin_cancel_simulation(param: dict, sigma, h_si, h_s) -> np.ndarray:
         params['h_si_len'],
         h_s,
         params['h_s_len'],
+        params['TX_IQI'],
+        params['PA'],
+        params['LNA'],
+        params['RX_IQI']
     )
 
     system_model.set_lna_a_sat(
@@ -155,6 +167,10 @@ def previous_non_lin(params: dict, sigma, h_si, h_s) -> PreviousNNModel:
         params['h_si_len'],
         h_s,
         params['h_s_len'],
+        params['TX_IQI'],
+        params['PA'],
+        params['LNA'],
+        params['RX_IQI']
     )
 
     system_model.set_lna_a_sat(
@@ -259,15 +275,15 @@ if __name__ == '__main__':
     bers = errors_sum / n_sum
     ber_ax.plot(snrs_db, bers, color="k", marker='o', linestyle='--', label="Without cancel")
 
-    n_sum = params['lin_n'] * params['SNR_AVERAGE']
-    errors_sum = np.sum(lin_error_array, axis=1)
-    bers = errors_sum / n_sum
-    ber_ax.plot(snrs_db, bers, color="g", marker='o', linestyle='--', label="Previous(Linear)")
+    # n_sum = params['lin_n'] * params['SNR_AVERAGE']
+    # errors_sum = np.sum(lin_error_array, axis=1)
+    # bers = errors_sum / n_sum
+    # ber_ax.plot(snrs_db, bers, color="g", marker='o', linestyle='--', label="Previous(Linear)")
 
     n_sum = params["test_bits"] * params['SNR_AVERAGE']
     errors_sum = np.sum(error_array, axis=1)
     bers = errors_sum / n_sum
-    ber_ax.plot(snrs_db, bers, color="b", marker='o', linestyle='--', label="Previous(Linear+Nonlinear)")
+    ber_ax.plot(snrs_db, bers, color="b", marker='o', linestyle='--', label="Previous")
 
     n_sum = params["test_bits"] * params['SNR_AVERAGE']
     errors_sum = np.sum(errors, axis=1)
