@@ -91,7 +91,8 @@ def finish_simulation(params: dict, output_dir: str, output_png_path: str = None
     logging.info("end")
 
 
-def set_seed(params: dict, seed: int = None):
+def set_seed(params: dict):
+    seed = params.get('seed')
     if seed is None:
         seed = int(time.time())
 

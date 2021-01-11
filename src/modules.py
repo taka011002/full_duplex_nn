@@ -65,6 +65,13 @@ def sspa_rapp_ibo(input_signal: np.ndarray, IBO_dB: int = 0, rho: float = 0.5) -
     return sspa_rapp(input_signal, A, rho)
 
 
+def a_sat(input_signal: np.ndarray, IBO_dB: int = 0) -> float:
+    ibo = 10 ** (IBO_dB / 10)  # IBOをもとにアンプの飽和電力を決める
+    P_in = np.sum((input_signal * input_signal.conj()).real) / input_signal.shape[0]  # nで割るべき？
+    A = np.sqrt(P_in * ibo)
+    return A
+
+
 def sspa_rapp(input_signal: np.ndarray, saturation: float = 1, rho: float = 0.5) -> np.ndarray:
     """
     RappモデルによるSSPAの値を求める．
@@ -83,7 +90,7 @@ def sspa_rapp(input_signal: np.ndarray, saturation: float = 1, rho: float = 0.5)
 
 def channel(size: int = 1, length: int = 1, scale: float = 1.0) -> np.ndarray:
     """
-    周波数非選択性通信路を生成する．
+    複素ガウス分布に従った周波数非選択性通信路を生成する．
     生成する通信路の要素を全て違う値にする際はsizeを指定してあげる．
     指定しない場合は，1つの通信路のみ生成する．
     周波数選択性通信路の場合は，電力を合わせる為に，チャネル長さlengthを渡してあげる．
@@ -96,6 +103,23 @@ def channel(size: int = 1, length: int = 1, scale: float = 1.0) -> np.ndarray:
     h = np.random.normal(loc=0, scale=scale, size=(size, length)) + 1j * np.random.normal(loc=0, scale=scale,
                                                                                           size=(size, length))
     h = h * variance
+    return h
+
+
+def exponential_decay_channel(size: int = 1, length: int = 1, scale: float = 1.0, alpha: float = 1.0,  p_0: float = 1.0) -> np.ndarray:
+    """
+    指数減衰モデルの周波数選択性通信路を生成する．
+    生成する通信路の要素を全て違う値にする際はsizeを指定してあげる．
+    指定しない場合は，1つの通信路のみ生成する．
+    """
+    l = length - 1
+    l_array = np.arange(l + 1)
+    p_lambda = p_0 / np.sum(np.exp(-1 * alpha * l_array))
+    P = p_lambda * np.exp(-1 * alpha * l_array)
+
+    h = np.random.normal(loc=0, scale=scale, size=(size, length)) + 1j * np.random.normal(loc=0, scale=scale, size=(size, length))
+    variance = np.sqrt(2)
+    h = np.sqrt(P) * h / variance
     return h
 
 

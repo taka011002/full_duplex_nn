@@ -1,0 +1,47 @@
+{
+  "n": 20000,
+  "lin_n": 4000,
+  "gamma": 0.3,
+  "phi": 3.0,
+
+  "PA_rho": 2,
+  "PA_IBO_dB": 7,
+
+  "LNA_rho": 2,
+  "LNA_IBO_dB": 7,
+
+  "SNR_MIN": 0,
+  "SNR_MAX": 25,
+  "SNR_NUM": 6,
+  "SNR_AVERAGE": 100,
+
+  "nHidden": [15],
+  "nEpochs": 20,
+  "optimizer": "momentum",
+  "learningRate": 0.001,
+  "momentum": 0.8,
+  "trainingRatio": 0.8,
+  "batchSize": 32,
+  "delay": 0,
+  "standardization": false,
+
+  "receive_antenna_min": 1,
+  "receive_antenna_max": 4,
+
+  "h_si_len": 1,
+  "h_s_len": 1,
+
+  "__seed": 1608541640, 
+  "___seed": 1608541623,
+
+  "TX_IQI": true,
+  "PA": true,
+  "LNA": false,
+  "RX_IQI": true,
+
+  "p_nHidden": 10,
+  "p_nEpochs": 20,
+  "p_learningRate": 0.001,
+  "p_trainingRatio": 0.8,
+  "p_batchSize": 32
+}
