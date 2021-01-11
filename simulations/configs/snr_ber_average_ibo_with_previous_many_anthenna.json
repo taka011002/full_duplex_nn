@@ -13,7 +13,7 @@
   "SNR_MIN": 0,
   "SNR_MAX": 25,
   "SNR_NUM": 6,
-  "SNR_AVERAGE": 1,
+  "SNR_AVERAGE": 10,
 
   "nHidden": [15],
   "nEpochs": 20,
@@ -25,13 +25,14 @@
   "delay": 0,
   "standardization": false,
 
-  "receive_antenna": 1,
+  "receive_antenna_min": 1,
+  "receive_antenna_max": 4,
 
   "h_si_len": 1,
   "h_s_len": 1,
 
   "__seed": 1608541640, 
-  "seed": 1608541623, 
+  "___seed": 1608541623,
 
   "TX_IQI": true,
   "PA": true,
