@@ -223,7 +223,7 @@ def previous_non_lin(params: dict, sigma, h_si, h_s) -> PreviousNNModel:
 
 
 if __name__ == '__main__':
-    SIMULATIONS_NAME = 'snr_ber_average_ibo_with_previous_many_anthenna'
+    SIMULATIONS_NAME = 'snr_ber_average_ibo_with_previous_many_antenna'
 
     params, output_dir = settings.init_simulation(SIMULATIONS_NAME)
 
