@@ -13,6 +13,7 @@ class NNModel:
     history: keras.callbacks.History
     pred: np.ndarray
     y_canc_non_lin: np.ndarray
+    error: np.ndarray
 
     def __init__(self, chan_len: int, n_hidden: int, learning_rate: float):
         input = Input(shape=(2 * chan_len,))  # 13*2=26個
@@ -40,8 +41,8 @@ class NNModel:
 
         # Normalize data for NN
         y_train = y_train - yCanc
-        yVar = np.var(y_train)
-        y_train = y_train / np.sqrt(yVar)
+        self.yVar = np.var(y_train)
+        y_train = y_train / np.sqrt(self.yVar)
 
         # Prepare training data for NN
         x_train_real = np.reshape(np.array([x_train[i:i + chanLen].real for i in range(x_train.size - chanLen)]),
@@ -56,7 +57,7 @@ class NNModel:
         # Prepare test data for NN
         yCanc = fd.si_cancellation_linear(x_test, self.h_lin)
         y_test = y_test - yCanc
-        y_test = y_test / np.sqrt(yVar)
+        y_test = y_test / np.sqrt(self.yVar)
 
         x_test_real = np.reshape(np.array([x_test[i:i + chanLen].real for i in range(x_test.size - chanLen)]),
                                  (x_test.size - chanLen, chanLen))
@@ -85,6 +86,7 @@ class NNModel:
         # Normalize data for NN
         yCanc = fd.si_cancellation_linear(x, self.h_lin)
         y_lin_canc = y - yCanc
+        y_lin_canc = y_lin_canc / np.sqrt(self.yVar)
 
         self.pred = self.model.predict(x_pred)
         self.y_canc_non_lin = np.squeeze(self.pred[0] + 1j * self.pred[1], axis=1)
