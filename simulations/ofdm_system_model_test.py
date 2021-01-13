@@ -9,7 +9,7 @@ from src.ofdm_nn import OFDMNNModel
 
 
 graph.init_graph()
-dirname = "../results/ofdm/test"
+dirname = "../results/ofdm/system_test"
 settings.init_output(dirname)
 
 params = {

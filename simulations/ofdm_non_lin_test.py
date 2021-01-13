@@ -7,7 +7,7 @@ from simulations.common import settings
 import matplotlib.pyplot as plt
 
 graph.init_graph()
-dirname = "../results/ofdm/test"
+dirname = "../results/ofdm_non_lin_test"
 settings.init_output(dirname)
 
 params = {
