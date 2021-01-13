@@ -21,11 +21,14 @@ params = {
     "SNR_AVERAGE": 100,
     "equalizer": "ZF",
     "gamma": 0.3,
-    "phi": 3.0
+    "phi": 3.0,
+    "PA_IBO": 7,
+    "PA_rho": 2,
+    "LNA_IBO": 7,
+    "LNA_rho": 2
 }
 
 settings.dump_params(params, dirname)
-
 
 F = dft(params['subcarrier'], "sqrtn")
 FH = F.conj().T
@@ -50,7 +53,7 @@ for trials_index in range(params['SNR_AVERAGE']):
 
         ####　ここで送信機不整合を作る
         x = m.iq_imbalance(x, params['gamma'], params['phi'])
-        x = x # PA
+        x = x  # PA
 
         #### ここまで
 
@@ -58,7 +61,7 @@ for trials_index in range(params['SNR_AVERAGE']):
         r = np.matmul(Hc, x) + noise
 
         ### ここで受信器不整合を作る
-        r = r # LNA
+        r = r  # LNA
         r = m.iq_imbalance(r, params['gamma'], params['phi'])
 
         ### ここまで
