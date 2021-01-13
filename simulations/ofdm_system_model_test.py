@@ -103,16 +103,14 @@ for trials_index in range(params['SNR_AVERAGE']):
             params['delay'],
             params['standardization']
         )
+        errors[sigma_index][trials_index] = nn_model.error
 
+ber_fig, ber_ax = graph.new_snr_ber_canvas(params['SNR_MIN'], params['SNR_MAX'])
+n_sum = params['subcarrier'] * 2 * params['block'] * params['SNR_AVERAGE']
+errors_sum = np.sum(errors, axis=1)
+bers = errors_sum / n_sum
+ber_ax.plot(snrs_db, bers, color="k", marker='o', linestyle='--', label="OFDM")
 
-
-
-# ber_fig, ber_ax = graph.new_snr_ber_canvas(params['SNR_MIN'], params['SNR_MAX'])
-# n_sum = params['subcarrier'] * 2 * params['block'] * params['SNR_AVERAGE']
-# errors_sum = np.sum(errors, axis=1)
-# bers = errors_sum / n_sum
-# ber_ax.plot(snrs_db, bers, color="k", marker='o', linestyle='--', label="OFDM")
-#
-# plt.tight_layout()
-# plt.savefig(dirname + '/SNR_BER.pdf', bbox_inches='tight')
-# plt.show()
+plt.tight_layout()
+plt.savefig(dirname + '/SNR_BER.pdf', bbox_inches='tight')
+plt.show()
