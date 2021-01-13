@@ -49,9 +49,8 @@ for trials_index in range(params['SNR_AVERAGE']):
         x = np.matmul(FH, s)
 
         ####　ここで送信機不整合を作る
-        x_iq = m.iq_imbalance(x, params['gamma'], params['phi'])
-        x_pq = x_iq
-        x = x_pq
+        x = m.iq_imbalance(x, params['gamma'], params['phi'])
+        x = x # PA
 
         #### ここまで
 
@@ -59,6 +58,8 @@ for trials_index in range(params['SNR_AVERAGE']):
         r = np.matmul(Hc, x) + noise
 
         ### ここで受信器不整合を作る
+        r = r # LNA
+        r = m.iq_imbalance(r, params['gamma'], params['phi'])
 
         ### ここまで
 
