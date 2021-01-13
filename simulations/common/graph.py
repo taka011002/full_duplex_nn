@@ -7,6 +7,7 @@ def init_graph():
     plt.rcParams["font.size"] = 26
     plt.rcParams["xtick.direction"] = "in"
     plt.rcParams["ytick.direction"] = "in"
+    plt.rcParams['lines.markersize'] = 12
 
 
 def plt_color_list() -> list:
