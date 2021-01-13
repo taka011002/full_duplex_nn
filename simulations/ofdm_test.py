@@ -14,7 +14,7 @@ params = {
     "block": 1000,
     "subcarrier": 32,
     "CP": 8,
-    "chanel_len": 0,
+    "chanel_len": 1,
     "SNR_MIN": 0,
     "SNR_MAX": 30,
     "SNR_NUM": 6,
@@ -34,8 +34,8 @@ errors = np.zeros((params['SNR_NUM'], params['SNR_AVERAGE']))
 q_errors = np.zeros((params['SNR_NUM'], params['SNR_AVERAGE']))
 
 for trials_index in range(params['SNR_AVERAGE']):
-    h_si = m.channel(1, params['chanel_len'] + 1)
-    Hc = ofdm.Hc(h_si.T, params['chanel_len'], params['subcarrier'])
+    h_si = m.channel(1, params['chanel_len'])
+    Hc = ofdm.circulant_channel(h_si.T, params['chanel_len'], params['subcarrier'])
 
     D = F @ Hc @ FH
     D_1 = np.linalg.inv(D)

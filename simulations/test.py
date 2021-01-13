@@ -46,7 +46,7 @@ Rcp = np.hstack((np.zeros((N, P)), np.eye(N, N)))
 r_remove_cp = Rcp @ r
 
 # Hcを作って計算する
-Hc = ofdm.Hc(h_si.T, M, N)
+Hc = ofdm.circulant_channel(h_si.T, M, N)
 r_perfect = Hc @ x_idft
 y = F @ r_remove_cp
 D = F @ Hc @ FH

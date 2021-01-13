@@ -39,7 +39,7 @@ errors = np.zeros((params['SNR_NUM'], params['SNR_AVERAGE']))
 
 for trials_index in range(params['SNR_AVERAGE']):
     h_si = m.channel(1, params['chanel_len'] + 1)
-    Hc = ofdm.Hc(h_si.T, params['chanel_len'], params['subcarrier'])
+    Hc = ofdm.circulant_channel(h_si.T, params['chanel_len'], params['subcarrier'])
     Hc_mmse = Hc + np.eye(params['subcarrier'])
 
     D = F @ Hc @ FH
