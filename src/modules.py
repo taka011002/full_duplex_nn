@@ -49,7 +49,7 @@ def iq_imbalance(x: np.ndarray, gamma: float = 0.0, phi: float = 0.0, selective:
     # TODO 周波数選択性IQIを実装する
 
 
-def sspa_rapp_ibo(input_signal: np.ndarray, IBO_dB: int = 0, rho: float = 0.5) -> np.ndarray:
+def sspa_rapp_ibo(input_signal: np.ndarray, IBO_dB: int = 0, rho: float = 0.5, ofdm: bool = False) -> np.ndarray:
     """
     入力バックオフ(IBO)によって飽和電力を定めたSSPA(Rappモデル)の値を取得する．
 
@@ -59,8 +59,11 @@ def sspa_rapp_ibo(input_signal: np.ndarray, IBO_dB: int = 0, rho: float = 0.5) -
     :return:
     """
     ibo = 10 ** (IBO_dB / 10)  # IBOをもとにアンプの飽和電力を決める
-    P_in = np.sum((input_signal * input_signal.conj()).real) / input_signal.shape[0]  # nで割るべき？
-    # P_in = np.sum(np.abs(input_signal)) / input_signal.shape[0]
+    size = input_signal.shape[0]
+    if ofdm == True:
+        shape = input_signal.shape
+        size = shape[0] * shape[1] # サブキャリア数をブロック数全ての要素で割る
+    P_in = np.sum((input_signal * input_signal.conj()).real) / size  # nで割るべき？
     A = np.sqrt(P_in * ibo)
     return sspa_rapp(input_signal, A, rho)
 

@@ -53,15 +53,14 @@ for trials_index in range(params['SNR_AVERAGE']):
 
         ####　ここで送信機不整合を作る
         x = m.iq_imbalance(x, params['gamma'], params['phi'])
-        x = x  # PA
+        x = m.sspa_rapp_ibo(x, params['PA_IBO'], params['PA_rho'], True)  # PA
 
         #### ここまで
-
         noise = m.awgn((params['subcarrier'], params['block']), sigma)
         r = np.matmul(Hc, x) + noise
 
         ### ここで受信器不整合を作る
-        r = r  # LNA
+        r = m.sspa_rapp_ibo(r, params['LNA_IBO'], params['LNA_rho'], True)  # LNA
         r = m.iq_imbalance(r, params['gamma'], params['phi'])
 
         ### ここまで
