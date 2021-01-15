@@ -11,7 +11,7 @@ import numpy as np
 def select_optimizers(key: str, learning_rate: float = None, momentum: float = None) -> object:
     supports = {
         "momentum": optimizers.SGD(learning_rate=learning_rate, momentum=momentum),
-        "adam": optimizers.Adam(lr=learning_rate)
+        "adam": optimizers.Adam(lr=learning_rate),
         # "radam": RAdam()
     }
     return supports.get(key, "nothing")

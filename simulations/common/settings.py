@@ -10,7 +10,7 @@ import numpy as np
 import time
 
 
-def init_simulation(simulation_name: str) -> (dict, str):
+def init_simulation(simulation_name: str, ofdm: bool = False) -> (dict, str):
     args = parse_args()
     output_dir = get_output_dir(args, simulation_name)
     params = get_params(args, simulation_name)
@@ -22,7 +22,9 @@ def init_simulation(simulation_name: str) -> (dict, str):
 
     # 再現性を出す為にseedを記録しておく
     set_seed(params)
-    set_simulation_bits_to_params(params)
+    if ofdm is False:
+        # 学習ビット数とビット数とテストビット数を記録する。
+        set_simulation_bits_to_params(params)
 
     dump_params(params, output_dir)
 
