@@ -109,4 +109,15 @@ if __name__ == '__main__':
     output_png_path = output_dir + '/SNR_BER.png'
     plt.savefig(output_png_path, bbox_inches='tight')
 
+    for sigma_index, snr_db in enumerate(snrs_db):
+        learn_fig, learn_ax = graph.new_learning_curve_canvas(params['nEpochs'])
+        loss_avg = np.mean(losss[sigma_index], axis=0).T
+        val_loss_avg = np.mean(val_losss[sigma_index], axis=0).T
+        epoch = np.arange(1, len(loss_avg) + 1)
+
+        learn_ax.plot(epoch, loss_avg, color="k", marker='o', linestyle='--', label='Training Frame')
+        learn_ax.plot(epoch, val_loss_avg, color="r", marker='o', linestyle='--', label='Test Frame')
+        learn_ax.legend()
+        plt.savefig(output_dir + '/snr_db_' + str(snr_db) + '_NNconv.pdf', bbox_inches='tight')
+
     settings.finish_simulation(params, output_dir, output_png_path)
