@@ -5,7 +5,7 @@
     "h_si_len": 1,
     "h_s_len": 1,
     "SNR_MIN": 0,
-    "SNR_MAX": 30,
+    "SNR_MAX": 25,
     "SNR_NUM": 6,
     "SNR_AVERAGE": 1,
     "equalizer": "ZF",
