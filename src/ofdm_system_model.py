@@ -37,8 +37,9 @@ class OFDMSystemModel:
         # 送信信号
         self.d = np.random.choice([0, 1], (subcarrier * 2 * block, 1))
         x_n = m.modulate_qpsk(self.d)
-        self.x = x_n # シリアルの状態を保持する
+        # self.x = x_n # シリアルの状態を保持する
         x = x_n.reshape(subcarrier, block)
+        self.x = x # パラレルの状態を保持する
         x_idft = np.matmul(idft_mat, x)
 
         # 送信側非線形
@@ -55,8 +56,9 @@ class OFDMSystemModel:
         # 希望信号
         self.d_s = np.random.choice([0, 1], (subcarrier * 2 * block, 1))
         s_n = m.modulate_qpsk(self.d_s)
-        self.s = s_n # シリアルの状態を保持する
+        # self.s = s_n # シリアルの状態を保持する
         s = s_n.reshape(subcarrier, block)
+        self.s = s # パラレルの状態を保持する
         s_idft = np.matmul(idft_mat, s)
 
         r = np.matmul(circulant_h_si, x_idft) + np.matmul(circulant_h_s, s_idft) + m.awgn((subcarrier, block), sigma)
@@ -74,6 +76,6 @@ class OFDMSystemModel:
 
         # CPは外し、DFT処理も行う
         y_dft = np.matmul(dft_mat, y_iq)
-        y = y_dft.reshape(subcarrier * block, 1) # シリアルの状態を保持する
-
+        # y = y_dft.reshape(subcarrier * block, 1) # シリアルの状態を保持する
+        y = y_dft # パラレルのまま
         self.y = y

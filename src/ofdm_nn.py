@@ -28,39 +28,35 @@ class OFDMNNModel:
     d_s_hat: np.ndarray
     error: np.ndarray
 
-    def __init__(self, n_hidden: list, optimizer_key: str, learning_rate: float, h_si_len: int = 1, h_s_len: int = 1,
+    def __init__(self, subcarrier, n_hidden: list, optimizer_key: str, learning_rate: float, h_si_len: int = 1, h_s_len: int = 1,
                  receive_antenna: int = 1, momentum: float = None):
-        input = Input(shape=((2 * h_si_len) + (2 * receive_antenna * h_s_len),))
+        input = Input(shape=((2 * 2 * subcarrier),))
         n_hidden = n_hidden.copy()  # popだと破壊的操作になり，元々のn_hiddenが壊れるので仕方なくcopyしている
         x = Dense(n_hidden.pop(0), activation='relu')(input)
         for n in n_hidden:
             x = Dense(n, activation='relu')(x)
-        output1 = Dense(1, activation='linear')(x)
-        output2 = Dense(1, activation='linear')(x)
+        output1 = Dense(subcarrier, activation='linear')(x)
+        output2 = Dense(subcarrier, activation='linear')(x)
         model = Model(inputs=input, outputs=[output1, output2])
         optimizer = select_optimizers(optimizer_key, learning_rate, momentum)
         model.compile(optimizer, loss='mse')
 
         self.model = model
 
-    def learn(self, system_model: OFDMSystemModel, training_ratio: float, n_epochs: int, batch_size: int, h_si_len: int = 1,
+    def learn(self, subcarrier, system_model: OFDMSystemModel, training_ratio: float, n_epochs: int, batch_size: int, h_si_len: int = 1,
               h_s_len: int = 1, receive_antenna: int = 1, delay: int = 0, standardization: bool = False):
         self.system_model = system_model
 
         # トレーニングデータの生成
-        training_samples = int(np.floor(system_model.x.size) * training_ratio)
+        training_samples = int(np.floor(system_model.x.shape[1]) * training_ratio)
 
-        # チャネル数分つくる
-        x = np.reshape(
-            np.array([system_model.x[i:i + h_si_len] for i in range(system_model.x.size - 2 * h_si_len + 2)]),
-            (system_model.x.size - 2 * h_si_len + 2, h_si_len))
-        y = np.reshape(
-            np.array([system_model.y[i:i + h_s_len] for i in range(system_model.y.size - 2 * h_s_len + 2)]),
-            (system_model.y.size - 2 * h_s_len + 2, (h_s_len * receive_antenna)))
+        # サブキャリア数分つくる
+        x = system_model.x.T
+        y = system_model.y.T
 
         x_train = x[0:training_samples]
         y_train = y[0:training_samples]
-        s_train = system_model.s[0 + delay:training_samples + delay]  # 遅延をとる
+        s_train = system_model.s.T[0:training_samples]  # 遅延をとる
 
         # 標準化
         if standardization is True:
@@ -68,30 +64,27 @@ class OFDMNNModel:
             y_train = y_train / hensa
 
         # NNの入力に合うように1つのベクトルにする
-        train = np.zeros((x_train.shape[0], (2 * h_si_len) + (receive_antenna * 2 * h_si_len)))
-        train[:, 0:h_si_len] = x_train.real
-        train[:, h_si_len:(2 * h_si_len)] = x_train.imag
-        train[:, (2 * h_si_len):(2 * h_si_len) + (receive_antenna * h_s_len)] = y_train.real
-        train[:,
-        (2 * h_si_len) + (receive_antenna * h_s_len):(2 * h_si_len) + (receive_antenna * 2 * h_s_len)] = y_train.imag
+        train = np.zeros((x_train.shape[0], 2 * 2 * subcarrier))
+        train[:, 0:subcarrier] = x_train.real
+        train[:, subcarrier:(2 * subcarrier)] = x_train.imag
+        train[:, (2 * subcarrier):(3 * subcarrier)] = y_train.real
+        train[:, (3 * subcarrier):(4 * subcarrier)] = y_train.imag
 
         # テストデータの作成
         x_test = x[training_samples:]
         y_test = y[training_samples:]
-        s_test = system_model.s[
-                 training_samples + delay:(training_samples + x_test.shape[0] + delay)]  # 数が合わなくなる時があるのでx_sの大きさを合わせる
+        s_test = system_model.s.T[training_samples:]  # 数が合わなくなる時があるのでx_sの大きさを合わせる
 
         # 標準化
         if standardization is True:
             y_test = y_test / hensa
 
         # NNの入力に合うように1つのベクトルにする
-        test = np.zeros((x_test.shape[0], (2 * h_si_len) + (receive_antenna * 2 * h_si_len)))
-        test[:, 0:h_si_len] = x_test.real
-        test[:, h_si_len:(2 * h_si_len)] = x_test.imag
-        test[:, (2 * h_si_len):(2 * h_si_len) + (receive_antenna * h_s_len)] = y_test.real
-        test[:,
-        (2 * h_si_len) + (receive_antenna * h_s_len):(2 * h_si_len) + (receive_antenna * 2 * h_s_len)] = y_test.imag
+        test = np.zeros((x_test.shape[0], (2 * 2 * subcarrier)))
+        test[:, 0:subcarrier] = x_test.real
+        test[:, subcarrier:(2 * subcarrier)] = x_test.imag
+        test[:, (2 *subcarrier):(3 * subcarrier)] = y_test.real
+        test[:, (3 * subcarrier):(4 * subcarrier)] = y_test.imag
 
         # 学習
         self.history = self.model.fit(train, [s_train.real, s_train.imag], epochs=n_epochs,
@@ -102,15 +95,15 @@ class OFDMNNModel:
         self.pred = self.model.predict(test)
 
         # 推定した希望信号の取り出し
-        s_hat = np.squeeze(self.pred[0] + 1j * self.pred[1], axis=1)
+        s_hat = self.pred[0] + 1j * self.pred[1]
+        s_hat = s_hat.reshape(s_hat.size)
 
         # 推定信号をデータへ復調する
         self.d_s_hat = m.demodulate_qpsk(s_hat)
         self.d_s_hat = self.d_s_hat.reshape(self.d_s_hat.size, 1)
         
         # 元々の外部信号のデータ
-        self.d_s_test = system_model.d_s[
-                        2 * (training_samples + delay):2 * (training_samples + x_test.shape[0] + delay)]
+        self.d_s_test = system_model.d_s[(2 * training_samples * subcarrier):]
         self.error = np.sum(self.d_s_test != self.d_s_hat)
 
     @staticmethod

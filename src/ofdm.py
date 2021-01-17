@@ -35,6 +35,6 @@ def toeplitz_channel(h: np.ndarray, h_len: int, subcarrier, cp) -> np.ndarray:
 
 def circulant_channel(h: np.ndarray, h_len: int, subcarrier) -> np.ndarray:
     H_col = np.zeros((subcarrier, 1), dtype=complex)
-    H_col[:h_len] = h
+    H_col[:h_len] = h.T
     H = circulant(H_col)
     return H

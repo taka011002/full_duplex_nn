@@ -43,25 +43,27 @@ def proposal(params: dict, sigma, h_si, h_s) -> OFDMNNModel:
     )
 
     nn_model = OFDMNNModel(
-        params['nHidden'],
-        params['optimizer'],
-        params['learningRate'],
-        params['h_si_len'],
-        params['h_s_len'],
-        params['receive_antenna'],
-        params['momentum']
+        params['subcarrier'],
+        n_hidden=params['nHidden'],
+        optimizer_key=params['optimizer'],
+        learning_rate=params['learningRate'],
+        h_si_len=params['h_si_len'],
+        h_s_len=params['h_s_len'],
+        receive_antenna=params['receive_antenna'],
+        momentum=params['momentum']
     )
 
     nn_model.learn(
+        params['subcarrier'],
         system_model,
         params['trainingRatio'],
         params['nEpochs'],
         params['batchSize'],
-        params['h_si_len'],
-        params['h_s_len'],
-        params['receive_antenna'],
-        params['delay'],
-        params['standardization']
+        h_si_len=params['h_si_len'],
+        h_s_len=params['h_s_len'],
+        receive_antenna=params['receive_antenna'],
+        delay=params['delay'],
+        standardization=params['standardization']
     )
 
     return nn_model
@@ -82,6 +84,8 @@ if __name__ == '__main__':
     val_losss = np.zeros((params['SNR_NUM'], params['SNR_AVERAGE'], params['nEpochs']))
 
     for trials_index in tqdm(range(params['SNR_AVERAGE'])):
+        # h_si = m.exponential_decay_channel(1, params['h_si_len'])
+        # h_s = m.exponential_decay_channel(1, params['h_s_len'])
         h_si = m.channel(1, params['h_si_len'])
         h_s = m.channel(1, params['h_s_len'])
 

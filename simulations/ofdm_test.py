@@ -14,7 +14,7 @@ params = {
     "block": 1000,
     "subcarrier": 32,
     "CP": 8,
-    "chanel_len": 1,
+    "chanel_len": 6,
     "SNR_MIN": 0,
     "SNR_MAX": 25,
     "SNR_NUM": 6,
@@ -59,12 +59,12 @@ for trials_index in range(params['SNR_AVERAGE']):
         errors[sigma_index][trials_index] = error
 
         ### QPSK
-        q_r = (h_si * s_n) + m.awgn((params['subcarrier'] * params['block'], 1), sigma)
-        q_r = q_r * h_si.conj() / (np.abs(h_si) ** 2)
-        q_d_hat = m.demodulate_qpsk(q_r.squeeze()).reshape((params['subcarrier'] * 2 * params['block'], 1))
-        q_error = np.sum(d != q_d_hat)
-
-        q_errors[sigma_index][trials_index] = q_error
+        # q_r = (h_si * s_n) + m.awgn((params['subcarrier'] * params['block'], 1), sigma)
+        # q_r = q_r * h_si.conj() / (np.abs(h_si) ** 2)
+        # q_d_hat = m.demodulate_qpsk(q_r.squeeze()).reshape((params['subcarrier'] * 2 * params['block'], 1))
+        # q_error = np.sum(d != q_d_hat)
+        #
+        # q_errors[sigma_index][trials_index] = q_error
 
 ber_fig, ber_ax = graph.new_snr_ber_canvas(params['SNR_MIN'], params['SNR_MAX'], -4, 0)
 n_sum = params['subcarrier'] * 2 * params['block'] * params['SNR_AVERAGE']
@@ -78,5 +78,5 @@ ber_ax.plot(snrs_db, bers, color="b", marker='x', linestyle=':', label="QPSK")
 ber_ax.legend()
 
 plt.tight_layout()
-plt.savefig(dirname + '/SNR_BER.pdf', bbox_inches='tight')
+# plt.savefig(dirname + '/SNR_BER.pdf', bbox_inches='tight')
 plt.show()
