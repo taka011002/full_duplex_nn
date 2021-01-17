@@ -28,5 +28,6 @@
     "trainingRatio": 0.8,
     "batchSize": 32,
     "delay": 0,
-    "standardization": false
+    "standardization": false,
+    "seed": 1610859857
 }
