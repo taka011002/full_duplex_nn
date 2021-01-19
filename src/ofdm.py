@@ -21,15 +21,16 @@ def add_cp(data, cp_len):
     return np.vstack((cp, data))
 
 
-def remove_cp(data, cp_len, data_len):
-    return data[cp_len:(cp_len + data_len)]
+def remove_cp(data, cp_len):
+    return data[cp_len:]
 
 
 def toeplitz_channel(h: np.ndarray, h_len: int, subcarrier, cp) -> np.ndarray:
-    H_row = np.zeros((h_len + subcarrier + cp, 1), dtype=complex)
-    H_row[:h_len+1] = h
+    rev_h = np.flipud(h)
+    H_row = np.zeros(((h_len - 1) + subcarrier + cp, 1), dtype=complex)
+    H_row[:h_len] = rev_h
     H_col = np.zeros((subcarrier + cp, 1), dtype=complex)
-    H_col[0] = h[0]
+    H_col[0] = rev_h[0]
     H = toeplitz(H_col, r=H_row)
     return H
 
