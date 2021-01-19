@@ -12,9 +12,9 @@ settings.init_output(dirname)
 
 params = {
     "block": 1000,
-    "subcarrier": 5,
-    "CP": 4,
-    "chanel_len": 4,
+    "subcarrier": 10,
+    "CP": 5,
+    "chanel_len": 5,
     "SNR_MIN": 0,
     "SNR_MAX": 25,
     "SNR_NUM": 6,
@@ -37,6 +37,7 @@ q_errors = np.zeros((params['SNR_NUM'], params['SNR_AVERAGE']))
 for trials_index in range(params['SNR_AVERAGE']):
     h_si = m.channel(1, params['chanel_len'])
     H = ofdm.toeplitz_channel(h_si.T, params['chanel_len'], params['subcarrier'], params['CP'])
+    z_H = np.hstack((np.zeros((H.shape[0], params["subcarrier"] + params["CP"] - 3)), H))
     Hc = ofdm.circulant_channel(h_si.T, params['chanel_len'], params['subcarrier'])
 
     D = F @ Hc @ FH
@@ -49,8 +50,13 @@ for trials_index in range(params['SNR_AVERAGE']):
         x = np.matmul(FH, s)
         x_cp = ofdm.add_cp(x, params['CP'])
 
+        x_receive = np.zeros((params['chanel_len'] - 1 + x_cp.shape[0], x_cp.shape[1]), dtype=complex)
+        x_receive[:(params["chanel_len"] - 1), 1:] = x_cp[-(params["chanel_len"] - 1):, :-1]
+        x_receive[(params["chanel_len"] - 1):, :] = x_cp
+
         noise = m.awgn((params['subcarrier'] + params['CP'], params['block']), sigma)
-        r = np.matmul(H[:, (params['chanel_len'] - 1):], x_cp) + noise
+        r = np.matmul(H, x_receive) + noise
+
         r_s = r.flatten()
 
         y_p = r_s.reshape((params['subcarrier'] + params['CP'], params['block']))
