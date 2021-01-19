@@ -14,7 +14,7 @@ params = {
     "block": 1000,
     "subcarrier": 10,
     "CP": 5,
-    "chanel_len": 5,
+    "chanel_len": 2,
     "SNR_MIN": 0,
     "SNR_MAX": 25,
     "SNR_NUM": 6,
@@ -50,9 +50,11 @@ for trials_index in range(params['SNR_AVERAGE']):
         x = np.matmul(FH, s)
         x_cp = ofdm.add_cp(x, params['CP'])
 
-        x_receive = np.zeros((params['chanel_len'] - 1 + x_cp.shape[0], x_cp.shape[1]), dtype=complex)
-        x_receive[:(params["chanel_len"] - 1), 1:] = x_cp[-(params["chanel_len"] - 1):, :-1]
-        x_receive[(params["chanel_len"] - 1):, :] = x_cp
+        x_receive = x_cp
+        if params["chanel_len"] > 1:
+            x_receive = np.zeros((params['chanel_len'] - 1 + x_cp.shape[0], x_cp.shape[1]), dtype=complex)
+            x_receive[:(params["chanel_len"] - 1), 1:] = x_cp[-(params["chanel_len"] - 1):, :-1]
+            x_receive[(params["chanel_len"] - 1):, :] = x_cp
 
         noise = m.awgn((params['subcarrier'] + params['CP'], params['block']), sigma)
         r = np.matmul(H, x_receive) + noise

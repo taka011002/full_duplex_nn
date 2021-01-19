@@ -20,8 +20,33 @@ class Result:
 
 
 def proposal(params: dict, sigma, h_si, h_s) -> OFDMNNModel:
-    system_model = OFDMSystemModel(
-        params['block'],
+    training_blocks = int(params['block'] * params['trainingRatio'])
+    test_blocks = params['block'] - training_blocks
+
+    train_system_model = OFDMSystemModel(
+        training_blocks,
+        params['subcarrier'],
+        params['CP'],
+        sigma,
+        params['gamma'],
+        params['phi'],
+        params['PA_IBO'],
+        params['PA_rho'],
+        params['LNA_IBO'],
+        params['LNA_rho'],
+        h_si,
+        h_s,
+        params['h_si_len'],
+        params['h_s_len'],
+        params['receive_antenna'],
+        params['TX_IQI'],
+        params['PA'],
+        params['LNA'],
+        params['RX_IQI']
+    )
+
+    test_system_model = OFDMSystemModel(
+        test_blocks,
         params['subcarrier'],
         params['CP'],
         sigma,
@@ -53,7 +78,8 @@ def proposal(params: dict, sigma, h_si, h_s) -> OFDMNNModel:
     )
 
     nn_model.learn(
-        system_model,
+        train_system_model,
+        test_system_model,
         params['trainingRatio'],
         params['nEpochs'],
         params['batchSize'],
@@ -68,7 +94,7 @@ def proposal(params: dict, sigma, h_si, h_s) -> OFDMNNModel:
 
 
 if __name__ == '__main__':
-    SIMULATIONS_NAME = 'ofdm_system_model_test'
+    SIMULATIONS_NAME = 'ofdm_fde_system_model'
 
     params, output_dir = settings.init_simulation(SIMULATIONS_NAME, ofdm=True)
 
