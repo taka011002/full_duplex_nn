@@ -11,7 +11,7 @@ dirname = "../results/ofdm/test"
 settings.init_output(dirname)
 
 params = {
-    "block": 1,
+    "block": 1000,
     "subcarrier": 5,
     "CP": 4,
     "chanel_len": 4,
@@ -49,22 +49,13 @@ for trials_index in range(params['SNR_AVERAGE']):
         x = np.matmul(FH, s)
         x_cp = ofdm.add_cp(x, params['CP'])
 
-        x_recieve = np.zeros((params['subcarrier'] + params['CP'] + (params['chanel_len'] - 1), params['block']), dtype=complex)
-        for i in range(x_cp.shape[1]): # 各ブロック
-            if i != 0:
-                x_recieve[:(params['chanel_len'] - 1), i] = x_cp[(x_cp.shape[0] - (params['chanel_len']- 1)):, i-1]
-            x_recieve[(params['chanel_len'] - 1):, i] = x_cp[:, i]
-
-
         noise = m.awgn((params['subcarrier'] + params['CP'], params['block']), sigma)
-        # noise = 0
-        # r_recieve = np.matmul(H, x_recieve) + noise
-        # r = ofdm.remove_cp(r_recieve, params['CP'])
-        # r_2 = np.matmul(ofdm_zero, x_recieve[(params['chanel_len'] - 1):, :]) + m.awgn((params['subcarrier'], params['block']), sigma)
-        r_2 = np.matmul(ofdm_zero @ H[:, (params['chanel_len'] - 1):], x_cp) + m.awgn((params['subcarrier'], params['block']), sigma)
-        # p_r = np.matmul(Hc, x) + noise
+        r = np.matmul(H[:, (params['chanel_len'] - 1):], x_cp) + noise
+        r_s = r.flatten()
 
-        y = np.matmul(F, r_2)
+        y_p = r_s.reshape((params['subcarrier'] + params['CP'], params['block']))
+        y_remove_cp = np.matmul(ofdm_zero, y_p)
+        y = np.matmul(F, y_remove_cp)
 
         s_hat = np.matmul(D_1, y)
         s_n_hat = s_hat.reshape(params['subcarrier'] * params['block'])
