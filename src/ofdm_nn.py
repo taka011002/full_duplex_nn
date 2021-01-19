@@ -58,18 +58,14 @@ class OFDMNNModel:
             y_train = y_train / hensa
 
         # NNの入力に合うように1つのベクトルにする
-        train = np.zeros((x_train.shape[0], (2 * h_si_len) + (2)))
+        train = np.zeros((x_train.shape[0], (2) + (2)))
         train[:, 0:1] = x_train.real
         train[:, 1:2] = x_train.imag
         train[:, 2:3] = y_train.real
         train[:, 3:4] = y_train.imag
 
         # テストデータの作成
-        x_1 = np.hstack((np.zeros(h_si_len - 1), test_system_model.x))
-        x_test = np.array(
-            [x_1[i:i + h_si_len] for i in range(test_system_model.x.size)]
-        ).reshape(test_system_model.x.size, h_si_len)
-        # x_test = test_system_model.x.reshape(-1, 1)
+        x_test = test_system_model.x.reshape(-1, 1)
         y_test = test_system_model.y.reshape(-1, 1)
         s_test = test_system_model.s_hs_rx.reshape(-1, 1)  # 数が合わなくなる時があるのでx_sの大きさを合わせる
 
@@ -78,7 +74,7 @@ class OFDMNNModel:
             y_test = y_test / hensa
 
         # NNの入力に合うように1つのベクトルにする
-        test = np.zeros((x_test.shape[0], (2 * h_si_len) + (2)))
+        test = np.zeros((x_test.shape[0], (2) + (2)))
         test[:, 0:1] = x_test.real
         test[:, 1:2] = x_test.imag
         test[:, 2:3] = y_test.real
