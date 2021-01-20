@@ -109,7 +109,7 @@ def channel(size: int = 1, length: int = 1, scale: float = 1.0) -> np.ndarray:
     return h
 
 
-def exponential_decay_channel(size: int = 1, length: int = 1, scale: float = 1.0, alpha: float = 1.0,  p_0: float = 1.0) -> np.ndarray:
+def exponential_decay_channel(size: int = 1, length: int = 1, scale: float = 1.0, alpha: float = 0.23,  p_0: float = 1.0) -> np.ndarray:
     """
     指数減衰モデルの周波数選択性通信路を生成する．
     生成する通信路の要素を全て違う値にする際はsizeを指定してあげる．

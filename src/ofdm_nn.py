@@ -49,11 +49,13 @@ class OFDMNNModel:
         self.test_system_model = test_system_model
 
 
-        x_1 = np.hstack((np.zeros(h_si_len - 1), train_system_model.x))
+        x_1 = np.vstack((np.zeros((h_si_len - 1, 1)), train_system_model.x.reshape(-1, 1)))
+        # x_1 = np.vstack((np.zeros((h_si_len - 1, 1)), train_system_model.nonlin_x_rx.reshape(-1, 1)))
         x_train = np.array(
             [x_1[i:i + h_si_len] for i in range(train_system_model.x.size)]
         ).reshape(train_system_model.x.size, h_si_len)
         # x_train = train_system_model.x.reshape(-1, 1)
+        # x_train = train_system_model.nonlin_x_rx.reshape(-1, 1)
         y_train = train_system_model.y.reshape(-1, 1)
         s_train = train_system_model.s_hs_rx.reshape(-1, 1)
 
@@ -70,11 +72,13 @@ class OFDMNNModel:
         train[:, (3 * h_si_len):(4 * h_si_len)] = y_train.imag
 
         # テストデータの作成
-        x_1 = np.hstack((np.zeros(h_si_len - 1), test_system_model.x))
+        x_1 = np.vstack((np.zeros((h_si_len - 1, 1)), test_system_model.x.reshape(-1, 1)))
+        # x_1 = np.vstack((np.zeros((h_si_len - 1, 1)), test_system_model.nonlin_x_rx.reshape(-1, 1)))
         x_test = np.array(
             [x_1[i:i + h_si_len] for i in range(test_system_model.x.size)]
         ).reshape(test_system_model.x.size, h_si_len)
         # x_test = test_system_model.x.reshape(-1, 1)
+        # x_test = test_system_model.nonlin_x_rx.reshape(-1, 1)
         y_test = test_system_model.y.reshape(-1, 1)
         s_test = test_system_model.s_hs_rx.reshape(-1, 1)  # 数が合わなくなる時があるのでx_sの大きさを合わせる
 

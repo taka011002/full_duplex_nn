@@ -51,6 +51,13 @@ class OFDMSystemModel:
         self.x = x_cp.flatten()
         tx_x = x
 
+        nonlin_x_rx = tx_x
+        if h_si_len > 1:
+            nonlin_x_rx = np.zeros((h_si_len - 1 + tx_x.shape[0], tx_x.shape[1]), dtype=complex)
+            nonlin_x_rx[:(h_si_len - 1), 1:] = tx_x[-(h_si_len - 1):, :-1]
+            nonlin_x_rx[(h_si_len - 1):, :] = tx_x
+        self.nonlin_x_rx = np.matmul(toeplitz_h_si, nonlin_x_rx)
+
         # 送信側非線形
         if tx_iqi == True:
             tx_x = m.iq_imbalance(tx_x, gamma, phi)
