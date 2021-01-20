@@ -108,10 +108,10 @@ if __name__ == '__main__':
     val_losss = np.zeros((params['SNR_NUM'], params['SNR_AVERAGE'], params['nEpochs']))
 
     for trials_index in tqdm(range(params['SNR_AVERAGE'])):
-        # h_si = m.exponential_decay_channel(1, params['h_si_len'])
-        # h_s = m.exponential_decay_channel(1, params['h_s_len'])
-        h_si = np.array([1, 1]).reshape(1, params['h_si_len'])
-        h_s = np.array([1]).reshape(1, params['h_s_len'])
+        h_si = m.exponential_decay_channel(1, params['h_si_len'])
+        h_s = m.exponential_decay_channel(1, params['h_s_len'])
+        # h_si = np.array([1, 1]).reshape(1, params['h_si_len'])
+        # h_s = np.array([1]).reshape(1, params['h_s_len'])
 
         for sigma_index, sigma in enumerate(sigmas):
             nn_model = proposal(params, sigma, h_si, h_s)

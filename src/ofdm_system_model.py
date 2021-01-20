@@ -72,6 +72,7 @@ class OFDMSystemModel:
         s_p = s_n.reshape(subcarrier, block)
         s_idft = np.matmul(idft_mat, s_p)
         s_cp = ofdm.add_cp(s_idft, CP)
+        self.tilde_s = s_cp
 
         x_rx = tx_x
         if h_si_len > 1:
@@ -84,9 +85,8 @@ class OFDMSystemModel:
             s_rx = np.zeros((h_s_len - 1 + s_cp.shape[0], s_cp.shape[1]), dtype=complex)
             s_rx[:(h_s_len - 1), 1:] = s_cp[-(h_s_len - 1):, :-1]
             s_rx[(h_s_len - 1):, :] = s_cp
-        self.s_hs_rx = np.matmul(toeplitz_h_s, s_rx)
 
-        r = np.matmul(toeplitz_h_si, x_rx) + self.s_hs_rx + m.awgn((subcarrier + CP, block), sigma)
+        r = np.matmul(toeplitz_h_si, x_rx) + np.matmul(toeplitz_h_s, s_rx) + m.awgn((subcarrier + CP, block), sigma)
 
         # 受信側非線形
         if lna == True:
@@ -104,6 +104,7 @@ class OFDMSystemModel:
         y_p = y.reshape((one_block, -1))
         y_removed_cp = np.matmul(self.cp_zero, y_p)
         y_dft = np.matmul(self.dft_mat, y_removed_cp)
-        s_hat = np.matmul(self.D_s_inv, y_dft)
-        s_s = s_hat.flatten()
+        # s_hat = np.matmul(self.D_s_inv, y_dft)
+        # s_s = s_hat.flatten()
+        s_s = y_dft.flatten()
         return s_s

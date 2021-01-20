@@ -57,7 +57,7 @@ class OFDMNNModel:
         # x_train = train_system_model.x.reshape(-1, 1)
         # x_train = train_system_model.nonlin_x_rx.reshape(-1, 1)
         y_train = train_system_model.y.reshape(-1, 1)
-        s_train = train_system_model.s_hs_rx.reshape(-1, 1)
+        s_train = train_system_model.tilde_s.reshape(-1, 1)
 
         # 標準化
         if standardization is True:
@@ -80,7 +80,7 @@ class OFDMNNModel:
         # x_test = test_system_model.x.reshape(-1, 1)
         # x_test = test_system_model.nonlin_x_rx.reshape(-1, 1)
         y_test = test_system_model.y.reshape(-1, 1)
-        s_test = test_system_model.s_hs_rx.reshape(-1, 1)  # 数が合わなくなる時があるのでx_sの大きさを合わせる
+        s_test = test_system_model.tilde_s.reshape(-1, 1)  # 数が合わなくなる時があるのでx_sの大きさを合わせる
 
         # 標準化
         if standardization is True:
