@@ -49,15 +49,15 @@ class OFDMNNModel:
         self.test_system_model = test_system_model
 
 
-        x_1 = np.vstack((np.zeros((h_si_len - 1, 1)), train_system_model.x.reshape(-1, 1)))
+        x_1 = np.vstack((np.zeros((h_si_len - 1, 1)), train_system_model.x.reshape((-1, 1), order='F')))
         # x_1 = np.vstack((np.zeros((h_si_len - 1, 1)), train_system_model.nonlin_x_rx.reshape(-1, 1)))
         x_train = np.array(
             [x_1[i:i + h_si_len] for i in range(train_system_model.x.size)]
         ).reshape(train_system_model.x.size, h_si_len)
         # x_train = train_system_model.x.reshape(-1, 1)
         # x_train = train_system_model.nonlin_x_rx.reshape(-1, 1)
-        y_train = train_system_model.y.reshape(-1, 1)
-        s_train = train_system_model.tilde_s.reshape(-1, 1)
+        y_train = train_system_model.y.reshape((-1, 1), order='F')
+        s_train = train_system_model.tilde_s.reshape((-1, 1), order='F')
 
         # 標準化
         if standardization is True:
@@ -72,15 +72,15 @@ class OFDMNNModel:
         train[:, (3 * h_si_len):(4 * h_si_len)] = y_train.imag
 
         # テストデータの作成
-        x_1 = np.vstack((np.zeros((h_si_len - 1, 1)), test_system_model.x.reshape(-1, 1)))
+        x_1 = np.vstack((np.zeros((h_si_len - 1, 1)), test_system_model.x.reshape((-1, 1), order='F')))
         # x_1 = np.vstack((np.zeros((h_si_len - 1, 1)), test_system_model.nonlin_x_rx.reshape(-1, 1)))
         x_test = np.array(
             [x_1[i:i + h_si_len] for i in range(test_system_model.x.size)]
         ).reshape(test_system_model.x.size, h_si_len)
         # x_test = test_system_model.x.reshape(-1, 1)
         # x_test = test_system_model.nonlin_x_rx.reshape(-1, 1)
-        y_test = test_system_model.y.reshape(-1, 1)
-        s_test = test_system_model.tilde_s.reshape(-1, 1)  # 数が合わなくなる時があるのでx_sの大きさを合わせる
+        y_test = test_system_model.y.reshape((-1, 1), order='F')
+        s_test = test_system_model.tilde_s.reshape((-1, 1), order='F')  # 数が合わなくなる時があるのでx_sの大きさを合わせる
 
         # 標準化
         if standardization is True:
@@ -109,10 +109,9 @@ class OFDMNNModel:
 
         # 推定信号をデータへ復調する
         self.d_s_hat = m.demodulate_qpsk(s_hat)
-        self.d_s_hat = self.d_s_hat.reshape(self.d_s_hat.size, 1)
-        
+
         # 元々の外部信号のデータ
-        self.d_s_test = test_system_model.d_s
+        self.d_s_test = test_system_model.d_s.flatten()
         self.error = np.sum(self.d_s_test != self.d_s_hat)
         print(self.error / self.d_s_test.size)
 

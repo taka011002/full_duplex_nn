@@ -44,19 +44,19 @@ class OFDMSystemModel:
         # 送信信号
         self.d = np.random.choice([0, 1], (subcarrier * 2 * block, 1))
         x_n = m.modulate_qpsk(self.d)
-        x_p = x_n.reshape(subcarrier, block)
+        x_p = x_n.reshape((subcarrier, block), order='F')
         x_idft = np.matmul(idft_mat, x_p)
         x_cp = ofdm.add_cp(x_idft, CP)
         x = x_cp
-        self.x = x_cp.flatten()
+        self.x = x_cp.flatten(order='F')
         tx_x = x
 
-        nonlin_x_rx = tx_x
-        if h_si_len > 1:
-            nonlin_x_rx = np.zeros((h_si_len - 1 + tx_x.shape[0], tx_x.shape[1]), dtype=complex)
-            nonlin_x_rx[:(h_si_len - 1), 1:] = tx_x[-(h_si_len - 1):, :-1]
-            nonlin_x_rx[(h_si_len - 1):, :] = tx_x
-        self.nonlin_x_rx = np.matmul(toeplitz_h_si, nonlin_x_rx)
+        # nonlin_x_rx = tx_x
+        # if h_si_len > 1:
+        #     nonlin_x_rx = np.zeros((h_si_len - 1 + tx_x.shape[0], tx_x.shape[1]), dtype=complex)
+        #     nonlin_x_rx[:(h_si_len - 1), 1:] = tx_x[-(h_si_len - 1):, :-1]
+        #     nonlin_x_rx[(h_si_len - 1):, :] = tx_x
+        # self.nonlin_x_rx = np.matmul(toeplitz_h_si, nonlin_x_rx)
 
         # 送信側非線形
         if tx_iqi == True:
@@ -69,7 +69,7 @@ class OFDMSystemModel:
         self.d_s = np.random.choice([0, 1], (subcarrier * 2 * block, 1))
         s_n = m.modulate_qpsk(self.d_s)
         # self.s = s_n # シリアルの状態を保持する
-        s_p = s_n.reshape(subcarrier, block)
+        s_p = s_n.reshape((subcarrier, block), order='F')
         s_idft = np.matmul(idft_mat, s_p)
         s_cp = ofdm.add_cp(s_idft, CP)
         self.tilde_s = s_cp
@@ -95,16 +95,16 @@ class OFDMSystemModel:
         if rx_iqi == True:
             r = m.iq_imbalance(r, gamma, phi)
 
-        y = r.flatten()
+        y = r.flatten(order='F')
 
         self.y = y
 
     def demodulate_ofdm(self, y):
         one_block = self.subcarrier_CP
-        y_p = y.reshape((one_block, -1))
+        y_p = y.reshape((one_block, -1), order='F')
         y_removed_cp = np.matmul(self.cp_zero, y_p)
         y_dft = np.matmul(self.dft_mat, y_removed_cp)
         # s_hat = np.matmul(self.D_s_inv, y_dft)
         # s_s = s_hat.flatten()
-        s_s = y_dft.flatten()
+        s_s = y_dft.flatten(order='F')
         return s_s
