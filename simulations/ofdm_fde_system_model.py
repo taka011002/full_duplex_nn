@@ -71,7 +71,7 @@ def proposal(params: dict, sigma, h_si, h_s) -> OFDMNNModel:
         params['nHidden'],
         params['optimizer'],
         params['learningRate'],
-        1,
+        params['h_si_len'],
         params['h_s_len'],
         params['receive_antenna'],
         params['momentum']
@@ -83,7 +83,7 @@ def proposal(params: dict, sigma, h_si, h_s) -> OFDMNNModel:
         params['trainingRatio'],
         params['nEpochs'],
         params['batchSize'],
-        1,
+        params['h_si_len'],
         params['h_s_len'],
         params['receive_antenna'],
         params['delay'],
@@ -103,15 +103,18 @@ if __name__ == '__main__':
 
     snrs_db = m.snr_db(params['SNR_MIN'], params['SNR_MAX'], params['SNR_NUM'])
     sigmas = m.sigmas(snrs_db)
+    sigmas = sigmas * np.sqrt(params['receive_antenna'])
     errors = np.zeros((params['SNR_NUM'], params['SNR_AVERAGE']))
     losss = np.zeros((params['SNR_NUM'], params['SNR_AVERAGE'], params['nEpochs']))
     val_losss = np.zeros((params['SNR_NUM'], params['SNR_AVERAGE'], params['nEpochs']))
 
     for trials_index in tqdm(range(params['SNR_AVERAGE'])):
-        h_si = m.exponential_decay_channel(1, params['h_si_len'])
-        h_s = m.exponential_decay_channel(1, params['h_s_len'])
-        # h_si = np.array([1, 1]).reshape(1, params['h_si_len'])
-        # h_s = np.array([1]).reshape(1, params['h_s_len'])
+        h_si = []
+        h_s = []
+
+        for i in range(params['receive_antenna']):
+            h_si.append(m.exponential_decay_channel(1, params['h_si_len']))
+            h_s.append(m.exponential_decay_channel(1, params['h_s_len']))
 
         for sigma_index, sigma in enumerate(sigmas):
             nn_model = proposal(params, sigma, h_si, h_s)

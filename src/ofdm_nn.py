@@ -30,7 +30,7 @@ class OFDMNNModel:
 
     def __init__(self, n_hidden: list, optimizer_key: str, learning_rate: float, h_si_len: int = 1, h_s_len: int = 1,
                  receive_antenna: int = 1, momentum: float = None):
-        input = Input(shape=(2 * h_si_len + 2,))
+        input = Input(shape=((2 * h_si_len) + (2 * receive_antenna * h_s_len),))
         n_hidden = n_hidden.copy()  # popだと破壊的操作になり，元々のn_hiddenが壊れるので仕方なくcopyしている
         x = Dense(n_hidden.pop(0), activation='relu')(input)
         for n in n_hidden:
@@ -48,15 +48,19 @@ class OFDMNNModel:
         self.train_system_model = train_system_model
         self.test_system_model = test_system_model
 
-
         x_1 = np.vstack((np.zeros((h_si_len - 1, 1)), train_system_model.x.reshape((-1, 1), order='F')))
-        # x_1 = np.vstack((np.zeros((h_si_len - 1, 1)), train_system_model.nonlin_x_rx.reshape(-1, 1)))
         x_train = np.array(
             [x_1[i:i + h_si_len] for i in range(train_system_model.x.size)]
         ).reshape(train_system_model.x.size, h_si_len)
         # x_train = train_system_model.x.reshape(-1, 1)
-        # x_train = train_system_model.nonlin_x_rx.reshape(-1, 1)
-        y_train = train_system_model.y.reshape((-1, 1), order='F')
+        # y_train = train_system_model.y.reshape((-1, 1), order='F')
+        y_train = np.zeros((train_system_model.block * train_system_model.subcarrier_CP, h_s_len * receive_antenna), dtype=complex)
+        for receive_antenna_i in range(receive_antenna):
+            y_1 = np.vstack((np.zeros((h_s_len - 1, 1)), train_system_model.y[:, receive_antenna_i].reshape((-1, 1), order='F')))
+            y_train[:,((receive_antenna_i) * h_s_len):((receive_antenna_i + 1) * h_s_len)] = np.array(
+                [y_1[i:i + h_s_len] for i in range(train_system_model.y[:, receive_antenna_i].size)]
+            ).reshape(train_system_model.y[:, receive_antenna_i].size, h_s_len)
+
         s_train = train_system_model.tilde_s.reshape((-1, 1), order='F')
 
         # 標準化
@@ -65,33 +69,36 @@ class OFDMNNModel:
             y_train = y_train / hensa
 
         # NNの入力に合うように1つのベクトルにする
-        train = np.zeros((x_train.shape[0], (2 * h_si_len) + (2)))
+        train = np.zeros((x_train.shape[0], (2 * h_si_len) + (2 * h_s_len * receive_antenna)))
         train[:, 0:(h_si_len)] = x_train.real
         train[:, (h_si_len):(2 * h_si_len)] = x_train.imag
-        train[:, (2 * h_si_len):(3 * h_si_len)] = y_train.real
-        train[:, (3 * h_si_len):(4 * h_si_len)] = y_train.imag
+        train[:, (2 * h_si_len):(2 * h_si_len) + (receive_antenna * h_s_len)] = y_train.real
+        train[:, (2 * h_si_len) + (receive_antenna * h_s_len):(2 * h_si_len) + (receive_antenna * 2 * h_s_len)] = y_train.imag
 
         # テストデータの作成
         x_1 = np.vstack((np.zeros((h_si_len - 1, 1)), test_system_model.x.reshape((-1, 1), order='F')))
-        # x_1 = np.vstack((np.zeros((h_si_len - 1, 1)), test_system_model.nonlin_x_rx.reshape(-1, 1)))
         x_test = np.array(
             [x_1[i:i + h_si_len] for i in range(test_system_model.x.size)]
         ).reshape(test_system_model.x.size, h_si_len)
         # x_test = test_system_model.x.reshape(-1, 1)
-        # x_test = test_system_model.nonlin_x_rx.reshape(-1, 1)
-        y_test = test_system_model.y.reshape((-1, 1), order='F')
-        s_test = test_system_model.tilde_s.reshape((-1, 1), order='F')  # 数が合わなくなる時があるのでx_sの大きさを合わせる
+        # y_test = test_system_model.y.reshape((-1, 1), order='F')
+        y_test = np.zeros((test_system_model.block * test_system_model.subcarrier_CP, h_s_len * receive_antenna), dtype=complex)
+        for receive_antenna_i in range(receive_antenna):
+            y_1 = np.vstack((np.zeros((h_s_len - 1, 1)), test_system_model.y[:, receive_antenna_i].reshape((-1, 1), order='F')))
+            y_test[:,((receive_antenna_i) * h_s_len):((receive_antenna_i + 1) * h_s_len)] = np.array(
+                [y_1[i:i + h_s_len] for i in range(test_system_model.y[:, receive_antenna_i].size)]
+            ).reshape(test_system_model.y[:, receive_antenna_i].size, h_s_len)
+        s_test = test_system_model.tilde_s.reshape((-1, 1), order='F')
 
         # 標準化
         if standardization is True:
             y_test = y_test / hensa
 
-        # NNの入力に合うように1つのベクトルにする
-        test = np.zeros((x_test.shape[0], (2 * h_si_len) + (2)))
+        test = np.zeros((x_test.shape[0], (2 * h_si_len) + (2 * h_s_len * receive_antenna)))
         test[:, 0:(h_si_len)] = x_test.real
         test[:, (h_si_len):(2 * h_si_len)] = x_test.imag
-        test[:, (2 * h_si_len):(3 * h_si_len)] = y_test.real
-        test[:, (3 * h_si_len):(4 * h_si_len)] = y_test.imag
+        test[:, (2 * h_si_len):(2 * h_si_len) + (receive_antenna * h_s_len)] = y_test.real
+        test[:, (2 * h_si_len) + (receive_antenna * h_s_len):(2 * h_si_len) + (receive_antenna * 2 * h_s_len)] = y_test.imag
 
         # 学習
         self.history = self.model.fit(train, [s_train.real, s_train.imag], epochs=n_epochs,

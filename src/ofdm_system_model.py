@@ -32,12 +32,6 @@ class OFDMSystemModel:
         idft_mat = dft_mat.conj().T
 
         self.cp_zero = np.hstack((np.zeros((subcarrier, CP)), np.eye(subcarrier)))
-        # self.circulant_h_si = ofdm.circulant_channel(h_si_list.T, h_si_len, subcarrier)
-        circulant_h_s = ofdm.circulant_channel(h_s_list.T, h_s_len, subcarrier)
-        D_s = dft_mat @ circulant_h_s @ idft_mat
-        self.D_s_inv = np.linalg.inv(D_s)
-        toeplitz_h_si = ofdm.toeplitz_channel(h_si_list.T, h_si_len, subcarrier, CP)
-        toeplitz_h_s = ofdm.toeplitz_channel(h_s_list.T, h_s_len, subcarrier, CP)
 
         # ここまで
 
@@ -50,13 +44,6 @@ class OFDMSystemModel:
         x = x_cp
         self.x = x_cp.flatten(order='F')
         tx_x = x
-
-        # nonlin_x_rx = tx_x
-        # if h_si_len > 1:
-        #     nonlin_x_rx = np.zeros((h_si_len - 1 + tx_x.shape[0], tx_x.shape[1]), dtype=complex)
-        #     nonlin_x_rx[:(h_si_len - 1), 1:] = tx_x[-(h_si_len - 1):, :-1]
-        #     nonlin_x_rx[(h_si_len - 1):, :] = tx_x
-        # self.nonlin_x_rx = np.matmul(toeplitz_h_si, nonlin_x_rx)
 
         # 送信側非線形
         if tx_iqi == True:
@@ -86,25 +73,31 @@ class OFDMSystemModel:
             s_rx[:(h_s_len - 1), 1:] = s_cp[-(h_s_len - 1):, :-1]
             s_rx[(h_s_len - 1):, :] = s_cp
 
-        r = np.matmul(toeplitz_h_si, x_rx) + np.matmul(toeplitz_h_s, s_rx) + m.awgn((subcarrier + CP, block), sigma)
+        self.y = np.zeros((self.subcarrier_CP * block, receive_antenna), dtype=complex)
+        for receive_antenna_i in range(receive_antenna):
+            h_si = h_si_list[receive_antenna_i]
+            h_s = h_s_list[receive_antenna_i]
 
-        # 受信側非線形
-        if lna == True:
-            r = m.sspa_rapp_ibo(r, LNA_IBO_dB, LNA_rho).squeeze()
+            toeplitz_h_si = ofdm.toeplitz_channel(h_si.T, h_si_len, subcarrier, CP)
+            toeplitz_h_s = ofdm.toeplitz_channel(h_s.T, h_s_len, subcarrier, CP)
 
-        if rx_iqi == True:
-            r = m.iq_imbalance(r, gamma, phi)
+            r = np.matmul(toeplitz_h_si, x_rx) + np.matmul(toeplitz_h_s, s_rx) + m.awgn((subcarrier + CP, block), sigma)
 
-        y = r.flatten(order='F')
+            # 受信側非線形
+            if lna == True:
+                r = m.sspa_rapp_ibo(r, LNA_IBO_dB, LNA_rho).squeeze()
 
-        self.y = y
+            if rx_iqi == True:
+                r = m.iq_imbalance(r, gamma, phi)
+
+            y = r.flatten(order='F')
+
+            self.y[:, receive_antenna_i] = y
 
     def demodulate_ofdm(self, y):
         one_block = self.subcarrier_CP
         y_p = y.reshape((one_block, -1), order='F')
         y_removed_cp = np.matmul(self.cp_zero, y_p)
         y_dft = np.matmul(self.dft_mat, y_removed_cp)
-        # s_hat = np.matmul(self.D_s_inv, y_dft)
-        # s_s = s_hat.flatten()
         s_s = y_dft.flatten(order='F')
         return s_s
