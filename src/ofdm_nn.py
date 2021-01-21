@@ -52,8 +52,6 @@ class OFDMNNModel:
         x_train = np.array(
             [x_1[i:i + h_si_len] for i in range(train_system_model.x.size)]
         ).reshape(train_system_model.x.size, h_si_len)
-        # x_train = train_system_model.x.reshape(-1, 1)
-        # y_train = train_system_model.y.reshape((-1, 1), order='F')
         y_train = np.zeros((train_system_model.block * train_system_model.subcarrier_CP, h_s_len * receive_antenna), dtype=complex)
         for receive_antenna_i in range(receive_antenna):
             y_1 = np.vstack((np.zeros((h_s_len - 1, 1)), train_system_model.y[:, receive_antenna_i].reshape((-1, 1), order='F')))
@@ -62,6 +60,8 @@ class OFDMNNModel:
             ).reshape(train_system_model.y[:, receive_antenna_i].size, h_s_len)
 
         s_train = train_system_model.tilde_s.reshape((-1, 1), order='F')
+        if delay > 0:
+            s_train = np.vstack((np.zeros((delay, 1)), s_train))[:-delay]
 
         # 標準化
         if standardization is True:
@@ -80,8 +80,6 @@ class OFDMNNModel:
         x_test = np.array(
             [x_1[i:i + h_si_len] for i in range(test_system_model.x.size)]
         ).reshape(test_system_model.x.size, h_si_len)
-        # x_test = test_system_model.x.reshape(-1, 1)
-        # y_test = test_system_model.y.reshape((-1, 1), order='F')
         y_test = np.zeros((test_system_model.block * test_system_model.subcarrier_CP, h_s_len * receive_antenna), dtype=complex)
         for receive_antenna_i in range(receive_antenna):
             y_1 = np.vstack((np.zeros((h_s_len - 1, 1)), test_system_model.y[:, receive_antenna_i].reshape((-1, 1), order='F')))
@@ -89,6 +87,8 @@ class OFDMNNModel:
                 [y_1[i:i + h_s_len] for i in range(test_system_model.y[:, receive_antenna_i].size)]
             ).reshape(test_system_model.y[:, receive_antenna_i].size, h_s_len)
         s_test = test_system_model.tilde_s.reshape((-1, 1), order='F')
+        if delay > 0:
+            s_test = np.vstack((np.zeros((delay, 1)), s_test))[:-delay]
 
         # 標準化
         if standardization is True:
@@ -110,6 +110,8 @@ class OFDMNNModel:
 
         # 推定した希望信号の取り出し
         y = np.squeeze(self.pred[0] + 1j * self.pred[1], axis=1)
+        if delay > 0:
+            y = y[delay:(delay + test_system_model.subcarrier_CP * (test_system_model.block - 1))]
         # y = s_test
 
         s_hat = test_system_model.demodulate_ofdm(y)
@@ -118,17 +120,7 @@ class OFDMNNModel:
         self.d_s_hat = m.demodulate_qpsk(s_hat)
 
         # 元々の外部信号のデータ
-        self.d_s_test = test_system_model.d_s.flatten()
+        self.d_s_test = test_system_model.d_s[:self.d_s_hat.size].flatten()
         self.error = np.sum(self.d_s_test != self.d_s_hat)
+        print(self.d_s_test.size)
         print(self.error / self.d_s_test.size)
-
-    @staticmethod
-    def train_bits(bits: int, training_ratio: float) -> int:
-        return int(bits * training_ratio)
-
-    @staticmethod
-    def test_bits(bits: int, training_ratio: float, h_si_len: int = 1) -> int:
-        train_bits = OFDMNNModel.train_bits(bits, training_ratio)
-        test_bits = bits - train_bits
-        offset = 2 * (- 2 * h_si_len + 2)
-        return test_bits + offset

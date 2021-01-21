@@ -128,7 +128,7 @@ if __name__ == '__main__':
         pickle.dump(result, f)
 
     ber_fig, ber_ax = graph.new_snr_ber_canvas(params['SNR_MIN'], params['SNR_MAX'])
-    n_sum = params['subcarrier'] * 2 * params['block'] * params['SNR_AVERAGE']
+    n_sum = params['test_bits'] * params['SNR_AVERAGE']
     errors_sum = np.sum(errors, axis=1)
     bers = errors_sum / n_sum
     ber_ax.plot(snrs_db, bers, color="k", marker='o', linestyle='--', label="OFDM")

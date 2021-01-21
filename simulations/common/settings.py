@@ -22,9 +22,9 @@ def init_simulation(simulation_name: str, ofdm: bool = False) -> (dict, str):
 
     # 再現性を出す為にseedを記録しておく
     set_seed(params)
-    if ofdm is False:
-        # 学習ビット数とビット数とテストビット数を記録する。
-        set_simulation_bits_to_params(params)
+
+    # 学習ビット数とビット数とテストビット数を記録する。
+    set_simulation_bits_to_params(params, ofdm)
 
     dump_params(params, output_dir)
 
@@ -102,6 +102,16 @@ def set_seed(params: dict):
     np.random.seed(seed)
 
 
-def set_simulation_bits_to_params(params: dict):
-    params["train_bits"] = NNModel.train_bits(params["n"], params['trainingRatio'])
-    params["test_bits"] = NNModel.test_bits(params["n"], params['trainingRatio'], params['h_si_len'])
+def set_simulation_bits_to_params(params: dict, ofdm: bool = False):
+    if ofdm is True:
+        training_blocks = int(params['block'] * params['trainingRatio'])
+        test_blocks = params['block'] - training_blocks
+        one_block = params['subcarrier']
+
+        params["train_bits"] = training_blocks * one_block * 2
+        params["test_bits"] = test_blocks * one_block * 2
+        if params["delay"] > 0:
+            params["test_bits"] = (test_blocks - 1) * one_block * 2
+    else:
+        params["train_bits"] = NNModel.train_bits(params["n"], params['trainingRatio'])
+        params["test_bits"] = NNModel.test_bits(params["n"], params['trainingRatio'], params['h_si_len'])
