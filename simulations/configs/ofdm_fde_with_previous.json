@@ -7,7 +7,7 @@
     "SNR_MIN": 0,
     "SNR_MAX": 25,
     "SNR_NUM": 6,
-    "SNR_AVERAGE": 1,
+    "SNR_AVERAGE": 10,
     "equalizer": "ZF",
     "gamma": 0.3,
     "phi": 3.0,
@@ -30,5 +30,8 @@
     "delay": 4,
     "standardization": false,
     "__seed": 1610859857,
-    "seed": 1611131326
+    "seed": 1611131326,
+    "p_nHidden": [20],
+    "p_optimizer": "Adam",
+    "p_learningRate": 0.01
 }

@@ -1,8 +1,10 @@
 from src import modules as m
 import numpy as np
+from scipy.linalg import dft
+from src import ofdm
 
 
-class SystemModel:
+class OFDMSystemModel:
     d: np.ndarray
     x: np.ndarray
     d_s: np.ndarray
@@ -16,8 +18,12 @@ class SystemModel:
     r: np.ndarray
     y: np.ndarray
 
-    def __init__(self, sigma, gamma=0.0, phi=0.0, PA_IBO_dB=5, PA_rho=2, LNA_IBO_dB=5, LNA_rho=2,
-                 h_si: np.ndarray = None, h_si_len=1, h_s=None, h_s_len=1, tx_iqi=True, pa=True, lna=True, rx_iqi=True):
+    def __init__(self, block, subcarrier, CP, sigma, gamma=0.0, phi=0.0, PA_IBO_dB=5, PA_rho=2, LNA_IBO_dB=5, LNA_rho=2,
+                 h_si_list=None,
+                 h_s_list=None, h_si_len=1, h_s_len=1, receive_antenna=1, tx_iqi=True, pa=True, lna=True, rx_iqi=True):
+        self.block = block
+        self.subcarrier = subcarrier
+        self.CP = CP
         self.sigma = sigma
         self.gamma = gamma
         self.phi = phi
@@ -25,161 +31,136 @@ class SystemModel:
         self.PA_rho = PA_rho
         self.LNA_IBO_dB = LNA_IBO_dB
         self.LNA_rho = LNA_rho
-        self.h_si = h_si
+        self.h_si_list = h_si_list
+        self.h_s_list = h_s_list
         self.h_si_len = h_si_len
-        self.h_s = h_s
         self.h_s_len = h_s_len
+        self.receive_antenna = receive_antenna
         self.tx_iqi = tx_iqi
         self.pa = pa
         self.lna = lna
         self.rx_iqi = rx_iqi
 
-    def transceive_si(self, n):
-        offset_n = n + 2 * (self.h_si_len - 1)  # 遅延を取る為に多く作っておく
+        self.subcarrier_CP = subcarrier + CP
+        self.dft_mat = dft(self.subcarrier, scale="sqrtn")
+        self.idft_mat = self.dft_mat.conj().T
+        self.cp_zero = np.hstack((np.zeros((self.subcarrier, self.CP)), np.eye(self.subcarrier)))
 
+        Hc = ofdm.circulant_channel(self.h_s_list[0].T, self.h_s_len, self.subcarrier)
+        D = self.dft_mat @ Hc @ self.idft_mat
+        self.D_1 = np.linalg.inv(D)
+
+
+    def transceive_s(self):
         # 送信信号
-        self.d = np.random.choice([0, 1], offset_n)
-        self.x = m.modulate_qpsk(self.d)
+        self.d = np.random.choice([0, 1], (self.subcarrier * 2 * self.block, 1))
+        x_n = m.modulate_qpsk(self.d)
+        x_p = x_n.reshape((self.subcarrier, self.block), order='F')
+        x_idft = np.matmul(self.idft_mat, x_p)
+        x_cp = ofdm.add_cp(x_idft, self.CP)
+        x = x_cp
+        self.x = x_cp.flatten(order='F')
+        tx_x = x
 
         # 送信側非線形
         if self.tx_iqi == True:
-            self.x_iq = m.iq_imbalance(self.x, self.gamma, self.phi)
-        else:
-            self.x_iq = self.x
+            tx_x = m.iq_imbalance(tx_x, self.gamma, self.phi)
 
         if self.pa == True:
-            self.x_pa = m.sspa_rapp_ibo(self.x_iq, self.PA_IBO_dB, self.PA_rho)
-        else:
-            self.x_pa = self.x_iq
+            tx_x = m.sspa_rapp_ibo(tx_x, self.PA_IBO_dB, self.PA_rho, ofdm=True)
 
-        # 通信路
-        # [[x[n], x[n-1]], x[x-1], x[n-1]]のように通信路の数に合わせる
-        chanels_x_pa = np.array([self.x_pa[i:i + self.h_si_len] for i in range(self.x_pa.size - self.h_si_len + 1)])
-        chanels_y_si = self.h_si * chanels_x_pa
-        y_si = np.sum(chanels_y_si, axis=1)
-        r = y_si + m.awgn(y_si.shape, self.sigma)
+        x_rx = tx_x
+        if self.h_si_len > 1:
+            x_rx = np.zeros((self.h_si_len - 1 + tx_x.shape[0], tx_x.shape[1]), dtype=complex)
+            x_rx[:(self.h_si_len - 1), 1:] = tx_x[-(self.h_si_len - 1):, :-1]
+            x_rx[(self.h_si_len - 1):, :] = tx_x
 
-        # 受信側非線形
-        if self.lna == True:
-            y_lna = m.sspa_rapp(r, self.a_sat, self.LNA_rho).squeeze()
-        else:
-            y_lna = r
-        
-        if self.rx_iqi == True:
-            y_iq = m.iq_imbalance(y_lna, self.gamma, self.phi)
-        else:
-            y_iq = y_lna
+        self.y = np.zeros((self.subcarrier_CP * self.block, self.receive_antenna), dtype=complex)
+        for receive_antenna_i in range(self.receive_antenna):
+            h_si = self.h_si_list[receive_antenna_i]
 
-        self.y = y_iq
+            toeplitz_h_si = ofdm.toeplitz_channel(h_si.T, self.h_si_len, self.subcarrier, self.CP)
 
-    def transceive_s(self, n):
-        offset_n = n + 2 * (self.h_s_len - 1)  # 遅延を取る為に多く作っておく
+            r = np.matmul(toeplitz_h_si, x_rx) + m.awgn((self.subcarrier + self.CP, self.block), self.sigma)
 
-        # 希望信号
-        self.d_s = np.random.choice([0, 1], offset_n)
-        self.s = m.modulate_qpsk(self.d_s)
+            # 受信側非線形
+            if self.lna == True:
+                ## TODO a_satがSIありとなしで変わらないようにする．
+                r = m.sspa_rapp_ibo(r, self.LNA_IBO_dB, self.LNA_rho).squeeze()
 
-        # [[x[n], x[n-1]], x[x-1], x[n-1]]のように通信路の数に合わせる
-        chanels_s = np.array([self.s[i:i + self.h_s_len] for i in range(self.s.size - self.h_s_len + 1)])
-        chanels_s = self.h_s * chanels_s
-        y_s = np.sum(chanels_s, axis=1)
+            if self.rx_iqi == True:
+                r = m.iq_imbalance(r, self.gamma, self.phi)
 
-        r = y_s + m.awgn(y_s.shape, self.sigma)
+            y = r.flatten(order='F')
 
-        # 受信側非線形
-        if self.lna == True:
-            y_lna = m.sspa_rapp(r, self.a_sat, self.LNA_rho).squeeze()
-        else:
-            y_lna = r
-        
-        if self.rx_iqi == True:
-            y_iq = m.iq_imbalance(y_lna, self.gamma, self.phi)
-        else:
-            y_iq = y_lna
+            self.y[:, receive_antenna_i] = y
 
-        self.y = y_iq
-
-    def transceive_si_s(self, n):
-        offset_n = n + 2 * (self.h_si_len - 1)  # 遅延を取る為に多く作っておく
-
+    def transceive_si_s(self):
         # 送信信号
-        self.d = np.random.choice([0, 1], offset_n)
-        self.x = m.modulate_qpsk(self.d)
-
-        # 希望信号
-        self.d_s = np.random.choice([0, 1], offset_n)
-        self.s = m.modulate_qpsk(self.d_s)
+        self.d = np.random.choice([0, 1], (self.subcarrier * 2 * self.block, 1))
+        x_n = m.modulate_qpsk(self.d)
+        x_p = x_n.reshape((self.subcarrier, self.block), order='F')
+        x_idft = np.matmul(self.idft_mat, x_p)
+        x_cp = ofdm.add_cp(x_idft, self.CP)
+        x = x_cp
+        self.x = x_cp.flatten(order='F')
+        tx_x = x
 
         # 送信側非線形
         if self.tx_iqi == True:
-            self.x_iq = m.iq_imbalance(self.x, self.gamma, self.phi)
-        else:
-            self.x_iq = self.x
+            tx_x = m.iq_imbalance(tx_x, self.gamma, self.phi)
 
         if self.pa == True:
-            self.x_pa = m.sspa_rapp_ibo(self.x_iq, self.PA_IBO_dB, self.PA_rho)
-        else:
-            self.x_pa = self.x_iq
-
-        # 通信路
-        # [[x[n], x[n-1]], x[x-1], x[n-1]]のように通信路の数に合わせる
-        chanels_x_pa = np.array([self.x_pa[i:i + self.h_si_len] for i in range(self.x_pa.size - self.h_si_len + 1)])
-        chanels_y_si = self.h_si * chanels_x_pa
-        y_si = np.sum(chanels_y_si, axis=1)
-
-        # [[x[n], x[n-1]], x[x-1], x[n-1]]のように通信路の数に合わせる
-        chanels_s = np.array([self.s[i:i + self.h_s_len] for i in range(self.s.size - self.h_s_len + 1)])
-        chanels_s = self.h_s * chanels_s
-        y_s = np.sum(chanels_s, axis=1)
-
-        r = y_si + y_s + m.awgn(y_si.shape, self.sigma)
-
-        # 受信側非線形
-        if self.lna == True:
-            y_lna = m.sspa_rapp(r, self.a_sat, self.LNA_rho).squeeze()
-        else:
-            y_lna = r
-        
-        if self.rx_iqi == True:
-            y_iq = m.iq_imbalance(y_lna, self.gamma, self.phi)
-        else:
-            y_iq = y_lna
-
-        self.y = y_iq
-        
-    def set_lna_a_sat(self, n, LNA_IBO_dB):
-        # TODO 調整する
-        offset_n = n + 2 * (self.h_si_len - 1)  # 遅延を取る為に多く作っておく
-
-        # 送信信号
-        d = np.random.choice([0, 1], offset_n)
-        x = m.modulate_qpsk(d)
+            tx_x = m.sspa_rapp_ibo(tx_x, self.PA_IBO_dB, self.PA_rho, ofdm=True)
 
         # 希望信号
-        d_s = np.random.choice([0, 1], offset_n)
-        s = m.modulate_qpsk(d_s)
+        self.d_s = np.random.choice([0, 1], (self.subcarrier * 2 * self.block, 1))
+        s_n = m.modulate_qpsk(self.d_s)
+        s_p = s_n.reshape((self.subcarrier, self.block), order='F')
+        s_idft = np.matmul(self.idft_mat, s_p)
+        s_cp = ofdm.add_cp(s_idft, self.CP)
+        self.tilde_s = s_cp
 
-        # 送信側非線形
-        if self.tx_iqi == True:
-            x_iq = m.iq_imbalance(x, self.gamma, self.phi)
-        else:
-            x_iq = x
+        x_rx = tx_x
+        if self.h_si_len > 1:
+            x_rx = np.zeros((self.h_si_len - 1 + tx_x.shape[0], tx_x.shape[1]), dtype=complex)
+            x_rx[:(self.h_si_len - 1), 1:] = tx_x[-(self.h_si_len - 1):, :-1]
+            x_rx[(self.h_si_len - 1):, :] = tx_x
 
-        if self.pa == True:
-            x_pa = m.sspa_rapp_ibo(x_iq, self.PA_IBO_dB, self.PA_rho)
-        else:
-            x_pa = x_iq
+        s_rx = s_cp
+        if self.h_s_len > 1:
+            s_rx = np.zeros((self.h_s_len - 1 + s_cp.shape[0], s_cp.shape[1]), dtype=complex)
+            s_rx[:(self.h_s_len - 1), 1:] = s_cp[-(self.h_s_len - 1):, :-1]
+            s_rx[(self.h_s_len - 1):, :] = s_cp
 
-        # 通信路
-        # [[x[n], x[n-1]], x[x-1], x[n-1]]のように通信路の数に合わせる
-        chanels_x_pa = np.array([x_pa[i:i + self.h_si_len] for i in range(x_pa.size - self.h_si_len + 1)])
-        chanels_y_si = self.h_si * chanels_x_pa
-        y_si = np.sum(chanels_y_si, axis=1)
+        self.y = np.zeros((self.subcarrier_CP * self.block, self.receive_antenna), dtype=complex)
+        for receive_antenna_i in range(self.receive_antenna):
+            h_si = self.h_si_list[receive_antenna_i]
+            h_s = self.h_s_list[receive_antenna_i]
 
-        # [[x[n], x[n-1]], x[x-1], x[n-1]]のように通信路の数に合わせる
-        chanels_s = np.array([s[i:i + self.h_s_len] for i in range(s.size - self.h_s_len + 1)])
-        chanels_s = self.h_s * chanels_s
-        y_s = np.sum(chanels_s, axis=1)
+            toeplitz_h_si = ofdm.toeplitz_channel(h_si.T, self.h_si_len, self.subcarrier, self.CP)
+            toeplitz_h_s = ofdm.toeplitz_channel(h_s.T, self.h_s_len, self.subcarrier, self.CP)
 
-        r = y_si + y_s + m.awgn(y_si.shape, self.sigma)
-        self.a_sat = m.a_sat(r, LNA_IBO_dB)
+            r = np.matmul(toeplitz_h_si, x_rx) + np.matmul(toeplitz_h_s, s_rx) + m.awgn((self.subcarrier + self.CP, self.block), self.sigma)
+
+            # 受信側非線形
+            if self.lna == True:
+                ## TODO a_satがSIありとなしで変わらないようにする．
+                r = m.sspa_rapp_ibo(r, self.LNA_IBO_dB, self.LNA_rho).squeeze()
+
+            if self.rx_iqi == True:
+                r = m.iq_imbalance(r, self.gamma, self.phi)
+
+            y = r.flatten(order='F')
+
+            self.y[:, receive_antenna_i] = y
+
+
+    def demodulate_ofdm(self, y):
+        one_block = self.subcarrier_CP
+        y_p = y.reshape((one_block, -1), order='F')
+        y_removed_cp = np.matmul(self.cp_zero, y_p)
+        y_dft = np.matmul(self.dft_mat, y_removed_cp)
+        s_s = np.matmul(self.D_1, y_dft)
+        s_s = s_s.flatten(order='F')
+        return s_s
