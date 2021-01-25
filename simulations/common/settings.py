@@ -108,6 +108,7 @@ def set_simulation_bits_to_params(params: dict, ofdm: bool = False):
         test_blocks = params['block'] - training_blocks
         one_block = params['subcarrier']
 
+        params["bits"] = params['block'] * one_block * 2
         params["train_bits"] = training_blocks * one_block * 2
         params["test_bits"] = test_blocks * one_block * 2
         if params["delay"] > 0:

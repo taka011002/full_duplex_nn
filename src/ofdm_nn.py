@@ -122,5 +122,3 @@ class OFDMNNModel:
         # 元々の外部信号のデータ
         self.d_s_test = test_system_model.d_s[:self.d_s_hat.size].flatten()
         self.error = np.sum(self.d_s_test != self.d_s_hat)
-        print(self.d_s_test.size)
-        print(self.error / self.d_s_test.size)
