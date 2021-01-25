@@ -285,7 +285,8 @@ if __name__ == '__main__':
     with open(output_dir + '/result.pkl', 'wb') as f:
         pickle.dump(result, f)
 
-    ber_fig, ber_ax = graph.new_snr_ber_canvas(params['SNR_MIN'], params['SNR_MAX'])
+    ber_fig, ber_ax = graph.new_snr_ber_canvas(params['SNR_MIN'], params['SNR_MAX'], -5)
+    ber_ax.set_yticks([10**0, 10**-1, 10**-2, 10**-3, 10**-4, 10**-5])
 
     n_sum = params['bits'] * params['SNR_AVERAGE']
     errors_sum = np.sum(non_cancell_error_array, axis=1)
@@ -300,7 +301,7 @@ if __name__ == '__main__':
     n_sum = params['test_bits'] * params['SNR_AVERAGE']
     errors_sum = np.sum(errors, axis=1)
     bers = errors_sum / n_sum
-    ber_ax.plot(snrs_db, bers, color="k", marker='o', linestyle='--', label="Proposal")
+    ber_ax.plot(snrs_db, bers, color="k", marker='o', linestyle='--', label="Proposal(antenna: 3, delay: 4)")
 
     ber_ax.legend()
     plt.savefig(output_dir + '/SNR_BER.pdf', bbox_inches='tight')
