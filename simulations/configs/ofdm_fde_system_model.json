@@ -7,7 +7,7 @@
     "SNR_MIN": 0,
     "SNR_MAX": 25,
     "SNR_NUM": 6,
-    "SNR_AVERAGE": 1000,
+    "SNR_AVERAGE": 1,
     "equalizer": "ZF",
     "gamma": 0.3,
     "phi": 3.0,

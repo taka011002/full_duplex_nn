@@ -18,7 +18,7 @@ class OFDMSystemModel:
     r: np.ndarray
     y: np.ndarray
 
-    def __init__(self, block, subcarrier, CP, sigma, gamma=0.0, phi=0.0, PA_IBO_dB=5, PA_rho=2, LNA_IBO_dB=5, LNA_rho=2,
+    def __init__(self, block: int, subcarrier: int, CP: int, sigma: float, gamma=0.0, phi=0.0, PA_IBO_dB=5, PA_rho=2, LNA_IBO_dB=5, LNA_rho=2,
                  h_si_list=None,
                  h_s_list=None, h_si_len=1, h_s_len=1, receive_antenna=1, tx_iqi=True, pa=True, lna=True, rx_iqi=True):
         self.block = block
