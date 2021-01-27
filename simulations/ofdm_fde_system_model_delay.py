@@ -75,7 +75,7 @@ if __name__ == '__main__':
     params_dict, output_dir = settings.init_simulation(SIMULATIONS_NAME, ofdm=True)
     params = Params.from_params_dict(params_dict)
 
-    delay_array = np.linspace(params.delay_min, params.delay_max, params.delay_num)
+    delay_array = np.linspace(params.delay_min, params.delay_max, params.delay_num, dtype=int)
 
     sigma = m.sigmas(params.SNR)
     sigma = sigma * np.sqrt(params.receive_antenna)
