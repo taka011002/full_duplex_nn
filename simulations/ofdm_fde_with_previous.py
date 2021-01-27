@@ -301,7 +301,7 @@ if __name__ == '__main__':
     n_sum = params['test_bits'] * params['SNR_AVERAGE']
     errors_sum = np.sum(errors, axis=1)
     bers = errors_sum / n_sum
-    ber_ax.plot(snrs_db, bers, color="k", marker='o', linestyle='--', label="Proposal(antenna: 3, delay: 4)")
+    ber_ax.plot(snrs_db, bers, color="k", marker='o', linestyle='--', label="Proposal")
 
     ber_ax.legend()
     plt.savefig(output_dir + '/SNR_BER.pdf', bbox_inches='tight')
