@@ -1,5 +1,5 @@
 {
-    "trials": 100,
+    "trials": 1000,
     "block": 300,
     "subcarrier": 64,
     "CP": 16,
@@ -9,7 +9,7 @@
     "equalizer": "ZF",
     "delay_min": 0,
     "delay_max": 10,
-    "delay_num": 6,
+    "delay_num": 11,
     "gamma": 0.3,
     "phi": 3.0,
     "PA_IBO": 7,
