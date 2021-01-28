@@ -45,7 +45,7 @@ def new_learning_curve_canvas(epochs: int) -> (plt.Figure, plt.Axes):
     fig = plt.figure(figsize=(8, 6))
     ax = fig.add_subplot(111)
     ax.set_xlabel('Training Epoch')
-    ax.set_ylabel('less')
+    ax.set_ylabel('loss')
     ax.set_yscale('log')
     ax.grid(which='major', alpha=0.25)
     ax.set_xticks(range(1, epochs, 2))
