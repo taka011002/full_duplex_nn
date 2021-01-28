@@ -7,7 +7,6 @@
     "h_s_len": 6,
     "SNR": 25,
     "equalizer": "ZF",
-    "gamma": 0.3,
     "phi": 3.0,
     "graph_x_min": -1,
     "graph_x_max": 1,
