@@ -29,7 +29,7 @@ class OFDMSystemModel:
         # 必要な行列を生成する
         dft_mat = dft(subcarrier, scale="sqrtn")
         self.dft_mat = dft_mat
-        idft_mat = dft_mat.conj().T
+        self.idft_mat = dft_mat.conj().T
 
         self.cp_zero = np.hstack((np.zeros((subcarrier, CP)), np.eye(subcarrier)))
 
@@ -39,7 +39,7 @@ class OFDMSystemModel:
         self.d = np.random.choice([0, 1], (subcarrier * 2 * block, 1))
         x_n = m.modulate_qpsk(self.d)
         x_p = x_n.reshape((subcarrier, block), order='F')
-        x_idft = np.matmul(idft_mat, x_p)
+        x_idft = np.matmul(self.idft_mat, x_p)
         x_cp = ofdm.add_cp(x_idft, CP)
         x = x_cp
         self.x = x_cp.flatten(order='F')
@@ -57,7 +57,7 @@ class OFDMSystemModel:
         s_n = m.modulate_qpsk(self.d_s)
         # self.s = s_n # シリアルの状態を保持する
         s_p = s_n.reshape((subcarrier, block), order='F')
-        s_idft = np.matmul(idft_mat, s_p)
+        s_idft = np.matmul(self.idft_mat, s_p)
         s_cp = ofdm.add_cp(s_idft, CP)
         self.tilde_s = s_cp
 
@@ -100,4 +100,17 @@ class OFDMSystemModel:
         y_removed_cp = np.matmul(self.cp_zero, y_p)
         y_dft = np.matmul(self.dft_mat, y_removed_cp)
         s_s = y_dft.flatten(order='F')
+        return s_s
+
+    def demodulate_ofdm_dft(self, y, h_s, h_s_len):
+        Hc = ofdm.circulant_channel(h_s.T, h_s_len, self.subcarrier)
+        D = self.dft_mat @ Hc @ self.idft_mat
+        D_1 = np.linalg.inv(D)
+
+        one_block = self.subcarrier_CP
+        y_p = y.reshape((one_block, -1), order='F')
+        y_removed_cp = np.matmul(self.cp_zero, y_p)
+        y_dft = np.matmul(self.dft_mat, y_removed_cp)
+        s_s = np.matmul(D_1, y_dft)
+        s_s = s_s.flatten(order='F')
         return s_s

@@ -202,14 +202,9 @@ def previous_non_lin(params: dict, sigma, h_si_list, h_s_list) -> PreviousOFDMNN
     nn_model.learn(
         train_system_model,
         test_system_model,
-        params['trainingRatio'],
         params['nEpochs'],
         params['batchSize'],
         params['h_si_len'],
-        params['h_s_len'],
-        params['receive_antenna'],
-        params['delay'],
-        params['standardization']
     )
 
     pred_system_model = PreviousOFDMSystemModel(

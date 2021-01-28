@@ -43,8 +43,7 @@ class OFDMNNModel:
 
         self.model = model
 
-    def learn(self, train_system_model: OFDMSystemModel, test_system_model: OFDMSystemModel, training_ratio: float, n_epochs: int, batch_size: int, h_si_len: int = 1,
-              h_s_len: int = 1, receive_antenna: int = 1, delay: int = 0, standardization: bool = False):
+    def learn(self, train_system_model: OFDMSystemModel, test_system_model: OFDMSystemModel, n_epochs: int, batch_size: int, h_si_len: int = 1):
         self.train_system_model = train_system_model
         self.test_system_model = test_system_model
 
