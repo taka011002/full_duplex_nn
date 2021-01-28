@@ -201,7 +201,7 @@ if __name__ == '__main__':
     with open(output_dir + '/result.pkl', 'wb') as f:
         pickle.dump(result, f)
 
-    ber_fig, ber_ax = graph.new_ber_canvas("PA_IBO [dB]", params.graph_x_min, params.graph_x_max)
+    ber_fig, ber_ax = graph.new_ber_canvas("PA IBO [dB]", params.graph_x_min, params.graph_x_max)
 
     n_sum = params.previous_test_bits * params.trials
     errors_sum = np.sum(non_cancell_error_array, axis=1)
