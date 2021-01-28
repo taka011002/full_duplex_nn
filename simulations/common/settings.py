@@ -111,6 +111,7 @@ def set_simulation_bits_to_params(params: dict, ofdm: bool = False):
         params["bits"] = params['block'] * one_block * 2
         params["train_bits"] = training_blocks * one_block * 2
         params["test_bits"] = test_blocks * one_block * 2
+        params["previous_test_bits"] = test_blocks * one_block * 2
 
         delay = params.get("delay", None)
         if (delay is None) or (delay > 0):

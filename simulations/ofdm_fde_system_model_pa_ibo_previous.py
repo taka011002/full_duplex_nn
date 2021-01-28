@@ -54,9 +54,9 @@ class Params:
     delay: int
     standardization: bool
     seed: bool
+    train_bits: int
     test_bits: int
-
-
+    previous_test_bits: int
 
     @classmethod
     def from_params_dict(cls, params: dict) -> Params:
@@ -87,7 +87,7 @@ if __name__ == '__main__':
     graph_x_array = np.linspace(params.graph_x_min, params.graph_x_max, params.graph_x_num)
 
     sigma = m.sigmas(params.SNR)
-    sigma = sigma * np.sqrt(params.receive_antenna)
+    proposal_sigma = sigma * np.sqrt(params.receive_antenna) # 提案法のみ複数アンテナ
 
     errors = np.zeros((params.graph_x_num, params.trials))
     losss = np.zeros((params.graph_x_num, params.trials, params.nEpochs))
@@ -166,7 +166,7 @@ if __name__ == '__main__':
                 params.block,
                 params.subcarrier,
                 params.CP,
-                sigma,
+                proposal_sigma,
                 params.gamma,
                 params.phi,
                 PA_IBO,
@@ -203,12 +203,12 @@ if __name__ == '__main__':
 
     ber_fig, ber_ax = graph.new_ber_canvas("PA_IBO [dB]", params.graph_x_min, params.graph_x_max)
 
-    n_sum = params.test_bits * params.trials
+    n_sum = params.previous_test_bits * params.trials
     errors_sum = np.sum(non_cancell_error_array, axis=1)
     bers = errors_sum / n_sum
     ber_ax.plot(graph_x_array, bers, color="k", marker='x', linestyle='--', label="w/o canceller")
 
-    n_sum = params.test_bits * params.trials
+    n_sum = params.previous_test_bits * params.trials
     errors_sum = np.sum(previous_errors, axis=1)
     bers = errors_sum / n_sum
     ber_ax.plot(graph_x_array, bers, color="k", marker='d', linestyle='--', label="Previous")

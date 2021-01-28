@@ -15,9 +15,10 @@ def simulation(block: int, subcarrier: int, CP: int, sigma: float, gamma: float,
     h_s.append(h_s_list[0])
 
     training_block = int(block * trainingRatio)
+    test_block = block - training_block
 
     system_model = OFDMSystemModel(
-        training_block,
+        test_block,
         subcarrier,
         CP,
         sigma,

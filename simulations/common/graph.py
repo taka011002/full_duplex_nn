@@ -38,7 +38,7 @@ def new_snr_ber_canvas(snr_min: int = 0, snr_max: int = 25, y_min_order: int = -
     # TODO　後方互換のために残してある．このメソッドは無くすべき．
     fig, ax = new_ber_canvas("SNR [dB]", snr_min, snr_max, y_min_order, y_max_order)
     ax.set_xticks(np.arange(snr_min, snr_max + 1, 5.0))
-    return
+    return fig, ax
 
 
 def new_learning_curve_canvas(epochs: int) -> (plt.Figure, plt.Axes):
