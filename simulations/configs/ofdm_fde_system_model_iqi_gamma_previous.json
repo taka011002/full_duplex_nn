@@ -10,7 +10,7 @@
     "phi": 3.0,
     "graph_x_min": -1,
     "graph_x_max": 1,
-    "graph_x_num": 22,
+    "graph_x_num": 21,
     "PA_IBO": 7,
     "PA_rho": 2,
     "LNA_IBO": 7,
