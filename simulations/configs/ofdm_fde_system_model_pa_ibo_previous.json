@@ -1,5 +1,5 @@
 {
-    "trials": 10,
+    "trials": 5,
     "block": 300,
     "subcarrier": 64,
     "CP": 16,
@@ -21,7 +21,7 @@
     "LNA": false,
     "RX_IQI": true,
     "nHidden": [15],
-    "nEpochs": 20,
+    "nEpochs": 7,
     "optimizer": "momentum",
     "learningRate": 0.01,
     "momentum": 0.8,
@@ -35,5 +35,5 @@
     "p_optimizer": "Adam",
     "p_learningRate": 0.01,
     "p_batchSize": 32,
-    "p_nEpochs": 20
+    "p_nEpochs": 7
 }
