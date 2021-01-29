@@ -21,7 +21,7 @@
     "LNA": false,
     "RX_IQI": true,
     "nHidden": [15],
-    "nEpochs": 7,
+    "nEpochs": 20,
     "optimizer": "momentum",
     "learningRate": 0.01,
     "momentum": 0.8,
