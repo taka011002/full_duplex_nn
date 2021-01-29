@@ -30,6 +30,8 @@ class OFDMNNModel:
     error: np.ndarray
 
     def __init__(self, n_hidden: list, optimizer_key: str, learning_rate: float, h_si_len: int = 1, momentum: float = None):
+        keras.backend.clear_session() # 複数試行行うとメモリリークするのでその対策
+
         input = Input(shape=((2 * h_si_len),))
         n_hidden = n_hidden.copy()  # popだと破壊的操作になり，元々のn_hiddenが壊れるので仕方なくcopyしている
         x = Dense(n_hidden.pop(0), activation='relu')(input)
