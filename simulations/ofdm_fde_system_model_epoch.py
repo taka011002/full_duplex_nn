@@ -139,7 +139,7 @@ if __name__ == '__main__':
     ber_ax.plot(graph_x_array, bers, color="k", marker='o', linestyle='--', label="Proposal")
 
     plt.tight_layout()
-    ber_ax.legend()
+    # ber_ax.legend()
     plt.savefig(output_dir + '/SNR_BER.pdf', bbox_inches='tight')
 
     # slack通知用
