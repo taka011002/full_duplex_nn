@@ -76,6 +76,10 @@ class Result:
     errors: np.ndarray
     losss: np.ndarray
     val_losss: np.ndarray
+    non_cancell_error_array: np.ndarray
+    previous_errors: np.ndarray
+    previous_losss: np.ndarray
+    previous_val_losss: np.ndarray
 
 
 if __name__ == '__main__':
@@ -197,7 +201,7 @@ if __name__ == '__main__':
             losss[graph_x_index][trials_index][:] = nn_model.history.history['loss']
             val_losss[graph_x_index][trials_index][:] = nn_model.history.history['val_loss']
 
-    result = Result(params, errors, losss, val_losss)
+    result = Result(params, errors, losss, val_losss, non_cancell_error_array, previous_errors, previous_losss, previous_val_losss)
     with open(output_dir + '/result.pkl', 'wb') as f:
         pickle.dump(result, f)
 
