@@ -1,5 +1,6 @@
 from src.previous_research.ofdm_system_model import OFDMSystemModel as PreviousOFDMSystemModel
 from src.previous_research.ofdm_nn import OFDMNNModel as PreviousOFDMNNModel
+import numpy as np
 
 
 def simulation(block: int, subcarrier: int, CP: int, sigma: float, gamma: float,
@@ -77,7 +78,8 @@ def simulation(block: int, subcarrier: int, CP: int, sigma: float, gamma: float,
         test_system_model,
         nEpochs,
         batchSize,
-        h_si_len,
+        h_si_len
+        # np.flipud(h_si[0].reshape(h_si_len, 1))
     )
 
     pred_system_model = PreviousOFDMSystemModel(
@@ -101,7 +103,7 @@ def simulation(block: int, subcarrier: int, CP: int, sigma: float, gamma: float,
         LNA,
         RX_IQI
     )
-    pred_system_model.transceive_si_s()
+    pred_system_model.transceive_si()
 
     nn_model.cancel(pred_system_model,  h_si_len)
 

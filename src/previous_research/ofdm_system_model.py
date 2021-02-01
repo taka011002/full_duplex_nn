@@ -51,7 +51,7 @@ class OFDMSystemModel:
         self.D_1 = np.linalg.inv(D)
 
 
-    def transceive_s(self):
+    def transceive_si(self):
         # 送信信号
         self.d = np.random.choice([0, 1], (self.subcarrier * 2 * self.block, 1))
         x_n = m.modulate_qpsk(self.d)

@@ -188,8 +188,8 @@ def previous_non_lin(params: dict, sigma, h_si_list, h_s_list) -> PreviousOFDMNN
         params['LNA'],
         params['RX_IQI']
     )
-    train_system_model.transceive_s()
-    test_system_model.transceive_s()
+    train_system_model.transceive_si()
+    test_system_model.transceive_si()
 
     nn_model = PreviousOFDMNNModel(
         params['p_nHidden'],

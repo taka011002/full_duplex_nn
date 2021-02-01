@@ -45,11 +45,13 @@ class OFDMNNModel:
 
         self.model = model
 
-    def learn(self, train_system_model: OFDMSystemModel, test_system_model: OFDMSystemModel, n_epochs: int, batch_size: int, h_si_len: int = 1):
+    def learn(self, train_system_model: OFDMSystemModel, test_system_model: OFDMSystemModel, n_epochs: int, batch_size: int, h_si_len: int = 1, h_si=None):
         self.train_system_model = train_system_model
         self.test_system_model = test_system_model
 
-        self.h_lin = fd.ls_estimation(train_system_model.x, train_system_model.y, h_si_len)
+        if h_si is None:
+            h_si = fd.ls_estimation(train_system_model.x, train_system_model.y, h_si_len)
+        self.h_lin = h_si
         yCanc = fd.si_cancellation_linear(train_system_model.x, self.h_lin.flatten(order='F')).reshape((-1, 1), order='F')
 
         y_train = train_system_model.y.reshape((-1, 1), order='F') - yCanc
@@ -86,6 +88,8 @@ class OFDMNNModel:
                                       validation_data=(test, [y_test.real, y_test.imag]))
 
     def cancel(self, system_model: OFDMSystemModel, h_si_len):
+        self.pred_system_model = system_model
+
         x_1 = np.vstack((np.zeros((h_si_len - 1, 1)), system_model.x.reshape((-1, 1), order='F')))
         x = np.array(
             [x_1[i:i + h_si_len] for i in range(system_model.x.size)]
@@ -98,19 +102,21 @@ class OFDMNNModel:
 
         yCanc = fd.si_cancellation_linear(system_model.x, self.h_lin.flatten('F')).reshape((1, -1), order='F')
         y_lin_canc = system_model.y.reshape(1, -1) - yCanc
-        y_lin_canc = y_lin_canc / np.sqrt(self.yVar)
+        # y_lin_canc = y_lin_canc / np.sqrt(self.yVar)
 
         # 学習したモデルを評価
         self.pred = self.model.predict(x_pred)
         self.y_canc_non_lin = np.squeeze(self.pred[0] + 1j * self.pred[1], axis=1)
 
-        self.cancelled_y = y_lin_canc - self.y_canc_non_lin
+        # self.cancelled_y = y_lin_canc - self.y_canc_non_lin
+        self.cancelled_y = y_lin_canc - (np.sqrt(self.yVar) * self.y_canc_non_lin)
+        self.y_hat = yCanc + (self.y_canc_non_lin * np.sqrt(self.yVar))
 
-        s_hat = system_model.demodulate_ofdm(self.cancelled_y)
-
-        # 推定信号をデータへ復調する
-        self.d_s_hat = m.demodulate_qpsk(s_hat)
-
-        # 元々の外部信号のデータ
-        self.d_s_test = system_model.d_s[:self.d_s_hat.size].flatten()
-        self.error = np.sum(self.d_s_test != self.d_s_hat)
+        # s_hat = system_model.demodulate_ofdm(self.cancelled_y)
+        #
+        # # 推定信号をデータへ復調する
+        # self.d_s_hat = m.demodulate_qpsk(s_hat)
+        #
+        # # 元々の外部信号のデータ
+        # self.d_s_test = system_model.d_s[:self.d_s_hat.size].flatten()
+        # self.error = np.sum(self.d_s_test != self.d_s_hat)
