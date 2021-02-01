@@ -33,7 +33,9 @@ if __name__ == '__main__':
     # dirname = "../results/keep/" + SIMULATIONS_NAME
     settings.init_output(dirname)
 
-    param_path = "../results/ofdm_fde_with_previous/2021/01/28/20_48_15/params.json"
+    # param_path = "../results/ofdm_fde_with_previous/2021/01/29/13_02_26/params.json"
+    param_path = "../results/keep/ofdm_fde_with_previous/12_35_55/params.json"
+
     params_dict = settings.load_param(param_path)
     params = Params.from_params_dict(params_dict)
     n_sum = params.test_bits * params.trials
@@ -42,7 +44,9 @@ if __name__ == '__main__':
     graph_x_array = np.linspace(1, params.trials, trials_num, dtype=int)
     fig, ax = graph.new_ber_canvas('trials', 0, params.trials, -5)
 
-    pkl_path = "../results/ofdm_fde_with_previous/2021/01/28/20_48_15/result.pkl"
+    # pkl_path = "../results/ofdm_fde_with_previous/2021/01/29/13_02_26/result.pkl"
+    # pkl_path = "../results/ofdm_fde_system_model/2021/01/22/01_25_45/result.pkl"
+    pkl_path = "../results/keep/ofdm_fde_with_previous/12_35_55/result.pkl"
 
     result = load_pkl_file(pkl_path)
     SNR = 25 # 使わないけど後からわかりやすいように定義しておく
