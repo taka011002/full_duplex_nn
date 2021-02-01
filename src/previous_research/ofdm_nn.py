@@ -96,15 +96,14 @@ class OFDMNNModel:
         x_pred[:, 0:(h_si_len)] = x.real
         x_pred[:, (h_si_len):(2 * h_si_len)] = x.imag
 
-        yCanc = fd.si_cancellation_linear(system_model.x, self.h_lin.flatten('F')).reshape((1, -1), order='F')
-        y_lin_canc = system_model.y.reshape(1, -1) - yCanc
-        y_lin_canc = y_lin_canc / np.sqrt(self.yVar)
+        y_canc_lin = fd.si_cancellation_linear(system_model.x, self.h_lin.flatten('F')).reshape((1, -1), order='F')
 
         # 学習したモデルを評価
         self.pred = self.model.predict(x_pred)
         self.y_canc_non_lin = np.squeeze(self.pred[0] + 1j * self.pred[1], axis=1)
+        self.y_hat = y_canc_lin + (np.sqrt(self.yVar) * self.y_canc_non_lin)
 
-        self.cancelled_y = y_lin_canc - self.y_canc_non_lin
+        self.cancelled_y = system_model.y.reshape(1, -1) - self.y_hat
 
         s_hat = system_model.demodulate_ofdm(self.cancelled_y)
 
