@@ -6,8 +6,8 @@ import logging
 from simulations.common import settings
 from simulations.common import graph
 import os
-from ofdm_fde_with_previous import Result
-from ofdm_fde_with_previous import Params
+from ofdm_fde_system_model_delay import Result
+from ofdm_fde_system_model_delay import Params
 
 def load_pkl_file(pkl_path: str) -> Result:
     with open(pkl_path, 'rb') as f:
