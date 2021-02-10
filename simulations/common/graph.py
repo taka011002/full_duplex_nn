@@ -3,7 +3,9 @@ import numpy as np
 
 
 def init_graph():
+    plt.rcParams["text.usetex"] = True
     plt.rcParams["font.family"] = "Times New Roman"
+    plt.rcParams["font.sans-serif"] = ["Helvetica"]
     plt.rcParams["font.size"] = 26
     plt.rcParams["xtick.direction"] = "in"
     plt.rcParams["ytick.direction"] = "in"
