@@ -152,8 +152,8 @@ if __name__ == '__main__':
     # with open(output_dir + '/result.pkl', 'wb') as f:
     #     pickle.dump(result, f)
 
-    ber_fig, ber_ax = graph.new_snr_ber_canvas(params.graph_x_min, params.graph_x_max, -3, 1)
-    ber_ax.set_ylabel("y ratio")
+    ber_fig, ber_ax = graph.new_snr_ber_canvas(params.graph_x_min, params.graph_x_max, -3)
+    ber_ax.set_ylabel("SI estimation error")
 
 
     n_sum = params.trials
