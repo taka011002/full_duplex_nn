@@ -85,7 +85,7 @@ class OFDMNNModel:
                                       batch_size=batch_size, verbose=0,
                                       validation_data=(test, [y_test.real, y_test.imag]))
 
-    def cancel(self, system_model: OFDMSystemModel, h_si_len):
+    def cancel(self, system_model: OFDMSystemModel, h_si_len, compensate_iqi=False):
         x_1 = np.vstack((np.zeros((h_si_len - 1, 1)), system_model.x.reshape((-1, 1), order='F')))
         x = np.array(
             [x_1[i:i + h_si_len] for i in range(system_model.x.size)]
@@ -105,7 +105,8 @@ class OFDMNNModel:
 
         self.cancelled_y = system_model.y.reshape(1, -1) - self.y_hat
 
-        self.cancelled_y = m.compensate_iqi(self.cancelled_y.flatten(order='F'), system_model.gamma, system_model.phi)
+        if compensate_iqi is True:
+            self.cancelled_y = m.compensate_iqi(self.cancelled_y.flatten(order='F'), system_model.gamma, system_model.phi)
         s_hat = system_model.demodulate_ofdm(self.cancelled_y)
 
         # 受信IQIの補償を行う．

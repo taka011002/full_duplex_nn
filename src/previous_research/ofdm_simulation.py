@@ -6,7 +6,7 @@ def simulation(block: int, subcarrier: int, CP: int, sigma: float, gamma: float,
                phi: float, PA_IBO_dB: float, PA_rho: float, LNA_IBO_dB: float, LNA_rho: float,
                h_si_list: list, h_s_list: list, h_si_len: int, h_s_len: int ,TX_IQI: bool, PA: bool, LNA: bool,
                RX_IQI: bool, n_hidden: list, optimizer_key: str, learning_rate: float, momentum: float,
-               trainingRatio: float, nEpochs: int, batchSize: int) -> PreviousOFDMNNModel:
+               trainingRatio: float, nEpochs: int, batchSize: int, compensate_iqi: bool=False) -> PreviousOFDMNNModel:
     ## 受信アンテナ数は1本のみで動作
     receive_antenna = 1
     h_si = []
@@ -103,6 +103,6 @@ def simulation(block: int, subcarrier: int, CP: int, sigma: float, gamma: float,
     )
     pred_system_model.transceive_si_s()
 
-    nn_model.cancel(pred_system_model,  h_si_len)
+    nn_model.cancel(pred_system_model,  h_si_len, compensate_iqi)
 
     return nn_model

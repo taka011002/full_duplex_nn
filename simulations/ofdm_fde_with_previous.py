@@ -57,6 +57,7 @@ class Params:
     train_bits: int
     test_bits: int
     previous_test_bits: int
+    compensate_iqi: bool
 
     @classmethod
     def from_params_dict(cls, params: dict) -> Params:
@@ -132,6 +133,7 @@ if __name__ == '__main__':
                 params.LNA,
                 params.RX_IQI,
                 params.trainingRatio,
+                params.compensate_iqi
             )
 
             previous_nn_model = previous_simulation(
@@ -160,6 +162,7 @@ if __name__ == '__main__':
                 params.trainingRatio,
                 params.p_nEpochs,
                 params.p_batchSize,
+                params.compensate_iqi
             )
 
             previous_errors[graph_x_index][trials_index] = previous_nn_model.error
@@ -220,7 +223,7 @@ if __name__ == '__main__':
     n_sum = params.test_bits * params.trials
     errors_sum = np.sum(errors, axis=1)
     bers = errors_sum / n_sum
-    ber_ax.plot(graph_x_array, bers, color="k", marker='o', linestyle='--', label="Proposal")
+    ber_ax.plot(graph_x_array, bers, color="k", marker='o', linestyle='--', label="Proposed")
 
     plt.tight_layout()
     ber_ax.legend()
