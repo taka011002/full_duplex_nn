@@ -48,6 +48,19 @@ def iq_imbalance(x: np.ndarray, gamma: float = 0.0, phi: float = 0.0, selective:
 
     # TODO 周波数選択性IQIを実装する
 
+def compensate_iqi(signal: np.ndarray, gamma: float = 0.0, phi: float = 0.0) -> np.ndarray:
+    K1 = np.cos(phi) + 1j * gamma * np.sin(phi)
+    K2 = gamma * np.cos(phi) + 1j * np.sin(phi)
+    K = np.array([[K1, K2], [K2.conj(), K1.conj()]])
+    K_inv = np.linalg.inv(K)
+
+    z = np.zeros((2, signal.shape[0]), dtype=complex)
+    z[0] = signal.squeeze()
+    z[1] = signal.conj().squeeze()
+
+    D = np.matmul(K_inv, z)
+    d = D[0]
+    return d
 
 def sspa_rapp_ibo(input_signal: np.ndarray, IBO_dB: int = 0, rho: float = 0.5, ofdm: bool = False) -> np.ndarray:
     """

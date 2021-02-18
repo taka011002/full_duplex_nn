@@ -39,7 +39,8 @@ if __name__ == '__main__':
     n_sum = params['test_bits'] * params['trials']
 
     snrs_db = np.linspace(params['graph_x_min'], params['graph_x_max'], params['graph_x_num'])
-    fig, ax = graph.new_ber_canvas("amplitude error " + r'$\gamma$', -0.5, 0.5, -4)
+    fig, ax = graph.new_ber_canvas("amplitude error " + r'$\gamma^{\rm T}$, $\gamma^{\rm R}_i$', -0.5, 0.5, -4)
+
     ax.set_yticks([10**0, 10**-1, 10**-2, 10**-3, 10**-4])
     ax.set_xticks(np.linspace(-0.5, 0.5, 6))
 
@@ -51,20 +52,21 @@ if __name__ == '__main__':
     errors_sum = np.sum(result.non_cancell_error_array, axis=1)
     bers = errors_sum / previous_n_sum
     np.place(bers, bers == 0, None)
-    ax.plot(snrs_db, bers, color='k', marker='x', linestyle='--', label="w/o canceller", ms=12)
+    ax.plot(snrs_db, bers, color='k', marker='x', linestyle=':', label="w/o canceller", ms=12)
 
     errors_sum = np.sum(result.previous_errors, axis=1)
     bers = errors_sum / previous_n_sum
     np.place(bers, bers == 0, None)
-    ax.plot(snrs_db, bers, color='k', marker='*', linestyle='--', label="Conventional [3]", ms=12)
+    ax.plot(snrs_db, bers, color='k', marker='o', linestyle='--', label="Conventional [5]", ms=12, markerfacecolor='None')
 
     errors_sum = np.sum(result.errors, axis=1)
     bers = errors_sum / n_sum
     np.place(bers, bers == 0, None)
-    ax.plot(snrs_db, bers, color='k', marker='^', linestyle='--', label="Proposed", ms=12)
+    ax.plot(snrs_db, bers, color='k', marker='d', linestyle='-', label="Proposed", ms=12)
 
     ax.legend(fontsize=19)
     plt.savefig(dirname + '/SNR_BER.eps', bbox_inches='tight')
     plt.savefig(dirname + '/SNR_BER.pdf', bbox_inches='tight')
+    plt.savefig(dirname + '/SNR_BER.png', bbox_inches='tight')
 
     plt.show()

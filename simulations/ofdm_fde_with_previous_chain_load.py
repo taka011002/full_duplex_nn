@@ -48,19 +48,19 @@ if __name__ == '__main__':
     errors_sum = np.sum(result.non_cancell_error_array, axis=1)
     bers = errors_sum / previous_n_sum
     np.place(bers, bers == 0, None)
-    ax.plot(snrs_db, bers, color='k', marker='x', linestyle='--', label="w/o canceller", ms=12)
+    ax.plot(snrs_db, bers, color='k', marker='x', linestyle=':', label="w/o canceller", ms=12)
 
     errors_sum = np.sum(result.previous_errors, axis=1)
     bers = errors_sum / previous_n_sum
     np.place(bers, bers == 0, None)
-    ax.plot(snrs_db, bers, color='k', marker='*', linestyle='--', label="Conventional [3]", ms=12)
+    ax.plot(snrs_db, bers, color='k', marker='o', linestyle='--', label="Conventional [5]", ms=12, markerfacecolor='None')
 
     pkl_path = "../results/keep/ofdm_fde_with_previous/12_36_11/result.pkl"
     result = load_pkl_file(pkl_path)
     errors_sum = np.sum(result.errors, axis=1)
     bers = errors_sum / n_sum
     np.place(bers, bers == 0, None)
-    ax.plot(snrs_db, bers, color='k', marker='^', linestyle='--', label="Proposed " + r"$I=1$", ms=12)
+    ax.plot(snrs_db, bers, color='k', marker='^', linestyle='-', label="Proposed " + r"$(I=1)$", ms=12)
 
     # pkl_path = "../results/ofdm_fde_system_model/2021/01/21/22_24_29/result.pkl"
     # result = load_pkl_file(pkl_path)
@@ -74,7 +74,7 @@ if __name__ == '__main__':
     errors_sum = np.sum(result.errors, axis=1)
     bers = errors_sum / n_sum
     np.place(bers, bers == 0, None)
-    ax.plot(snrs_db, bers, color='k', marker='o', linestyle='--', label="Proposed " + r"$I=2$", ms=12)
+    ax.plot(snrs_db, bers, color='k', marker='o', linestyle='-', label="Proposed " + r"$(I=2)$", ms=12)
 
     # pkl_path = "../results/ofdm_fde_system_model/2021/01/21/22_23_49/result.pkl"
     # result = load_pkl_file(pkl_path)
@@ -88,7 +88,7 @@ if __name__ == '__main__':
     errors_sum = np.sum(result.errors, axis=1)
     bers = errors_sum / n_sum
     np.place(bers, bers == 0, None)
-    ax.plot(snrs_db, bers, color='k', marker='d', linestyle='--', label="Proposed " + r"$I=3$", ms=12)
+    ax.plot(snrs_db, bers, color='k', marker='d', linestyle='-', label="Proposed " + r"($I=3$)", ms=12)
 
     # pkl_path = "../results/keep/ofdm_fde_with_previous/12_35_55/result.pkl"
     # result = load_pkl_file(pkl_path)
@@ -97,13 +97,13 @@ if __name__ == '__main__':
     # np.place(bers, bers == 0, None)
     # ax.plot(snrs_db, bers, color='k', marker='d', linestyle='--', label=r"$I=3, k = 4$", ms=12, markerfacecolor='None')
 
-    ax.plot([], [], color='white', label=r'$I$' + ': Number of\nreceive antennas')
+    # ax.plot([], [], color='white', label=r'$I$' + ': Number of\nreceive antennas')
     # ax.text(0.8, 0.01, r'$I$' + ': Number of receiving antennas', color= 'inherit', bbox=dict(facecolor='none', edgecolor='black', boxstyle='square'), fontsize=13, alpha=1)
     # plt.text(0.02, 0.7,
     #          'measured rating curve $Q = 1.37H^2 + 0.34H - 0.007$\nmodeled ratign curve $Q = 2.71H^2 - 2.20H + 0.98$',
     #          bbox=dict(facecolor='none', edgecolor='black', boxstyle='square'))
 
-    ax.legend(fontsize=18, loc=3)
+    ax.legend(fontsize=19, loc=3)
     plt.savefig(dirname + '/SNR_BER.eps', bbox_inches='tight')
     plt.savefig(dirname + '/SNR_BER.pdf', bbox_inches='tight')
 

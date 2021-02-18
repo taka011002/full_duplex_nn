@@ -40,7 +40,7 @@ if __name__ == '__main__':
     n_sum = params['test_bits'] * params['trials']
 
     snrs_db = np.linspace(params['delay_min'], params['delay_max'], params['delay_num'])
-    fig, ax = graph.new_ber_canvas("decision delay " + r"$k$", params['delay_min'], params['delay_max'], -5)
+    fig, ax = graph.new_ber_canvas("decision delay " + r"$\delta$", params['delay_min'], params['delay_max'], -5)
     # ax.set_yticks([10 ** 0, 10 ** -1, 10 ** -2, 10 ** -3, 10 ** -5])
 
     pkl_path = "../results/comex/results/delay/result.pkl"
@@ -48,7 +48,7 @@ if __name__ == '__main__':
     errors_sum = np.sum(result.errors, axis=1)
     bers = errors_sum / n_sum
     np.place(bers, bers == 0, None)
-    ax.plot(snrs_db, bers, color='k', marker='^', linestyle='--', label="decision delay", ms=12)
+    ax.plot(snrs_db, bers, color='k', marker='d', linestyle='-', label="decision delay", ms=12)
 
     # ax.legend(fontsize=19, loc=3)
     plt.savefig(dirname + '/SNR_BER.eps', bbox_inches='tight')

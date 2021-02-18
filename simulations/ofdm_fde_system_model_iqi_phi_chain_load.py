@@ -51,17 +51,17 @@ if __name__ == '__main__':
     errors_sum = np.sum(result.non_cancell_error_array, axis=1)
     bers = errors_sum / previous_n_sum
     np.place(bers, bers == 0, None)
-    ax.plot(snrs_db, bers, color='k', marker='x', linestyle='--', label="w/o canceller", ms=12)
+    ax.plot(snrs_db, bers, color='k', marker='x', linestyle=':', label="w/o canceller", ms=12)
 
     errors_sum = np.sum(result.previous_errors, axis=1)
     bers = errors_sum / previous_n_sum
     np.place(bers, bers == 0, None)
-    ax.plot(snrs_db, bers, color='k', marker='*', linestyle='--', label="Conventional [3]", ms=12)
+    ax.plot(snrs_db, bers, color='k', marker='o', linestyle='--', label="Conventional [5]", ms=12, markerfacecolor='None')
 
     errors_sum = np.sum(result.errors, axis=1)
     bers = errors_sum / n_sum
     np.place(bers, bers == 0, None)
-    ax.plot(snrs_db, bers, color='k', marker='^', linestyle='--', label="Proposed", ms=12)
+    ax.plot(snrs_db, bers, color='k', marker='d', linestyle='-', label="Proposed", ms=12)
 
     ax.legend(fontsize=19)
     plt.savefig(dirname + '/SNR_BER.eps', bbox_inches='tight')

@@ -105,7 +105,11 @@ class OFDMNNModel:
 
         self.cancelled_y = system_model.y.reshape(1, -1) - self.y_hat
 
+        self.cancelled_y = m.compensate_iqi(self.cancelled_y.flatten(order='F'), system_model.gamma, system_model.phi)
         s_hat = system_model.demodulate_ofdm(self.cancelled_y)
+
+        # 受信IQIの補償を行う．
+        # compensate_iqi = m.compensate_iqi(s_hat, system_model.gamma, system_model.phi)
 
         # 推定信号をデータへ復調する
         self.d_s_hat = m.demodulate_qpsk(s_hat)

@@ -39,8 +39,10 @@ def simulation(block: int, subcarrier: int, CP: int, sigma: float, gamma: float,
         RX_IQI
     )
 
-    s_hat = system_model.demodulate_ofdm_dft(system_model.y, h_s_list[0], h_s_len)
-    d_s_hat = m.demodulate_qpsk(s_hat)
+    y = m.compensate_iqi(system_model.y.flatten(order='F'), gamma, phi)
+    s_hat = system_model.demodulate_ofdm_dft(y, h_s_list[0], h_s_len)
+    compensate_iqi = m.compensate_iqi(s_hat, gamma, phi)
+    d_s_hat = m.demodulate_qpsk(compensate_iqi)
 
     error = np.sum(d_s_hat != system_model.d_s.flatten())
     return error
