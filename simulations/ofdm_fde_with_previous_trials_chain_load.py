@@ -61,10 +61,10 @@ if __name__ == '__main__':
         bers[i] = ber
 
     np.place(bers, bers == 0, None)
-    ax.plot(graph_x_array, bers, color="k", marker='o', linestyle='--', label="Proposal")
+    ax.plot(graph_x_array, bers, color="k", marker='d', linestyle='--', label="Proposal")
 
     # ax.legend(fontsize=19, loc=3)
-    # plt.savefig(dirname + '/SNR_BER.eps', bbox_inches='tight')
+    plt.savefig(dirname + '/SNR_BER.eps', bbox_inches='tight')
     plt.savefig(dirname + '/SNR_BER.pdf', bbox_inches='tight')
 
     plt.show()

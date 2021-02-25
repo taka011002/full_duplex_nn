@@ -58,6 +58,7 @@ class Params:
     test_bits: int
     previous_test_bits: int
     compensate_iqi: bool
+    p_receive_antenna: int
 
     @classmethod
     def from_params_dict(cls, params: dict) -> Params:
@@ -111,13 +112,14 @@ if __name__ == '__main__':
 
         for graph_x_index, SNR in enumerate(graph_x_array):
             sigma = m.sigmas(SNR)
+            previous_sigma = sigma * np.sqrt(params.p_receive_antenna)  # 提案法のみ複数アンテナ
             proposal_sigma = sigma * np.sqrt(params.receive_antenna)  # 提案法のみ複数アンテナ
 
             non_cancell_error_array[graph_x_index][trials_index] = noncancel_simulation(
                 params.block,
                 params.subcarrier,
                 params.CP,
-                sigma,
+                previous_sigma,
                 params.gamma,
                 params.phi,
                 params.PA_IBO,
@@ -133,14 +135,15 @@ if __name__ == '__main__':
                 params.LNA,
                 params.RX_IQI,
                 params.trainingRatio,
-                params.compensate_iqi
+                params.compensate_iqi,
+                params.p_receive_antenna
             )
 
             previous_nn_model = previous_simulation(
                 params.block,
                 params.subcarrier,
                 params.CP,
-                sigma,
+                previous_sigma,
                 params.gamma,
                 params.phi,
                 params.PA_IBO,
@@ -162,7 +165,8 @@ if __name__ == '__main__':
                 params.trainingRatio,
                 params.p_nEpochs,
                 params.p_batchSize,
-                params.compensate_iqi
+                params.compensate_iqi,
+                params.p_receive_antenna
             )
 
             previous_errors[graph_x_index][trials_index] = previous_nn_model.error

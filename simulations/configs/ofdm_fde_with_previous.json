@@ -1,5 +1,5 @@
 {
-    "trials": 2,
+    "trials": 10,
     "block": 300,
     "subcarrier": 64,
     "CP": 16,
@@ -36,5 +36,6 @@
     "p_optimizer": "Adam",
     "p_learningRate": 0.01,
     "p_batchSize": 32,
-    "p_nEpochs": 7
+    "p_nEpochs": 7,
+    "p_receive_antenna": 3
 }

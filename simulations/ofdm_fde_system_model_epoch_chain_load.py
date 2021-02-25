@@ -61,7 +61,7 @@ if __name__ == '__main__':
     errors_sum = np.sum(result.errors, axis=1)
     bers = errors_sum / n_sum
     np.place(bers, bers == 0, None)
-    ax.plot(snrs_db, bers, color='k', marker='^', linestyle='--', label="Proposed", ms=12)
+    ax.plot(snrs_db, bers, color='k', marker='d', linestyle='-', label="Proposed", ms=12)
 
     # ax.legend(fontsize=19)
     plt.savefig(dirname + '/SNR_BER.eps', bbox_inches='tight')

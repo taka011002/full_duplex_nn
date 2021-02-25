@@ -46,10 +46,6 @@ class OFDMSystemModel:
         self.idft_mat = self.dft_mat.conj().T
         self.cp_zero = np.hstack((np.zeros((self.subcarrier, self.CP)), np.eye(self.subcarrier)))
 
-        Hc = ofdm.circulant_channel(self.h_s_list[0].T, self.h_s_len, self.subcarrier)
-        D = self.dft_mat @ Hc @ self.idft_mat
-        self.D_1 = np.linalg.inv(D)
-
 
     def transceive_s(self):
         # 送信信号
@@ -85,7 +81,7 @@ class OFDMSystemModel:
 
             # 受信側非線形
             if self.lna == True:
-                ## TODO a_satがSIありとなしで変わらないようにする．
+                ## TODO a_satがSIありとなしで変わらないようにする．現状はLNAありの厳密な結果を使用しないので問題ない．
                 r = m.sspa_rapp_ibo(r, self.LNA_IBO_dB, self.LNA_rho).squeeze()
 
             if self.rx_iqi == True:
@@ -156,11 +152,15 @@ class OFDMSystemModel:
             self.y[:, receive_antenna_i] = y
 
 
-    def demodulate_ofdm(self, y):
+    def demodulate_ofdm(self, y, h):
+        Hc = ofdm.circulant_channel(h.T, self.h_s_len, self.subcarrier)
+        D = self.dft_mat @ Hc @ self.idft_mat
+        D_1 = np.linalg.inv(D)
+
         one_block = self.subcarrier_CP
         y_p = y.reshape((one_block, -1), order='F')
         y_removed_cp = np.matmul(self.cp_zero, y_p)
         y_dft = np.matmul(self.dft_mat, y_removed_cp)
-        s_s = np.matmul(self.D_1, y_dft)
+        s_s = np.matmul(D_1, y_dft)
         s_s = s_s.flatten(order='F')
         return s_s

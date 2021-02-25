@@ -42,7 +42,7 @@ if __name__ == '__main__':
     load_files = 1  # 同じ条件で読み込む数
 
     # dirname = settings.dirname_current_datetime(SIMULATIONS_NAME)
-    dirname = "../results/keep/snr_ber_average_ibo_with_previous_chain_load"
+    dirname = "../results/keep/sotsuron/snr_ber_average_ibo_with_previous_chain_load"
     settings.init_output(dirname)
 
     param_path = "../results/snr_ber_average_ibo_with_previous/14_26_42/params.json"
@@ -65,7 +65,7 @@ if __name__ == '__main__':
     errors_sum = np.sum(result.error_array, axis=1)
     bers = errors_sum / n_sum
     np.place(bers, bers == 0, None)
-    ax.plot(snrs_db, bers, color='k', marker='x', linestyle='--', label='Conventional [1]', ms=12)
+    ax.plot(snrs_db, bers, color='k', marker='x', linestyle='--', label='Conventional [5]', ms=12)
 
     errors_sum = np.sum(result.errors, axis=1)
     bers = errors_sum / n_sum
@@ -76,4 +76,4 @@ if __name__ == '__main__':
     plt.savefig(dirname + '/SNR_BER.eps', bbox_inches='tight')
     plt.savefig(dirname + '/SNR_BER.pdf', bbox_inches='tight')
 
-    # plt.show()
+    plt.show()
