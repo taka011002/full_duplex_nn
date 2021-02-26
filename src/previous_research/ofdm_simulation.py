@@ -2,12 +2,15 @@ from src.previous_research.ofdm_system_model import OFDMSystemModel as PreviousO
 from src.previous_research.ofdm_nn import OFDMNNModel as PreviousOFDMNNModel
 from src import modules as m
 import numpy as np
+import tensorflow.keras as keras
 
 def simulation(block: int, subcarrier: int, CP: int, sigma: float, gamma: float,
                phi: float, PA_IBO_dB: float, PA_rho: float, LNA_IBO_dB: float, LNA_rho: float,
                h_si_list: list, h_s_list: list, h_si_len: int, h_s_len: int ,TX_IQI: bool, PA: bool, LNA: bool,
                RX_IQI: bool, n_hidden: list, optimizer_key: str, learning_rate: float, momentum: float,
                trainingRatio: float, nEpochs: int, batchSize: int, compensate_iqi: bool=False, receive_antenna=1) -> PreviousOFDMNNModel:
+    keras.backend.clear_session() # 複数試行行うとメモリリークするのでその対策
+
     h_si = h_si_list[0:receive_antenna]
     h_s = h_s_list[0:receive_antenna]
 
@@ -118,7 +121,7 @@ def simulation(block: int, subcarrier: int, CP: int, sigma: float, gamma: float,
         s_hat_array[i] = pred_system_model.demodulate_ofdm(cancelled_y, h_s[i])
 
 
-    s_hat_array = s_hat_array[0, :].reshape(1, -1)
+    # s_hat_array = s_hat_array[0, :].reshape(1, -1)
     # s_hat_array = s_hat_array[1, :].reshape(1, -1)
     # s_hat_array = s_hat_array[2, :].reshape(1, -1)
 
