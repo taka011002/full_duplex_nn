@@ -118,7 +118,7 @@ def simulation(block: int, subcarrier: int, CP: int, sigma: float, gamma: float,
         if compensate_iqi is True:
             cancelled_y = m.compensate_iqi(cancelled_y.flatten(order='F'), gamma, phi)
 
-        s_hat_array[i] = pred_system_model.demodulate_ofdm(cancelled_y, h_s[i])
+        s_hat_array[i] = pred_system_model.demodulate_ofdm_mmse(cancelled_y, h_s[i], sigma)
 
 
     # s_hat_array = s_hat_array[0, :].reshape(1, -1)

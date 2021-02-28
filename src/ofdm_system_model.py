@@ -81,14 +81,15 @@ class OFDMSystemModel:
             toeplitz_h_si = ofdm.toeplitz_channel(h_si.T, h_si_len, subcarrier, CP)
             toeplitz_h_s = ofdm.toeplitz_channel(h_s.T, h_s_len, subcarrier, CP)
 
-            r = np.matmul(toeplitz_h_si, x_rx) + np.matmul(toeplitz_h_s, s_rx) + m.awgn((subcarrier + CP, block), sigma)
+            r = np.matmul(toeplitz_h_s, s_rx) + m.awgn((subcarrier + CP, block), sigma)
+            # r = np.matmul(toeplitz_h_si, x_rx) + np.matmul(toeplitz_h_s, s_rx) + m.awgn((subcarrier + CP, block), sigma)
 
             # 受信側非線形
             if lna == True:
                 r = m.sspa_rapp_ibo(r, LNA_IBO_dB, LNA_rho).squeeze()
 
-            if rx_iqi == True:
-                r = m.iq_imbalance(r, gamma, phi)
+            # if rx_iqi == True:
+            #     r = m.iq_imbalance(r, gamma, phi)
 
             y = r.flatten(order='F')
 
@@ -112,5 +113,23 @@ class OFDMSystemModel:
         y_removed_cp = np.matmul(self.cp_zero, y_p)
         y_dft = np.matmul(self.dft_mat, y_removed_cp)
         s_s = np.matmul(D_1, y_dft)
+        s_s = s_s.flatten(order='F')
+        return s_s
+
+    def demodulate_ofdm_dft_mmse(self, y, h_s, h_s_len, sigma):
+        Hc = ofdm.circulant_channel(h_s.T, h_s_len, self.subcarrier)
+        D = self.dft_mat @ Hc @ self.idft_mat
+        MMSE = D.conj().T / (D*D.conj().T + sigma ** 2)
+        D_1 = MMSE
+
+        one_block = self.subcarrier_CP
+        y_p = y.reshape((one_block, -1), order='F')
+        y_removed_cp = np.matmul(self.cp_zero, y_p)
+        y_dft = np.matmul(self.dft_mat, y_removed_cp)
+        s_s = np.matmul(D_1, y_dft)
+        # s_s = np.matmul(np.linalg.inv(self.dft_mat), y_dft)
+        # s_s = np.matmul(Hc.T.conj(), s_s)
+        # s_s = np.matmul(np.linalg.inv(Hc * Hc.T.conj() + sigma ** 2), s_s)
+        # s_s = np.matmul(np.linalg.inv(self.idft_mat), s_s)
         s_s = s_s.flatten(order='F')
         return s_s

@@ -164,3 +164,21 @@ class OFDMSystemModel:
         s_s = np.matmul(D_1, y_dft)
         s_s = s_s.flatten(order='F')
         return s_s
+
+    def demodulate_ofdm_mmse(self, y, h, sigma):
+        Hc = ofdm.circulant_channel(h.T, self.h_s_len, self.subcarrier)
+        D = self.dft_mat @ Hc @ self.idft_mat
+        MMSE = D.conj().T / (D * D.conj().T + sigma ** 2)
+        D_1 = MMSE
+
+        one_block = self.subcarrier_CP
+        y_p = y.reshape((one_block, -1), order='F')
+        y_removed_cp = np.matmul(self.cp_zero, y_p)
+        y_dft = np.matmul(self.dft_mat, y_removed_cp)
+        s_s = np.matmul(D_1, y_dft)
+        # s_s = np.matmul(np.linalg.inv(self.dft_mat), y_dft)
+        # s_s = np.matmul(Hc.T.conj(), s_s)
+        # s_s = np.matmul(np.linalg.inv(Hc * Hc.T.conj() + sigma ** 2), s_s)
+        # s_s = np.matmul(np.linalg.inv(self.idft_mat), s_s)
+        s_s = s_s.flatten(order='F')
+        return s_s

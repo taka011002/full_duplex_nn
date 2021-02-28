@@ -38,9 +38,9 @@ def simulation(block: int, subcarrier: int, CP: int, sigma: float, gamma: float,
     s_hat_array = np.zeros((receive_antenna, system_model.d.shape[0] // 2), dtype=complex)
     for i in range(receive_antenna):
         y = system_model.y[:, i]
-        if compensate_iqi is True:
-            y = m.compensate_iqi(y.flatten(order='F'), gamma, phi)
-        s_hat_array[i] = system_model.demodulate_ofdm_dft(y, h_s_list[i], h_s_len)
+        # if compensate_iqi is True:
+        #     y = m.compensate_iqi(y.flatten(order='F'), gamma, phi)
+        s_hat_array[i] = system_model.demodulate_ofdm_dft_mmse(y, h_s_list[i], h_s_len, sigma)
 
     s_hat = np.sum(s_hat_array, axis=0)
     d_s_hat = m.demodulate_qpsk(s_hat)

@@ -37,5 +37,5 @@
     "p_learningRate": 0.01,
     "p_batchSize": 32,
     "p_nEpochs": 7,
-    "p_receive_antenna": 1
+    "p_receive_antenna": 3
 }

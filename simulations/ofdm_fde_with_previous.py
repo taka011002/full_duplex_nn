@@ -112,8 +112,9 @@ if __name__ == '__main__':
 
         for graph_x_index, SNR in enumerate(graph_x_array):
             sigma = m.sigmas(SNR)
-            previous_sigma = sigma * np.sqrt(params.p_receive_antenna)  # 提案法のみ複数アンテナ
-            proposal_sigma = sigma * np.sqrt(params.receive_antenna)  # 提案法のみ複数アンテナ
+            # previous_sigma = sigma
+            previous_sigma = sigma * np.sqrt(params.p_receive_antenna)
+            proposal_sigma = sigma * np.sqrt(params.receive_antenna)
 
             non_cancell_error_array[graph_x_index][trials_index] = noncancel_simulation(
                 params.block,
@@ -173,46 +174,46 @@ if __name__ == '__main__':
             previous_losss[graph_x_index][trials_index][:] = previous_nn_model.history.history['loss']
             previous_val_losss[graph_x_index][trials_index][:] = previous_nn_model.history.history['val_loss']
 
-            nn_model = simulation(
-                params.block,
-                params.subcarrier,
-                params.CP,
-                proposal_sigma,
-                params.gamma,
-                params.phi,
-                params.PA_IBO,
-                params.PA_rho,
-                params.LNA_IBO,
-                params.LNA_rho,
-                h_si,
-                h_s,
-                params.h_si_len,
-                params.h_s_len,
-                params.receive_antenna,
-                params.TX_IQI,
-                params.PA,
-                params.LNA,
-                params.RX_IQI,
-                params.nHidden,
-                params.optimizer,
-                params.learningRate,
-                params.momentum,
-                params.trainingRatio,
-                params.nEpochs,
-                params.batchSize,
-                params.delay,
-                params.standardization
-            )
-
-            errors[graph_x_index][trials_index] = nn_model.error
-            losss[graph_x_index][trials_index][:] = nn_model.history.history['loss']
-            val_losss[graph_x_index][trials_index][:] = nn_model.history.history['val_loss']
+            # nn_model = simulation(
+            #     params.block,
+            #     params.subcarrier,
+            #     params.CP,
+            #     proposal_sigma,
+            #     params.gamma,
+            #     params.phi,
+            #     params.PA_IBO,
+            #     params.PA_rho,
+            #     params.LNA_IBO,
+            #     params.LNA_rho,
+            #     h_si,
+            #     h_s,
+            #     params.h_si_len,
+            #     params.h_s_len,
+            #     params.receive_antenna,
+            #     params.TX_IQI,
+            #     params.PA,
+            #     params.LNA,
+            #     params.RX_IQI,
+            #     params.nHidden,
+            #     params.optimizer,
+            #     params.learningRate,
+            #     params.momentum,
+            #     params.trainingRatio,
+            #     params.nEpochs,
+            #     params.batchSize,
+            #     params.delay,
+            #     params.standardization
+            # )
+            #
+            # errors[graph_x_index][trials_index] = nn_model.error
+            # losss[graph_x_index][trials_index][:] = nn_model.history.history['loss']
+            # val_losss[graph_x_index][trials_index][:] = nn_model.history.history['val_loss']
 
     result = Result(params, errors, losss, val_losss, non_cancell_error_array, previous_errors, previous_losss, previous_val_losss)
     with open(output_dir + '/result.pkl', 'wb') as f:
         pickle.dump(result, f)
 
-    ber_fig, ber_ax = graph.new_snr_ber_canvas(params.graph_x_min, params.graph_x_max, -5)
+    ber_fig, ber_ax = graph.new_snr_ber_canvas(params.graph_x_min, params.graph_x_max, -6)
 
     n_sum = params.previous_test_bits * params.trials
     errors_sum = np.sum(non_cancell_error_array, axis=1)
@@ -224,10 +225,10 @@ if __name__ == '__main__':
     bers = errors_sum / n_sum
     ber_ax.plot(graph_x_array, bers, color="k", marker='d', linestyle='--', label="Previous")
 
-    n_sum = params.test_bits * params.trials
-    errors_sum = np.sum(errors, axis=1)
-    bers = errors_sum / n_sum
-    ber_ax.plot(graph_x_array, bers, color="k", marker='o', linestyle='--', label="Proposed")
+    # n_sum = params.test_bits * params.trials
+    # errors_sum = np.sum(errors, axis=1)
+    # bers = errors_sum / n_sum
+    # ber_ax.plot(graph_x_array, bers, color="k", marker='o', linestyle='--', label="Proposed")
 
     plt.tight_layout()
     ber_ax.legend()
