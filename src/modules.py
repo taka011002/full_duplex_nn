@@ -48,6 +48,7 @@ def iq_imbalance(x: np.ndarray, gamma: float = 0.0, phi: float = 0.0, selective:
 
     # TODO 周波数選択性IQIを実装する
 
+
 def compensate_iqi(signal: np.ndarray, gamma: float = 0.0, phi: float = 0.0) -> np.ndarray:
     K1 = np.cos(phi) + 1j * gamma * np.sin(phi)
     K2 = gamma * np.cos(phi) + 1j * np.sin(phi)
@@ -62,6 +63,7 @@ def compensate_iqi(signal: np.ndarray, gamma: float = 0.0, phi: float = 0.0) -> 
     d = D[0]
     return d
 
+
 def sspa_rapp_ibo(input_signal: np.ndarray, IBO_dB: int = 0, rho: float = 0.5, ofdm: bool = False) -> np.ndarray:
     """
     入力バックオフ(IBO)によって飽和電力を定めたSSPA(Rappモデル)の値を取得する．
@@ -75,10 +77,16 @@ def sspa_rapp_ibo(input_signal: np.ndarray, IBO_dB: int = 0, rho: float = 0.5, o
     size = input_signal.shape[0]
     if ofdm == True:
         shape = input_signal.shape
-        size = shape[0] * shape[1] # サブキャリア数をブロック数全ての要素で割る
+        size = shape[0] * shape[1]  # サブキャリア数をブロック数全ての要素で割る
     P_in = np.sum((input_signal * input_signal.conj()).real) / size  # nで割るべき？
     A = np.sqrt(P_in * ibo)
     return sspa_rapp(input_signal, A, rho)
+
+
+def polynomial_amplifier(signal: np.ndarray, alpha_1: float = 1.065, alpha_2: float = -2.028):
+    out_1 = alpha_1 * signal
+    out_2 = alpha_2 * signal * (np.abs(signal) ** 2)
+    return out_1 + out_2
 
 
 def a_sat(input_signal: np.ndarray, IBO_dB: int = 0) -> float:
@@ -122,7 +130,8 @@ def channel(size: int = 1, length: int = 1, scale: float = 1.0) -> np.ndarray:
     return h
 
 
-def exponential_decay_channel(size: int = 1, length: int = 1, scale: float = 1.0, alpha: float = 0.23,  p_0: float = 1.0) -> np.ndarray:
+def exponential_decay_channel(size: int = 1, length: int = 1, scale: float = 1.0, alpha: float = 0.23,
+                              p_0: float = 1.0) -> np.ndarray:
     """
     指数減衰モデルの周波数選択性通信路を生成する．
     生成する通信路の要素を全て違う値にする際はsizeを指定してあげる．
@@ -133,7 +142,8 @@ def exponential_decay_channel(size: int = 1, length: int = 1, scale: float = 1.0
     p_lambda = p_0 / np.sum(np.exp(-1 * alpha * l_array))
     P = p_lambda * np.exp(-1 * alpha * l_array)
 
-    h = np.random.normal(loc=0, scale=scale, size=(size, length)) + 1j * np.random.normal(loc=0, scale=scale, size=(size, length))
+    h = np.random.normal(loc=0, scale=scale, size=(size, length)) + 1j * np.random.normal(loc=0, scale=scale,
+                                                                                          size=(size, length))
     variance = np.sqrt(2)
     h = np.sqrt(P) * h / variance
     return h
