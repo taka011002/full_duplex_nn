@@ -5,7 +5,7 @@
     "CP": 16,
     "h_si_len": 3,
     "h_s_len": 6,
-    "equalizer": "ZF",
+    "equalizer": "MMSE",
     "gamma": 0.3,
     "phi": 3.0,
     "graph_x_min": 0,

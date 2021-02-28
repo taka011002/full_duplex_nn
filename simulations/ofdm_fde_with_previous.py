@@ -24,7 +24,7 @@ class Params:
     CP: int
     h_si_len: int
     h_s_len: int
-    equalizer: int
+    equalizer: str
     gamma: float
     phi: float
     graph_x_min: int
@@ -137,7 +137,8 @@ if __name__ == '__main__':
                 params.RX_IQI,
                 params.trainingRatio,
                 params.compensate_iqi,
-                params.p_receive_antenna
+                params.p_receive_antenna,
+                params.equalizer
             )
 
             previous_nn_model = previous_simulation(
@@ -167,7 +168,8 @@ if __name__ == '__main__':
                 params.p_nEpochs,
                 params.p_batchSize,
                 params.compensate_iqi,
-                params.p_receive_antenna
+                params.p_receive_antenna,
+                params.equalizer
             )
 
             previous_errors[graph_x_index][trials_index] = previous_nn_model.error

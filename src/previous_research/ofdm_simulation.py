@@ -8,7 +8,7 @@ def simulation(block: int, subcarrier: int, CP: int, sigma: float, gamma: float,
                phi: float, PA_IBO_dB: float, PA_rho: float, LNA_IBO_dB: float, LNA_rho: float,
                h_si_list: list, h_s_list: list, h_si_len: int, h_s_len: int ,TX_IQI: bool, PA: bool, LNA: bool,
                RX_IQI: bool, n_hidden: list, optimizer_key: str, learning_rate: float, momentum: float,
-               trainingRatio: float, nEpochs: int, batchSize: int, compensate_iqi: bool=False, receive_antenna=1) -> PreviousOFDMNNModel:
+               trainingRatio: float, nEpochs: int, batchSize: int, compensate_iqi: bool=False, receive_antenna=1, equalizer='ZF') -> PreviousOFDMNNModel:
     keras.backend.clear_session() # 複数試行行うとメモリリークするのでその対策
 
     h_si = h_si_list[0:receive_antenna]
@@ -118,7 +118,11 @@ def simulation(block: int, subcarrier: int, CP: int, sigma: float, gamma: float,
         if compensate_iqi is True:
             cancelled_y = m.compensate_iqi(cancelled_y.flatten(order='F'), gamma, phi)
 
-        s_hat_array[i] = pred_system_model.demodulate_ofdm_mmse(cancelled_y, h_s[i], sigma)
+        if equalizer == 'MMSE':
+            s_hat_array[i] = pred_system_model.demodulate_ofdm_mmse(cancelled_y, h_s[i], sigma)
+        else:
+            # MMSE以外が指定されている場合は，ZF
+            s_hat_array[i] = pred_system_model.demodulate_ofdm(cancelled_y, h_s[i])
 
 
     # s_hat_array = s_hat_array[0, :].reshape(1, -1)
