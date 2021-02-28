@@ -64,6 +64,12 @@ def compensate_iqi(signal: np.ndarray, gamma: float = 0.0, phi: float = 0.0) -> 
     return d
 
 
+def polynomial_amplifier(signal: np.ndarray, alpha_1: float = 1.065, alpha_2: float = -2.028):
+    out_1 = alpha_1 * signal
+    out_2 = alpha_2 * signal * (np.abs(signal) ** 2)
+    return out_1 + out_2
+
+
 def sspa_rapp_ibo(input_signal: np.ndarray, IBO_dB: int = 0, rho: float = 0.5, ofdm: bool = False) -> np.ndarray:
     """
     入力バックオフ(IBO)によって飽和電力を定めたSSPA(Rappモデル)の値を取得する．
@@ -81,12 +87,6 @@ def sspa_rapp_ibo(input_signal: np.ndarray, IBO_dB: int = 0, rho: float = 0.5, o
     P_in = np.sum((input_signal * input_signal.conj()).real) / size  # nで割るべき？
     A = np.sqrt(P_in * ibo)
     return sspa_rapp(input_signal, A, rho)
-
-
-def polynomial_amplifier(signal: np.ndarray, alpha_1: float = 1.065, alpha_2: float = -2.028):
-    out_1 = alpha_1 * signal
-    out_2 = alpha_2 * signal * (np.abs(signal) ** 2)
-    return out_1 + out_2
 
 
 def a_sat(input_signal: np.ndarray, IBO_dB: int = 0) -> float:
