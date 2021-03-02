@@ -81,8 +81,7 @@ class OFDMSystemModel:
 
             # 受信側非線形
             if self.lna == True:
-                ## TODO a_satがSIありとなしで変わらないようにする．現状はLNAありの厳密な結果を使用しないので問題ない．
-                r = m.sspa_rapp_ibo(r, self.LNA_IBO_dB, self.LNA_rho).squeeze()
+                r = m.polynomial_amplifier(r)
 
             if self.rx_iqi == True:
                 r = m.iq_imbalance(r, self.gamma, self.phi)
@@ -141,8 +140,7 @@ class OFDMSystemModel:
 
             # 受信側非線形
             if self.lna == True:
-                ## TODO a_satがSIありとなしで変わらないようにする．
-                r = m.sspa_rapp_ibo(r, self.LNA_IBO_dB, self.LNA_rho).squeeze()
+                r = m.polynomial_amplifier(r)
 
             if self.rx_iqi == True:
                 r = m.iq_imbalance(r, self.gamma, self.phi)

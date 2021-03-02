@@ -85,7 +85,7 @@ class OFDMSystemModel:
 
             # 受信側非線形
             if lna == True:
-                r = m.sspa_rapp_ibo(r, LNA_IBO_dB, LNA_rho).squeeze()
+                r = m.polynomial_amplifier(r)
 
             if rx_iqi == True:
                 r = m.iq_imbalance(r, gamma, phi)

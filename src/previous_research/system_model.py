@@ -61,7 +61,7 @@ class SystemModel:
 
         # 受信側非線形
         if self.lna == True:
-            y_lna = m.sspa_rapp_ibo(r)
+            y_lna = m.sspa_rapp(r, self.a_sat, self.LNA_rho).squeeze()
         else:
             y_lna = r
         
@@ -88,7 +88,7 @@ class SystemModel:
 
         # 受信側非線形
         if self.lna == True:
-            y_lna = m.polynomial_amplifier(r)
+            y_lna = m.sspa_rapp(r, self.a_sat, self.LNA_rho).squeeze()
         else:
             y_lna = r
         
@@ -136,7 +136,7 @@ class SystemModel:
 
         # 受信側非線形
         if self.lna == True:
-            y_lna = m.polynomial_amplifier(r)
+            y_lna = m.sspa_rapp(r, self.a_sat, self.LNA_rho).squeeze()
         else:
             y_lna = r
         
