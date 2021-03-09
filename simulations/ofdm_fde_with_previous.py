@@ -225,7 +225,7 @@ if __name__ == '__main__':
     n_sum = params.previous_test_bits * params.trials
     errors_sum = np.sum(previous_errors, axis=1)
     bers = errors_sum / n_sum
-    ber_ax.plot(graph_x_array, bers, color="k", marker='d', linestyle='--', label="Previous")
+    ber_ax.plot(graph_x_array, bers, color="k", marker='d', linestyle='--', label="Conventional")
 
     n_sum = params.test_bits * params.trials
     errors_sum = np.sum(errors, axis=1)
