@@ -20,7 +20,7 @@
     "PA": true,
     "LNA": true,
     "RX_IQI": true,
-    "compensate_iqi": true,
+    "compensate_iqi": false,
     "nHidden": [10],
     "nEpochs": 10,
     "optimizer": "adam",

@@ -1,5 +1,5 @@
 {
-    "trials": 1,
+    "trials": 1000,
     "block": 300,
     "subcarrier": 64,
     "CP": 16,
@@ -20,7 +20,7 @@
     "PA": true,
     "LNA": false,
     "RX_IQI": true,
-    "compensate_iqi": true,
+    "compensate_iqi": false,
     "nHidden": [10],
     "nEpochs": 10,
     "optimizer": "adam",
