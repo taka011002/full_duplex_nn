@@ -32,8 +32,8 @@ class Params:
     graph_x_num: int
     PA_IBO: int
     PA_rho: int
-    LNA_IBO: int
-    LNA_rho: int
+    LNA_alpha_1: float
+    LNA_alpha_2: float
     receive_antenna: int
     TX_IQI: bool
     PA: bool
@@ -125,8 +125,8 @@ if __name__ == '__main__':
                 params.phi,
                 params.PA_IBO,
                 params.PA_rho,
-                params.LNA_IBO,
-                params.LNA_rho,
+                params.LNA_alpha_1,
+                params.LNA_alpha_2,
                 h_si,
                 h_s,
                 params.h_si_len,
@@ -150,8 +150,8 @@ if __name__ == '__main__':
                 params.phi,
                 params.PA_IBO,
                 params.PA_rho,
-                params.LNA_IBO,
-                params.LNA_rho,
+                params.LNA_alpha_1,
+                params.LNA_alpha_2,
                 h_si,
                 h_s,
                 params.h_si_len,
@@ -185,8 +185,8 @@ if __name__ == '__main__':
                 params.phi,
                 params.PA_IBO,
                 params.PA_rho,
-                params.LNA_IBO,
-                params.LNA_rho,
+                params.LNA_alpha_1,
+                params.LNA_alpha_2,
                 h_si,
                 h_s,
                 params.h_si_len,

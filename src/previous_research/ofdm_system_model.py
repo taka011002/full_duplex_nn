@@ -18,7 +18,7 @@ class OFDMSystemModel:
     r: np.ndarray
     y: np.ndarray
 
-    def __init__(self, block, subcarrier, CP, sigma, gamma=0.0, phi=0.0, PA_IBO_dB=5, PA_rho=2, LNA_IBO_dB=5, LNA_rho=2,
+    def __init__(self, block, subcarrier, CP, sigma, gamma=0.0, phi=0.0, PA_IBO_dB=5, PA_rho=2, LNA_alpha_1=5, LNA_alpha_2=2,
                  h_si_list=None,
                  h_s_list=None, h_si_len=1, h_s_len=1, receive_antenna=1, tx_iqi=True, pa=True, lna=True, rx_iqi=True, equalizer='ZF'):
         self.block = block
@@ -29,8 +29,8 @@ class OFDMSystemModel:
         self.phi = phi
         self.PA_IBO_dB = PA_IBO_dB
         self.PA_rho = PA_rho
-        self.LNA_IBO_dB = LNA_IBO_dB
-        self.LNA_rho = LNA_rho
+        self.LNA_alpha_1 = LNA_alpha_1
+        self.LNA_alpha_2 = LNA_alpha_2
         self.h_si_list = h_si_list
         self.h_s_list = h_s_list
         self.h_si_len = h_si_len
@@ -81,7 +81,7 @@ class OFDMSystemModel:
 
             # 受信側非線形
             if self.lna == True:
-                r = m.polynomial_amplifier(r)
+                r = m.polynomial_amplifier(r, self.LNA_alpha_1, self.LNA_alpha_2)
 
             if self.rx_iqi == True:
                 r = m.iq_imbalance(r, self.gamma, self.phi)
@@ -140,7 +140,7 @@ class OFDMSystemModel:
 
             # 受信側非線形
             if self.lna == True:
-                r = m.polynomial_amplifier(r)
+                r = m.polynomial_amplifier(r, self.LNA_alpha_1, self.LNA_alpha_2)
 
             if self.rx_iqi == True:
                 r = m.iq_imbalance(r, self.gamma, self.phi)

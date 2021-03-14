@@ -4,7 +4,7 @@ import numpy as np
 
 
 def simulation(block: int, subcarrier: int, CP: int, sigma: float, gamma: float,
-               phi: float, PA_IBO_dB: float, PA_rho: float, LNA_IBO_dB: float, LNA_rho: float,
+               phi: float, PA_IBO_dB: float, PA_rho: float, LNA_alpha_1: float, LNA_alpha_2: float,
                h_si_list: list, h_s_list: list, h_si_len: int, h_s_len: int, TX_IQI: bool, PA: bool, LNA: bool, RX_IQI: bool,
                trainingRatio: float, compensate_iqi: bool=False, receive_antenna=1, equalizer='ZF') -> np.ndarray:
     h_si = h_si_list[0:receive_antenna]
@@ -22,8 +22,8 @@ def simulation(block: int, subcarrier: int, CP: int, sigma: float, gamma: float,
         phi,
         PA_IBO_dB,
         PA_rho,
-        LNA_IBO_dB,
-        LNA_rho,
+        LNA_alpha_1,
+        LNA_alpha_2,
         h_si,
         h_s,
         h_si_len,

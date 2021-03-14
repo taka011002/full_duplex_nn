@@ -32,8 +32,8 @@ class Params:
     graph_x_num: float
     PA_IBO: int
     PA_rho: int
-    LNA_IBO: int
-    LNA_rho: int
+    LNA_alpha_1: float
+    LNA_alpha_2: float
     receive_antenna: int
     TX_IQI: bool
     PA: bool
@@ -51,11 +51,13 @@ class Params:
     p_learningRate: float
     p_batchSize: int
     p_nEpochs: int
+    p_receive_antenna: int
     delay: int
     standardization: bool
     seed: bool
     train_bits: int
     test_bits: int
+    compensate_iqi: bool
     previous_test_bits: int
 
     @classmethod
@@ -121,8 +123,8 @@ if __name__ == '__main__':
                 phi,
                 params.PA_IBO,
                 params.PA_rho,
-                params.LNA_IBO,
-                params.LNA_rho,
+                params.LNA_alpha_1,
+                params.LNA_alpha_2,
                 h_si,
                 h_s,
                 params.h_si_len,
@@ -132,6 +134,9 @@ if __name__ == '__main__':
                 params.LNA,
                 params.RX_IQI,
                 params.trainingRatio,
+                params.compensate_iqi,
+                params.p_receive_antenna,
+                params.equalizer
             )
 
             previous_nn_model = previous_simulation(
@@ -143,8 +148,8 @@ if __name__ == '__main__':
                 phi,
                 params.PA_IBO,
                 params.PA_rho,
-                params.LNA_IBO,
-                params.LNA_rho,
+                params.LNA_alpha_1,
+                params.LNA_alpha_2,
                 h_si,
                 h_s,
                 params.h_si_len,
@@ -160,6 +165,9 @@ if __name__ == '__main__':
                 params.trainingRatio,
                 params.p_nEpochs,
                 params.p_batchSize,
+                params.compensate_iqi,
+                params.p_receive_antenna,
+                params.equalizer
             )
 
             previous_errors[graph_x_index][trials_index] = previous_nn_model.error
@@ -175,8 +183,8 @@ if __name__ == '__main__':
                 phi,
                 params.PA_IBO,
                 params.PA_rho,
-                params.LNA_IBO,
-                params.LNA_rho,
+                params.LNA_alpha_1,
+                params.LNA_alpha_2,
                 h_si,
                 h_s,
                 params.h_si_len,
@@ -215,7 +223,7 @@ if __name__ == '__main__':
     n_sum = params.previous_test_bits * params.trials
     errors_sum = np.sum(previous_errors, axis=1)
     bers = errors_sum / n_sum
-    ber_ax.plot(graph_x_array, bers, color="k", marker='d', linestyle='--', label="Previous")
+    ber_ax.plot(graph_x_array, bers, color="k", marker='d', linestyle='--', label="Conventional")
 
     n_sum = params.test_bits * params.trials
     errors_sum = np.sum(errors, axis=1)
