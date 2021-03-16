@@ -43,7 +43,7 @@ def iq_imbalance(x: np.ndarray, gamma: float = 0.0, phi: float = 0.0, selective:
     """
     if not selective:
         alpha = np.cos(phi) + 1j * gamma * np.sin(phi)
-        beta = gamma * np.cos(phi) + 1j * np.sin(phi)
+        beta = gamma * np.cos(phi) - 1j * np.sin(phi)
         return alpha * x + beta * np.conj(x)
 
     # TODO 周波数選択性IQIを実装する
