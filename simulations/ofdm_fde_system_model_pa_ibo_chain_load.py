@@ -33,18 +33,18 @@ if __name__ == '__main__':
     # dirname = "../results/keep/ofdm_fde_system_model_chain_load"
     settings.init_output(dirname)
 
-    param_path = "../results/comex/results/pa_ibo/params.json"
+    param_path = "../results/keep/fig031921/pa_ibo/params.json"
     params = settings.load_param(param_path)
     # n_sum = params["test_bits"] * params['SNR_AVERAGE'] * load_files
     n_sum = params['test_bits'] * params['trials']
 
     snrs_db = np.linspace(params['graph_x_min'], params['graph_x_max'], params['graph_x_num'])
-    fig, ax = graph.new_ber_canvas("IBO [dB]", params['graph_x_min'], params['graph_x_max'], -4)
-    ax.set_yticks([10**0, 10**-1, 10**-2, 10**-3, 10**-4])
+    fig, ax = graph.new_ber_canvas("IBO [dB]", params['graph_x_min'], params['graph_x_max'], -5)
+    ax.set_yticks([10**0, 10**-1, 10**-2, 10**-3, 10**-4, 10**-5])
     # ax.set_xticks(np.linspace(-0.5, 0.5, 6))
 
 
-    pkl_path = "../results/comex/results/pa_ibo/result.pkl"
+    pkl_path = "../results/keep/fig031921/pa_ibo_wo/result.pkl"
     result = load_pkl_file(pkl_path)
 
     previous_n_sum = params['previous_test_bits'] * params['trials']
@@ -53,11 +53,16 @@ if __name__ == '__main__':
     np.place(bers, bers == 0, None)
     ax.plot(snrs_db, bers, color='k', marker='x', linestyle=':', label="w/o canceller", ms=12)
 
+    pkl_path = "../results/keep/fig031921/pa_ibo_conv/result.pkl"
+    result = load_pkl_file(pkl_path)
+
     errors_sum = np.sum(result.previous_errors, axis=1)
     bers = errors_sum / previous_n_sum
     np.place(bers, bers == 0, None)
     ax.plot(snrs_db, bers, color='k', marker='o', linestyle='--', label="Conventional [5]", ms=12, markerfacecolor='None')
 
+    pkl_path = "../results/keep/fig031921/pa_ibo/result.pkl"
+    result = load_pkl_file(pkl_path)
     errors_sum = np.sum(result.errors, axis=1)
     bers = errors_sum / n_sum
     np.place(bers, bers == 0, None)

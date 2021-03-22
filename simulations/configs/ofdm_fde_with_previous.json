@@ -1,5 +1,5 @@
 {
-    "trials": 10,
+    "trials": 1000,
     "block": 300,
     "subcarrier": 64,
     "CP": 16,

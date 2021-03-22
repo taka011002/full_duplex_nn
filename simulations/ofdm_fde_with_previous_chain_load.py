@@ -33,7 +33,7 @@ if __name__ == '__main__':
     # dirname = "../results/keep/ofdm_fde_system_model_chain_load"
     settings.init_output(dirname)
 
-    param_path = "../results/keep/ofdm_fde_with_previous/12_35_55/params.json"
+    param_path = "../results/keep/fig031921/ber_3/params.json"
     params = settings.load_param(param_path)
     # n_sum = params["test_bits"] * params['SNR_AVERAGE'] * load_files
     n_sum = params['test_bits'] * params['trials']
@@ -43,24 +43,24 @@ if __name__ == '__main__':
     ax.set_yticks([10**0, 10**-1, 10**-2, 10**-3, 10**-4])
 
     previous_n_sum = params['previous_test_bits'] * params['trials']
-    pkl_path = "../results/keep/ofdm_fde_with_previous/12_35_55/result.pkl"
+    pkl_path = "../results/keep/fig031921/ber_3/result.pkl"
     result = load_pkl_file(pkl_path)
     errors_sum = np.sum(result.non_cancell_error_array, axis=1)
     bers = errors_sum / previous_n_sum
     np.place(bers, bers == 0, None)
-    ax.plot(snrs_db, bers, color='k', marker='x', linestyle=':', label="w/o canceller", ms=12)
+    ax.plot(snrs_db, bers, color='k', marker='x', linestyle=':', label="w/o canceller " + r"$(I=1)$", ms=10)
 
     errors_sum = np.sum(result.previous_errors, axis=1)
     bers = errors_sum / previous_n_sum
     np.place(bers, bers == 0, None)
-    ax.plot(snrs_db, bers, color='k', marker='o', linestyle='--', label="Conventional [5]", ms=12, markerfacecolor='None')
+    ax.plot(snrs_db, bers, color='k', marker='o', linestyle='--', label="Conventional " + r"$(I=1)$" + " [5]" , ms=10, markerfacecolor='None')
 
-    pkl_path = "../results/keep/ofdm_fde_with_previous/12_36_11/result.pkl"
+    pkl_path = "../results/keep/fig031921/ber_1/result.pkl"
     result = load_pkl_file(pkl_path)
     errors_sum = np.sum(result.errors, axis=1)
     bers = errors_sum / n_sum
     np.place(bers, bers == 0, None)
-    ax.plot(snrs_db, bers, color='k', marker='^', linestyle='-', label="Proposed " + r"$(I=1)$", ms=12)
+    ax.plot(snrs_db, bers, color='k', marker='^', linestyle='-', label="Proposed " + r"$(I=1)$", ms=10)
 
     # pkl_path = "../results/ofdm_fde_system_model/2021/01/21/22_24_29/result.pkl"
     # result = load_pkl_file(pkl_path)
@@ -69,12 +69,12 @@ if __name__ == '__main__':
     # np.place(bers, bers == 0, None)
     # ax.plot(snrs_db, bers, color='k', marker='^', linestyle='--', label=r"$I=1, k=4$", ms=12, markerfacecolor='None')
 
-    pkl_path = "../results/keep/ofdm_fde_with_previous/12_36_02/result.pkl"
+    pkl_path = "../results/keep/fig031921/ber_2/result.pkl"
     result = load_pkl_file(pkl_path)
     errors_sum = np.sum(result.errors, axis=1)
     bers = errors_sum / n_sum
     np.place(bers, bers == 0, None)
-    ax.plot(snrs_db, bers, color='k', marker='o', linestyle='-', label="Proposed " + r"$(I=2)$", ms=12)
+    ax.plot(snrs_db, bers, color='k', marker='o', linestyle='-', label="Proposed " + r"$(I=2)$", ms=10)
 
     # pkl_path = "../results/ofdm_fde_system_model/2021/01/21/22_23_49/result.pkl"
     # result = load_pkl_file(pkl_path)
@@ -83,12 +83,12 @@ if __name__ == '__main__':
     # np.place(bers, bers == 0, None)
     # ax.plot(snrs_db, bers, color='k', marker='o', linestyle='--', label=r"$I=2, k = 4$", ms=12, markerfacecolor='None')
 
-    pkl_path = "../results/keep/ofdm_fde_with_previous/12_35_55/result.pkl"
+    pkl_path = "../results/keep/fig031921/ber_3/result.pkl"
     result = load_pkl_file(pkl_path)
     errors_sum = np.sum(result.errors, axis=1)
     bers = errors_sum / n_sum
     np.place(bers, bers == 0, None)
-    ax.plot(snrs_db, bers, color='k', marker='d', linestyle='-', label="Proposed " + r"($I=3$)", ms=12)
+    ax.plot(snrs_db, bers, color='k', marker='d', linestyle='-', label="Proposed " + r"($I=3$)", ms=10)
 
     # pkl_path = "../results/keep/ofdm_fde_with_previous/12_35_55/result.pkl"
     # result = load_pkl_file(pkl_path)
@@ -103,7 +103,7 @@ if __name__ == '__main__':
     #          'measured rating curve $Q = 1.37H^2 + 0.34H - 0.007$\nmodeled ratign curve $Q = 2.71H^2 - 2.20H + 0.98$',
     #          bbox=dict(facecolor='none', edgecolor='black', boxstyle='square'))
 
-    ax.legend(fontsize=19, loc=3)
+    ax.legend(fontsize=17, loc=3)
     plt.savefig(dirname + '/SNR_BER.eps', bbox_inches='tight')
     plt.savefig(dirname + '/SNR_BER.pdf', bbox_inches='tight')
 

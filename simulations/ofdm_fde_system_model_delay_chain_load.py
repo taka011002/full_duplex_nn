@@ -34,7 +34,7 @@ if __name__ == '__main__':
     # dirname = "../results/keep/ofdm_fde_system_model_chain_load"
     settings.init_output(dirname)
 
-    param_path = "../results/comex/results/delay/params.json"
+    param_path = "../results/keep/fig031921/delay/params.json"
     params = settings.load_param(param_path)
     # n_sum = params["test_bits"] * params['SNR_AVERAGE'] * load_files
     n_sum = params['test_bits'] * params['trials']
@@ -43,7 +43,7 @@ if __name__ == '__main__':
     fig, ax = graph.new_ber_canvas("decision delay " + r"$\delta$", params['delay_min'], params['delay_max'], -5)
     # ax.set_yticks([10 ** 0, 10 ** -1, 10 ** -2, 10 ** -3, 10 ** -5])
 
-    pkl_path = "../results/comex/results/delay/result.pkl"
+    pkl_path = "../results/keep/fig031921/delay/result.pkl"
     result = load_pkl_file(pkl_path)
     errors_sum = np.sum(result.errors, axis=1)
     bers = errors_sum / n_sum
